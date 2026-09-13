@@ -1,0 +1,364 @@
+:host {
+  display: block;
+}
+
+.commande-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.commande-menu-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.commande-menu-kicker {
+  margin: 0 0 0.25rem;
+  font-family: var(--sc-font-serif, 'Cormorant Garamond', serif);
+  font-size: 0.9rem;
+  font-style: italic;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sc-gold-primary, #A8892F);
+}
+
+.commande-menu-title {
+  margin: 0 0 0.25rem;
+  font-family: var(--sc-font-display, 'Playfair Display', serif);
+  font-size: clamp(1.7rem, 3vw, 2.45rem);
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--sc-black-deep, #1F1A16);
+}
+
+.commande-menu-subtitle {
+  margin: 0;
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.86rem;
+  color: var(--sc-gray-500, #7D7168);
+}
+
+.commande-primary-action {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  padding: 0 0.8rem;
+  border: 1px solid rgba(168, 137, 47, 0.22);
+  border-radius: 0.72rem;
+  background: var(--sc-gold-primary, #A8892F);
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  box-shadow: 0 10px 22px rgba(168, 137, 47, 0.22);
+}
+
+.commande-primary-action i {
+  font-size: 0.72rem;
+}
+
+.commande-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.commande-stat {
+  --commande-accent: var(--sc-gold-primary, #A8892F);
+  position: relative;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.82rem;
+  border: 1px solid color-mix(in srgb, var(--commande-accent) 20%, var(--sc-gray-100, #E6DED5));
+  border-radius: 0.86rem;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--commande-accent) 8%, #fff), #fff 68%),
+    #fff;
+  box-shadow: 0 1px 3px rgba(31, 26, 22, 0.04);
+  overflow: hidden;
+}
+
+.commande-stat::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--commande-accent);
+}
+
+.commande-stat-gold {
+  --commande-accent: var(--sc-gold-primary, #A8892F);
+}
+
+.commande-stat-info {
+  --commande-accent: var(--sc-info, #3B5C7A);
+}
+
+.commande-stat-success {
+  --commande-accent: var(--sc-success, #4A7C59);
+}
+
+.commande-stat-danger {
+  --commande-accent: var(--sc-danger, #9B3A2E);
+}
+
+.commande-stat-icon {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.7rem;
+  color: var(--commande-accent);
+  background: color-mix(in srgb, var(--commande-accent) 10%, transparent);
+}
+
+.commande-stat-content {
+  min-width: 0;
+}
+
+.commande-stat-label {
+  margin: 0 0 0.12rem;
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--sc-gray-500, #7D7168);
+}
+
+.commande-stat-value {
+  display: block;
+  overflow: hidden;
+  font-family: var(--sc-font-display, 'Playfair Display', serif);
+  font-size: 1.12rem;
+  line-height: 1.1;
+  color: var(--sc-black-deep, #1F1A16);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commande-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.commande-action {
+  --commande-accent: var(--sc-gold-primary, #A8892F);
+  position: relative;
+  min-width: 0;
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 0.9rem 0.7rem;
+  border: 1px solid var(--sc-gray-100, #E6DED5);
+  border-radius: 0.9rem;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(31, 26, 22, 0.04);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.commande-action::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--commande-accent), color-mix(in srgb, var(--commande-accent) 56%, #C9A24A));
+}
+
+.commande-action:hover,
+.commande-action:focus-visible {
+  border-color: color-mix(in srgb, var(--commande-accent) 34%, var(--sc-gray-100, #E6DED5));
+  box-shadow: 0 10px 24px rgba(31, 26, 22, 0.08);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.commande-action-gold {
+  --commande-accent: var(--sc-gold-primary, #A8892F);
+}
+
+.commande-action-info {
+  --commande-accent: var(--sc-info, #3B5C7A);
+}
+
+.commande-action-success {
+  --commande-accent: var(--sc-success, #4A7C59);
+}
+
+.commande-action-danger {
+  --commande-accent: var(--sc-danger, #9B3A2E);
+}
+
+.commande-action-icon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--commande-accent);
+  background: color-mix(in srgb, var(--commande-accent) 10%, transparent);
+}
+
+.commande-action-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.commande-action-meta {
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: var(--commande-accent);
+  text-transform: uppercase;
+}
+
+.commande-action-title {
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--sc-black-deep, #1F1A16);
+}
+
+@media (max-width: 900px) {
+  .commande-stats,
+  .commande-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .commande-menu {
+    gap: 0.82rem;
+  }
+
+  .commande-menu-header {
+    align-items: flex-start;
+  }
+
+  .commande-menu-kicker {
+    font-size: 0.74rem;
+  }
+
+  .commande-menu-title {
+    font-size: 1.58rem;
+  }
+
+  .commande-menu-subtitle {
+    font-size: 0.74rem;
+  }
+
+  .commande-primary-action {
+    min-height: 36px;
+    padding: 0 0.62rem;
+    border-radius: 0.62rem;
+    font-size: 0.68rem;
+  }
+
+  .commande-stats {
+    gap: 0.5rem;
+  }
+
+  .commande-stat {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 0.45rem;
+    min-height: 58px;
+    padding: 0.48rem 0.52rem 0.48rem 0.62rem;
+    border-radius: 0.7rem;
+    text-align: left;
+  }
+
+  .commande-stat-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 0.58rem;
+  }
+
+  .commande-stat-icon i {
+    font-size: 0.78rem;
+  }
+
+  .commande-stat-label {
+    margin-bottom: 0.04rem;
+    font-size: 0.55rem;
+    line-height: 1.25;
+  }
+
+  .commande-stat-value {
+    font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+    font-size: 0.78rem;
+    font-weight: 900;
+  }
+
+  .commande-actions {
+    gap: 0.58rem;
+  }
+
+  .commande-action {
+    min-height: 122px;
+    gap: 0.62rem;
+    padding: 0.78rem 0.48rem;
+    border-radius: 0.9rem;
+    box-shadow: 0 8px 18px rgba(31, 26, 22, 0.055);
+  }
+
+  .commande-action-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .commande-action-icon i {
+    font-size: 0.98rem;
+  }
+
+  .commande-action-title {
+    font-size: 0.76rem;
+  }
+
+  .commande-action-meta {
+    font-size: 0.56rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .commande-primary-action span {
+    display: none;
+  }
+
+  .commande-primary-action {
+    width: 36px;
+    padding: 0;
+  }
+
+  .commande-stat {
+    padding: 0.58rem 0.35rem;
+  }
+
+  .commande-action {
+    min-height: 100px;
+  }
+}

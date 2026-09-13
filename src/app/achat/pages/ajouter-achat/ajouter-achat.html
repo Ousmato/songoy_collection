@@ -1,0 +1,131 @@
+<section class="achat-page">
+  <app-floating-back-button />
+
+  <header class="achat-header">
+    <div>
+      <h1 class="achat-title">Nouvel achat</h1>
+      <p class="achat-subtitle">Reception article, couleurs et fournisseur - {{ today }}</p>
+    </div>
+  </header>
+
+  <div class="achat-layout">
+    <form class="achat-form" [formGroup]="form">
+      <section class="achat-panel">
+        <div class="achat-panel-head">
+          <span class="achat-panel-icon" aria-hidden="true">
+            <i class="fa-solid fa-file-invoice"></i>
+          </span>
+          <div>
+            <h2>Informations achat</h2>
+            <p>Date, paiement, frais et fournisseur</p>
+          </div>
+        </div>
+
+        <div class="achat-form-grid">
+          <label class="achat-field">
+            <span>Date achat</span>
+            <input type="date" formControlName="date">
+          </label>
+
+          <label class="achat-field">
+            <span>Mode paiement</span>
+            <select formControlName="modePaiement">
+              @for (mode of modePaiementOptions; track mode.key) {
+                <option [value]="mode.key">{{ mode.value }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="achat-field">
+            <span>Frais</span>
+            <input type="number" min="0" formControlName="frais" placeholder="0">
+          </label>
+
+          <label class="achat-field">
+            <span>Fournisseur</span>
+            <select2
+              class="achat-select2"
+              formControlName="idFournisseur"
+              [data]="fournisseursData"
+              placeholder="Selectionner"
+              noResultMessage="Aucun fournisseur"
+            />
+          </label>
+
+          <label class="achat-field achat-field-full">
+            <span>Fournisseur libre</span>
+            <input type="text" formControlName="fournisseurNom" placeholder="Nom du fournisseur">
+          </label>
+        </div>
+      </section>
+
+      <section class="achat-panel">
+        <div class="achat-panel-head">
+          <span class="achat-panel-icon achat-panel-icon-info" aria-hidden="true">
+            <i class="fa-solid fa-shirt"></i>
+          </span>
+          <div>
+            <h2>Article et couleurs</h2>
+            <p>Choisir un article puis plusieurs couleurs</p>
+          </div>
+        </div>
+
+        <div class="achat-form-grid">
+          <label class="achat-field">
+            <span>Categorie</span>
+            <select2
+              class="achat-select2"
+              formControlName="idCategorie"
+              [data]="categoriesData"
+              placeholder="Selectionner"
+              noResultMessage="Aucune categorie"
+              (update)="onCategorieUpdate($event)"
+            />
+          </label>
+
+          <label class="achat-field">
+            <span>Article</span>
+            <select2
+              class="achat-select2"
+              formControlName="idArticle"
+              [data]="articlesData"
+              placeholder="Selectionner"
+              noResultMessage="Aucun article"
+              (update)="onArticleUpdate($event)"
+            />
+          </label>
+        </div>
+
+        <button type="button" class="achat-color-btn" (click)="openCouleurSheet()" [disabled]="!couleurs().length">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          Couleurs
+          <span>{{ selectedCouleurs().length }}</span>
+        </button>
+      </section>
+    </form>
+
+    <app-achat-sommaire
+      [achatForm]="form"
+      [selectedCouleurs]="selectedCouleurs()"
+      (removeCouleur)="removeCouleur($event)"
+      (submitAchat)="handleSubmit($event)"
+    />
+  </div>
+
+  @if (lastRequest()) {
+    <aside class="achat-preview" aria-label="Derniere requete">
+      <strong>RequestAchat pret</strong>
+      <span>{{ lastRequest()?.lignes?.length }} ligne(s) configuree(s)</span>
+    </aside>
+  }
+
+  @if (showCouleurSheet()) {
+    <app-achat-couleur-bottom-sheet
+      [couleurs]="couleurs()"
+      [selectedIds]="selectedCouleurIds()"
+      [articleName]="selectedArticleName()"
+      (close)="closeCouleurSheet()"
+      (applySelection)="applyCouleurs($event)"
+    />
+  }
+</section>

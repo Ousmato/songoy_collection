@@ -1,0 +1,45 @@
+<section class="personnel-menu">
+  <header class="personnel-menu-header">
+    <p class="personnel-menu-kicker">Relations boutique</p>
+    <h1 class="personnel-menu-title">Personnel</h1>
+    <p class="personnel-menu-subtitle">Clients, fournisseurs et equipe interne - {{ today }}</p>
+  </header>
+
+  <nav class="personnel-shortcuts" aria-label="Actions rapides personnel">
+    @for (item of quickActions; track item.label) {
+      <button
+        type="button"
+        class="personnel-shortcut personnel-shortcut-{{ item.tone }}"
+        [routerLink]="item.route"
+      >
+        <i [class]="item.icon" aria-hidden="true"></i>
+        <span>{{ item.label }}</span>
+      </button>
+    }
+  </nav>
+
+  <section class="personnel-stats" aria-label="Indicateurs personnel">
+    @for (stat of stats; track stat.label) {
+      <article class="personnel-stat personnel-stat-{{ stat.tone }}">
+        <span class="personnel-stat-icon" aria-hidden="true">
+          <i [class]="stat.icon"></i>
+        </span>
+        <div class="personnel-stat-content">
+          <p class="personnel-stat-label">{{ stat.label }}</p>
+          <strong class="personnel-stat-value">{{ stat.value }}</strong>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="personnel-actions" aria-label="Sous menus personnel">
+    @for (item of menuItems; track item.title) {
+      <a class="personnel-action personnel-action-{{ item.tone }}" [routerLink]="item.route">
+        <span class="personnel-action-icon" aria-hidden="true">
+          <i [class]="item.icon"></i>
+        </span>
+        <strong class="personnel-action-title">{{ item.title }}</strong>
+      </a>
+    }
+  </section>
+</section>

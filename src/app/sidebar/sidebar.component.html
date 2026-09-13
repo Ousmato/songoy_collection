@@ -1,0 +1,61 @@
+<aside class="sidebar" [class.sidebar-collapsed]="collapsed()">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-left">
+      <svg class="sidebar-diamond" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g stroke="currentColor" stroke-width="2" fill="none">
+          <path d="M50 8 L92 50 L50 92 L8 50 Z"/>
+          <path d="M50 22 L78 50 L50 78 L22 50 Z"/>
+          <g stroke-width="2.5" fill="currentColor">
+            <path d="M32 50 L38 44 L38 56 Z"/>
+            <path d="M50 32 L44 38 L56 38 Z"/>
+            <path d="M68 50 L62 44 L62 56 Z"/>
+            <path d="M50 68 L44 62 L56 62 Z"/>
+          </g>
+          <path d="M50 36 L64 50 L50 64 L36 50 Z"/>
+        </g>
+      </svg>
+      <span class="sidebar-brand-name">Songho&iuml;</span>
+    </div>
+    <button
+      type="button"
+      class="sidebar-toggle"
+      (click)="toggle()"
+      [attr.aria-label]="collapsed() ? 'D&eacute;plier le menu' : 'Replier le menu'"
+      [attr.aria-expanded]="!collapsed()"
+    >
+      <i class="fa-solid fa-chevron-left" [class.sidebar-chev]="collapsed()" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav" role="navigation" aria-label="Navigation principale">
+    <ul class="sidebar-list">
+      @for (item of menuItems; track item.label) {
+        <li class="sidebar-item">
+          <a
+            class="sidebar-link"
+            [class.sidebar-link-active]="activeItem() === item.label"
+            (click)="selectItem(item.label)"
+            [routerLink]="item.route"
+            routerLinkActive
+            [routerLinkActiveOptions]="{ exact: item.route === '/app/dashboard' ? true : false }"
+          >
+            <i class="fa-solid {{ item.icon }}" aria-hidden="true"></i>
+            <span class="sidebar-label">{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">
+        <i class="fa-solid fa-user" aria-hidden="true"></i>
+      </div>
+      <span class="sidebar-user-info">
+        <span class="sidebar-user-name">Admin</span>
+        <span class="sidebar-user-role">Gestionnaire</span>
+      </span>
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,126 @@
+<section class="vente-page">
+  <app-floating-back-button />
+
+  <header class="vente-header">
+    <div>
+      <h1 class="vente-title">Nouvelle vente</h1>
+      <p class="vente-subtitle">Client, article, couleurs et paiement - {{ today }}</p>
+    </div>
+  </header>
+
+  <div class="vente-layout">
+    <form class="vente-form" [formGroup]="form">
+      <section class="vente-panel">
+        <div class="vente-panel-head">
+          <span class="vente-panel-icon" aria-hidden="true">
+            <i class="fa-solid fa-receipt"></i>
+          </span>
+          <div>
+            <h2>Informations vente</h2>
+            <p>Date, paiement, client ou nom libre</p>
+          </div>
+        </div>
+
+        <div class="vente-form-grid">
+          <label class="vente-field">
+            <span>Date vente</span>
+            <input type="date" formControlName="date">
+          </label>
+
+          <label class="vente-field">
+            <span>Mode paiement</span>
+            <select formControlName="modePaiement">
+              @for (mode of modePaiementOptions; track mode.key) {
+                <option [value]="mode.key">{{ mode.value }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="vente-field">
+            <span>Client</span>
+            <select2
+              class="vente-select2"
+              formControlName="clientId"
+              [data]="clientListOptionsData"
+              placeholder="Selectionner"
+              noResultMessage="Aucun client"
+            />
+          </label>
+
+          <label class="vente-field">
+            <span>Nom client libre</span>
+            <input type="text" formControlName="clientNom" placeholder="Client non enregistre">
+          </label>
+        </div>
+      </section>
+
+      <section class="vente-panel">
+        <div class="vente-panel-head">
+          <span class="vente-panel-icon vente-panel-icon-info" aria-hidden="true">
+            <i class="fa-solid fa-shirt"></i>
+          </span>
+          <div>
+            <h2>Article et couleurs</h2>
+            <p>Choisir un article puis plusieurs couleurs</p>
+          </div>
+        </div>
+
+        <div class="vente-form-grid">
+          <label class="vente-field">
+            <span>Categorie</span>
+            <select2
+              class="vente-select2"
+              formControlName="idCategorie"
+              [data]="categoriesData"
+              placeholder="Selectionner"
+              noResultMessage="Aucune categorie"
+              (update)="onCategorieUpdate($event)"
+            />
+          </label>
+
+          <label class="vente-field">
+            <span>Article</span>
+            <select2
+              class="vente-select2"
+              formControlName="idArticle"
+              [data]="articlesData"
+              placeholder="Selectionner"
+              noResultMessage="Aucun article"
+              (update)="onArticleUpdate($event)"
+            />
+          </label>
+        </div>
+
+        <button type="button" class="vente-color-btn" (click)="openCouleurSheet()" [disabled]="!couleurs().length">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          Couleurs
+          <span>{{ selectedCouleurs().length }}</span>
+        </button>
+      </section>
+    </form>
+
+    <app-add-vente-sommary
+      [venteForm]="form"
+      [selectedCouleurs]="selectedCouleurs()"
+      (removeCouleur)="removeCouleur($event)"
+      (submitVente)="handleSubmit($event)"
+    />
+  </div>
+
+  @if (lastRequest()) {
+    <aside class="vente-preview" aria-label="Derniere requete">
+      <strong>VenteRequest pret</strong>
+      <span>{{ lastRequest()?.lignes?.length }} ligne(s) configuree(s)</span>
+    </aside>
+  }
+
+  @if (showCouleurSheet()) {
+    <app-add-vente-couleur-bottom-sheet
+      [couleurs]="couleurs()"
+      [selectedIds]="selectedCouleurIds()"
+      [articleName]="selectedArticleName()"
+      (close)="closeCouleurSheet()"
+      (applySelection)="applyCouleurs($event)"
+    />
+  }
+</section>

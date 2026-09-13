@@ -1,0 +1,44 @@
+<section class="stock-menu">
+  <header class="stock-menu-header">
+    <h1 class="stock-menu-title">Stock</h1>
+    <p class="stock-menu-subtitle">Controle des achats, articles et mouvements - {{ today }}</p>
+  </header>
+
+  <nav class="stock-shortcuts" aria-label="Actions rapides stock">
+    @for (item of quickActions; track item.label) {
+      <button
+        type="button"
+        class="stock-shortcut stock-shortcut-{{ item.tone }}"
+        (click)="goToQuickAction(item)"
+      >
+        <i [class]="item.icon" aria-hidden="true"></i>
+        <span>{{ item.label }}</span>
+      </button>
+    }
+  </nav>
+
+  <section class="stock-stats" aria-label="Indicateurs stock">
+    @for (stat of stats; track stat.label) {
+      <article class="stock-stat stock-stat-{{ stat.tone }}">
+        <span class="stock-stat-icon" aria-hidden="true">
+          <i [class]="stat.icon"></i>
+        </span>
+        <div class="stock-stat-content">
+          <p class="stock-stat-label">{{ stat.label }}</p>
+          <strong class="stock-stat-value">{{ stat.value }}</strong>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="stock-actions" aria-label="Sous menus stock">
+    @for (item of menuItems; track item.title) {
+      <button type="button" class="stock-action stock-action-{{ item.tone }}" (click)="goToMenuItem(item)">
+        <span class="stock-action-icon" aria-hidden="true">
+          <i [class]="item.icon"></i>
+        </span>
+        <strong class="stock-action-title">{{ item.title }}</strong>
+      </button>
+    }
+  </section>
+</section>

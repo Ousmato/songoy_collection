@@ -1,0 +1,138 @@
+<section class="setting-menu">
+  <header class="setting-menu-header">
+    <h1 class="setting-menu-title">Settings</h1>
+    <p class="setting-menu-subtitle">Catalogue, boutique et preferences - {{ today }}</p>
+  </header>
+
+  <nav class="setting-shortcuts" aria-label="Actions rapides settings">
+    @for (item of quickActions; track item.label) {
+      @if (item.key === 'categorie') {
+        <button
+          type="button"
+          class="setting-shortcut setting-shortcut-{{ item.tone }}"
+          (click)="openAddCategorieModal()"
+        >
+          <i [class]="item.icon" aria-hidden="true"></i>
+          <span>{{ item.label }}</span>
+        </button>
+      } @else if (item.key === 'typeArticle') {
+        <button
+          type="button"
+          class="setting-shortcut setting-shortcut-{{ item.tone }}"
+          (click)="openAddTypeArticleModal()"
+        >
+          <i [class]="item.icon" aria-hidden="true"></i>
+          <span>{{ item.label }}</span>
+        </button>
+      } @else if (item.key === 'paiement') {
+        <button
+          type="button"
+          class="setting-shortcut setting-shortcut-{{ item.tone }}"
+          (click)="openAddPaiementModal()"
+        >
+          <i [class]="item.icon" aria-hidden="true"></i>
+          <span>{{ item.label }}</span>
+        </button>
+      } @else if (item.key === 'depense') {
+        <button
+          type="button"
+          class="setting-shortcut setting-shortcut-{{ item.tone }}"
+          (click)="openAddDepenseModal()"
+        >
+          <i [class]="item.icon" aria-hidden="true"></i>
+          <span>{{ item.label }}</span>
+        </button>
+      }
+    }
+  </nav>
+
+  <section class="setting-stats" aria-label="Indicateurs configuration">
+    @for (stat of stats; track stat.label) {
+      <article class="setting-stat setting-stat-{{ stat.tone }}">
+        <span class="setting-stat-icon" aria-hidden="true">
+          <i [class]="stat.icon"></i>
+        </span>
+        <div class="setting-stat-content">
+          <p class="setting-stat-label">{{ stat.label }}</p>
+          <strong class="setting-stat-value">{{ stat.value }}</strong>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="setting-actions" aria-label="Menus configuration">
+    @for (item of menuItems; track item.title) {
+      <a class="setting-action setting-action-{{ item.tone }}" [routerLink]="item.route">
+        <span class="setting-action-icon" aria-hidden="true">
+          <i [class]="item.icon"></i>
+        </span>
+        <strong class="setting-action-title">{{ item.title }}</strong>
+      </a>
+    }
+  </section>
+
+  @if (showAddCategorieModal()) {
+    <div class="setting-modal-backdrop" (click)="closeAddCategorieModal()">
+      <div class="setting-modal-stage" (click)="$event.stopPropagation()">
+        <app-add-categorie (close)="closeAddCategorieModal()"></app-add-categorie>
+      </div>
+    </div>
+  }
+
+  @if (showAddTypeArticleModal()) {
+    <div class="setting-modal-backdrop" (click)="closeAddTypeArticleModal()">
+      <div class="setting-modal-stage" (click)="$event.stopPropagation()">
+        <app-add-type-article (close)="closeAddTypeArticleModal()"></app-add-type-article>
+      </div>
+    </div>
+  }
+
+  @if (showAddPaiementModal()) {
+    <div class="setting-modal-backdrop" (click)="closeAddPaiementModal()">
+      <div class="setting-modal-stage" (click)="$event.stopPropagation()">
+        <form class="setting-payment-modal" (submit)="$event.preventDefault(); closeAddPaiementModal()">
+          <div class="setting-payment-head">
+            <span class="setting-payment-icon" aria-hidden="true">
+              <i class="fa-solid fa-money-bill-wave"></i>
+            </span>
+            <div>
+              <h2 class="setting-payment-title">Nouveau paiement</h2>
+              <p class="setting-payment-subtitle">Simulation de design</p>
+            </div>
+          </div>
+
+          <div class="setting-payment-grid">
+            <label class="setting-payment-field">
+              <span>Personnel</span>
+              <input type="text" value="Aminata Traore" readonly>
+            </label>
+            <label class="setting-payment-field">
+              <span>Montant</span>
+              <input type="text" value="75 000 F" readonly>
+            </label>
+            <label class="setting-payment-field setting-payment-field-full">
+              <span>Motif</span>
+              <input type="text" value="Salaire mensuel" readonly>
+            </label>
+          </div>
+
+          <div class="setting-payment-actions">
+            <button type="button" class="setting-payment-btn setting-payment-btn-ghost" (click)="closeAddPaiementModal()">Annuler</button>
+            <button type="submit" class="setting-payment-btn setting-payment-btn-primary">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (showAddDepenseModal()) {
+    <div class="setting-modal-backdrop" (click)="closeAddDepenseModal()">
+      <div class="setting-modal-stage setting-modal-stage-wide" (click)="$event.stopPropagation()">
+        <app-add-depense
+          (close)="closeAddDepenseModal()"
+          (submitDepense)="closeAddDepenseModal()"
+        ></app-add-depense>
+      </div>
+    </div>
+  }
+</section>

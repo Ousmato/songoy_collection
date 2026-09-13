@@ -1,0 +1,127 @@
+<section class="accepted-page">
+  <app-floating-back-button />
+
+  <header class="accepted-header">
+    <div>
+      <p class="accepted-kicker">Atelier couture</p>
+      <h1 class="accepted-title">Commandes acceptees</h1>
+      <p class="accepted-subtitle">Travaux en attente de finition - {{ today }}</p>
+    </div>
+  </header>
+
+  <section class="accepted-stats" aria-label="Resume commandes acceptees">
+    <article class="accepted-stat accepted-stat-gold">
+      <span class="accepted-stat-icon" aria-hidden="true">
+        <i class="fa-solid fa-clipboard-check"></i>
+      </span>
+      <div>
+        <p>Commandes</p>
+        <strong>{{ commandesAcceptees.length }}</strong>
+      </div>
+    </article>
+
+    <article class="accepted-stat accepted-stat-info">
+      <span class="accepted-stat-icon" aria-hidden="true">
+        <i class="fa-solid fa-shirt"></i>
+      </span>
+      <div>
+        <p>Pieces</p>
+        <strong>{{ totalAcceptedPieces() }}</strong>
+      </div>
+    </article>
+
+    <article class="accepted-stat accepted-stat-danger">
+      <span class="accepted-stat-icon" aria-hidden="true">
+        <i class="fa-solid fa-hand-holding-dollar"></i>
+      </span>
+      <div>
+        <p>Reste</p>
+        <strong>{{ totalAcceptedReste() | number:'1.0-0' }} F</strong>
+      </div>
+    </article>
+  </section>
+
+  <section class="accepted-list" aria-label="Liste commandes acceptees">
+    @if (lastFinishedCommande()) {
+      <aside class="accepted-notice">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        <span>Commande de {{ clientName(lastFinishedCommande()) }} marquee terminee.</span>
+      </aside>
+    }
+
+    @for (commande of commandesAcceptees; track commande.id) {
+      <article class="accepted-card" [class.accepted-card-open]="isExpanded(commande.id)">
+        <div class="accepted-card-main">
+          <div class="accepted-client">
+            <span class="accepted-avatar" aria-hidden="true">{{ clientInitial(commande) }}</span>
+            <div>
+              <h2>{{ clientName(commande) }}</h2>
+              <p>{{ totalPieces(commande) }} piece(s) - livraison {{ formatDate(commande.dateLivraisonPrevue) }}</p>
+            </div>
+          </div>
+
+          <div class="accepted-money">
+            <span>Total</span>
+            <strong>{{ commande.montantTotal | number:'1.0-0' }} F</strong>
+            <small>Reste {{ commande.reste | number:'1.0-0' }} F</small>
+          </div>
+        </div>
+
+        <div class="accepted-card-actions">
+          <button type="button" class="accepted-details-btn" (click)="toggleDetails(commande.id)">
+            <i class="fa-solid" [class.fa-chevron-up]="isExpanded(commande.id)" [class.fa-chevron-down]="!isExpanded(commande.id)" aria-hidden="true"></i>
+            <span>Details</span>
+          </button>
+
+          <button type="button" class="accepted-finish-btn" (click)="terminerCommande(commande)">
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            <span>Terminer</span>
+          </button>
+        </div>
+
+        @if (isExpanded(commande.id)) {
+          <section class="accepted-details" aria-label="Details commande">
+            <div class="accepted-detail-totals">
+              <span>Couture {{ totalCouture(commande) | number:'1.0-0' }} F</span>
+              <span>Matiere {{ totalMatiere(commande) | number:'1.0-0' }} F</span>
+              <span>Avance {{ commande.avance | number:'1.0-0' }} F</span>
+            </div>
+
+            <div class="accepted-lines">
+              @for (ligne of commande.lignes; track ligne.id) {
+                <article class="accepted-line">
+                  @if (ligne.imageHabitUrl) {
+                    <img class="accepted-line-image" [src]="ligne.imageHabitUrl" alt="Habit client">
+                  } @else {
+                    <span class="accepted-line-icon" aria-hidden="true">
+                      <i class="fa-solid fa-shirt"></i>
+                    </span>
+                  }
+
+                  <div class="accepted-line-body">
+                    <strong>{{ ligne.designation }}</strong>
+                    <span>{{ habitLabel(ligne.typeHabille) }} - {{ ligne.sourceHabit === 'CLIENT' ? 'Client' : 'Boutique' }}</span>
+                    @if (ligne.couleurNom) {
+                      <small>{{ ligne.couleurNom }}</small>
+                    }
+                  </div>
+
+                  <div class="accepted-line-price">
+                    <span>{{ ligne.quantite }} x {{ ligne.prixUnitaire | number:'1.0-0' }} F</span>
+                    <strong>{{ ligneTotal(ligne) | number:'1.0-0' }} F</strong>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+        }
+      </article>
+    } @empty {
+      <div class="accepted-empty">
+        <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>
+        <h2>Aucune commande acceptee</h2>
+        <p>Les commandes acceptees apparaitront ici apres creation.</p>
+      </div>
+    }
+  </section>
+</section>

@@ -1,0 +1,55 @@
+<div class="page">
+  <app-floating-back-button />
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Types d'articles</h1>
+      <p class="page-subtitle">D&eacute;finissez les diff&eacute;rentes vari&eacute;t&eacute;s de tissus et cr&eacute;ations &middot; {{ today }}</p>
+    </div>
+  </header>
+
+  <section class="panel panel-types">
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">Tous les types</h2>
+        <p class="panel-hint">G&eacute;rez les d&eacute;nominations de vos produits.</p>
+      </div>
+      <div class="panel-filters">
+        <div class="search-input">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" placeholder="Rechercher un type..." aria-label="Rechercher un type">
+        </div>
+      </div>
+    </div>
+
+    <div class="types-grid">
+      @for (type of articleTypes; track type.id; let i = $index) {
+        <article class="type-card type-card-accent-{{ accents[i % accents.length] }}">
+          <div class="type-card-head">
+            <span class="type-card-icon type-icon-{{ accents[i % accents.length] }}">
+              <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+            </span>
+            <span class="type-card-id">#{{ type.id | number:'2.0-0' }}</span>
+          </div>
+
+          <h3 class="type-card-name">{{ type.nom }}</h3>
+          <p class="type-card-desc">{{ type.description }}</p>
+
+          <div class="type-card-foot">
+            <span class="type-card-quantity">
+              <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
+              {{ type.quantity }} articles
+            </span>
+            <div class="type-card-actions">
+              <button type="button" class="sc-btn-sm sc-btn-sm-ghost" aria-label="Modifier le type">
+                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="sc-btn-sm sc-btn-sm-danger-ghost" aria-label="Supprimer le type">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+</div>

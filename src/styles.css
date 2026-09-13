@@ -1,1 +1,327 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   CHARTE GRAPHIQUE — SONGHOÏ COLLECTION
+   ============================================================ */
+
+:root {
+  /* ---- COULEURS PRINCIPALES ---- */
+  --sc-gold-primary: #A8892F;
+  --sc-gold-light: #C9A24A;
+  --sc-gold-pale: #E8D5A3;
+  --sc-black-deep: #1F1A16;
+  --sc-brown-dark: #2B2420;
+  --sc-cream-bg: #F8F1E4;
+  --sc-cream-warm: #FBF7EF;
+
+  /* ---- COULEURS TERREUSES (référence banco / architecture) ---- */
+  --sc-earth-terracotta: #8B6B4A;
+  --sc-earth-clay: #A0785A;
+  --sc-earth-sand: #C8A983;
+  --sc-earth-mud: #6B4F36;
+
+  /* ---- GRIS NEUTRES ---- */
+  --sc-gray-900: #1A1714;
+  --sc-gray-700: #4A413B;
+  --sc-gray-500: #7D7168;
+  --sc-gray-300: #B8ADA3;
+  --sc-gray-100: #E6DED5;
+
+  /* ---- COULEURS SÉMANTIQUES ---- */
+  --sc-success: #4A7C59;
+  --sc-warning: #C97A2B;
+  --sc-danger: #9B3A2E;
+  --sc-info: #3B5C7A;
+
+  /* ---- GRADIENTS ---- */
+  --sc-gradient-gold: linear-gradient(135deg, #A8892F 0%, #C9A24A 50%, #E8D5A3 100%);
+  --sc-gradient-gold-deep: linear-gradient(180deg, #8B6F24 0%, #A8892F 50%, #C9A24A 100%);
+  --sc-gradient-earth: linear-gradient(180deg, #8B6B4A 0%, #A0785A 50%, #C8A983 100%);
+  --sc-gradient-cream: linear-gradient(180deg, #FBF7EF 0%, #F8F1E4 100%);
+
+  /* ============================================================
+     TYPOGRAPHIE
+     ============================================================ */
+
+  /* Familles de polices */
+  --sc-font-display: 'Playfair Display', 'Libre Bodoni', 'Cormorant Garamond', Georgia, serif;
+  --sc-font-serif: 'Cormorant Garamond', 'EB Garamond', 'Libre Baskerville', Georgia, serif;
+  --sc-font-sans: 'Montserrat', 'Inter', 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Tailles de police (échelle modulaire 1.250) */
+  --sc-fs-xs: 0.75rem;
+  --sc-fs-sm: 0.875rem;
+  --sc-fs-base: 1rem;
+  --sc-fs-md: 1.125rem;
+  --sc-fs-lg: 1.25rem;
+  --sc-fs-xl: 1.5rem;
+  --sc-fs-2xl: 1.875rem;
+  --sc-fs-3xl: 2.25rem;
+  --sc-fs-4xl: 3rem;
+  --sc-fs-5xl: 3.75rem;
+  --sc-fs-display: 5rem;
+
+  /* Graisses */
+  --sc-fw-light: 300;
+  --sc-fw-regular: 400;
+  --sc-fw-medium: 500;
+  --sc-fw-semibold: 600;
+  --sc-fw-bold: 700;
+  --sc-fw-black: 900;
+
+  /* Hauteurs de ligne */
+  --sc-lh-tight: 1.1;
+  --sc-lh-snug: 1.3;
+  --sc-lh-normal: 1.5;
+  --sc-lh-relaxed: 1.7;
+
+  /* Interlettrage (tracking) */
+  --sc-ls-tight: -0.02em;
+  --sc-ls-normal: 0;
+  --sc-ls-wide: 0.1em;
+  --sc-ls-wider: 0.2em;
+  --sc-ls-widest: 0.35em;
+
+  /* ============================================================
+     ESPACEMENTS (échelle 4px)
+     ============================================================ */
+  --sc-space-1: 0.25rem;
+  --sc-space-2: 0.5rem;
+  --sc-space-3: 0.75rem;
+  --sc-space-4: 1rem;
+  --sc-space-5: 1.25rem;
+  --sc-space-6: 1.5rem;
+  --sc-space-8: 2rem;
+  --sc-space-10: 2.5rem;
+  --sc-space-12: 3rem;
+  --sc-space-16: 4rem;
+  --sc-space-20: 5rem;
+  --sc-space-24: 6rem;
+
+  /* ============================================================
+     RAYONS & BORDURES
+     ============================================================ */
+  --sc-radius-none: 0;
+  --sc-radius-sm: 2px;
+  --sc-radius-md: 4px;
+  --sc-radius-lg: 8px;
+  --sc-radius-xl: 12px;
+  --sc-radius-2xl: 24px;
+  --sc-radius-full: 9999px;
+
+  --sc-border-thin: 1px solid var(--sc-gold-pale);
+  --sc-border-medium: 2px solid var(--sc-gold-light);
+  --sc-border-thick: 3px solid var(--sc-gold-primary);
+
+  /* ============================================================
+     OMBRES
+     ============================================================ */
+  --sc-shadow-xs: 0 1px 2px rgba(31, 26, 22, 0.06);
+  --sc-shadow-sm: 0 1px 3px rgba(31, 26, 22, 0.1), 0 1px 2px rgba(31, 26, 22, 0.06);
+  --sc-shadow-md: 0 4px 6px rgba(31, 26, 22, 0.1), 0 2px 4px rgba(31, 26, 22, 0.06);
+  --sc-shadow-lg: 0 10px 15px rgba(31, 26, 22, 0.1), 0 4px 6px rgba(31, 26, 22, 0.05);
+  --sc-shadow-xl: 0 20px 25px rgba(31, 26, 22, 0.15), 0 10px 10px rgba(31, 26, 22, 0.04);
+  --sc-shadow-gold: 0 4px 20px rgba(168, 137, 47, 0.25);
+
+  /* ============================================================
+     TRANSITIONS
+     ============================================================ */
+  --sc-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --sc-transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --sc-transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ============================================================
+     CONTAINERS & BREAKPOINTS
+     ============================================================ */
+  --sc-container-sm: 640px;
+  --sc-container-md: 768px;
+  --sc-container-lg: 1024px;
+  --sc-container-xl: 1280px;
+  --sc-container-2xl: 1536px;
+}
+
+/* ============================================================
+   RÉINITIALISATION & BASE
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--sc-font-sans);
+  font-size: var(--sc-fs-base);
+  font-weight: var(--sc-fw-regular);
+  line-height: var(--sc-lh-normal);
+  color: var(--sc-brown-dark);
+  background-color: var(--sc-cream-bg);
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--sc-font-display);
+  font-weight: var(--sc-fw-bold);
+  line-height: var(--sc-lh-tight);
+  color: var(--sc-black-deep);
+}
+
+h1 { font-size: var(--sc-fs-4xl); }
+h2 { font-size: var(--sc-fs-3xl); }
+h3 { font-size: var(--sc-fs-2xl); }
+h4 { font-size: var(--sc-fs-xl); }
+h5 { font-size: var(--sc-fs-lg); }
+h6 { font-size: var(--sc-fs-md); }
+
+a {
+  color: var(--sc-gold-primary);
+  text-decoration: none;
+  transition: color var(--sc-transition-fast);
+}
+
+a:hover {
+  color: var(--sc-gold-light);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* ============================================================
+   CLASSES UTILITAIRES
+   ============================================================ */
+
+.sc-container {
+  width: 100%;
+  max-width: var(--sc-container-xl);
+  margin-inline: auto;
+  padding-inline: var(--sc-space-6);
+}
+
+.sc-text-gold { color: var(--sc-gold-primary); }
+.sc-text-gold-light { color: var(--sc-gold-light); }
+.sc-text-black { color: var(--sc-black-deep); }
+.sc-text-brown { color: var(--sc-brown-dark); }
+.sc-text-cream { color: var(--sc-cream-bg); }
+
+.sc-bg-cream { background-color: var(--sc-cream-bg); }
+.sc-bg-cream-warm { background-color: var(--sc-cream-warm); }
+.sc-bg-black { background-color: var(--sc-black-deep); }
+.sc-bg-gold { background-color: var(--sc-gold-primary); }
+.sc-bg-gradient-gold { background: var(--sc-gradient-gold); }
+.sc-bg-gradient-cream { background: var(--sc-gradient-cream); }
+
+.sc-font-display { font-family: var(--sc-font-display); }
+.sc-font-serif { font-family: var(--sc-font-serif); }
+.sc-font-sans { font-family: var(--sc-font-sans); }
+
+.sc-section-padding {
+  padding-block: var(--sc-space-16);
+}
+
+/* ============================================================
+   COMPOSANT RÉUTILISABLE : SÉPARATEUR STYLE LOGO
+   (Lignes dorées avec pointes)
+   ============================================================ */
+
+.sc-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sc-space-4);
+  width: 100%;
+  margin-block: var(--sc-space-6);
+}
+
+.sc-divider::before,
+.sc-divider::after {
+  content: '';
+  flex: 1;
+  max-width: 8rem;
+  height: 1px;
+  background-color: var(--sc-gold-primary);
+  position: relative;
+}
+
+.sc-divider::before {
+  clip-path: polygon(100% 50%, 85% 0%, 0% 0%, 0% 100%, 85% 100%);
+}
+
+.sc-divider::after {
+  clip-path: polygon(0% 50%, 15% 0%, 100% 0%, 100% 100%, 15% 100%);
+}
+
+/* ============================================================
+   COMPOSANT RÉUTILISABLE : MOTIF LOSANGE SONGHOÏ
+   ============================================================ */
+
+.sc-motif-diamond {
+  width: 64px;
+  height: 64px;
+  color: var(--sc-gold-primary);
+}
+
+/* Bouton principal style luxe */
+.sc-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sc-space-2);
+  padding: var(--sc-space-3) var(--sc-space-8);
+  font-family: var(--sc-font-sans);
+  font-size: var(--sc-fs-sm);
+  font-weight: var(--sc-fw-semibold);
+  letter-spacing: var(--sc-ls-wide);
+  text-transform: uppercase;
+  color: var(--sc-cream-bg);
+  background: var(--sc-gradient-gold-deep);
+  border: var(--sc-border-medium);
+  border-color: var(--sc-gold-primary);
+  transition: all var(--sc-transition-normal);
+  box-shadow: var(--sc-shadow-xs);
+}
+
+.sc-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--sc-shadow-gold);
+  color: var(--sc-cream-warm);
+}
+
+.sc-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sc-space-2);
+  padding: var(--sc-space-3) var(--sc-space-8);
+  font-family: var(--sc-font-sans);
+  font-size: var(--sc-fs-sm);
+  font-weight: var(--sc-fw-semibold);
+  letter-spacing: var(--sc-ls-wide);
+  text-transform: uppercase;
+  color: var(--sc-gold-primary);
+  background: transparent;
+  border: var(--sc-border-medium);
+  border-color: var(--sc-gold-primary);
+  transition: all var(--sc-transition-normal);
+}
+
+.sc-btn-secondary:hover {
+  background-color: var(--sc-gold-primary);
+  color: var(--sc-cream-bg);
+}

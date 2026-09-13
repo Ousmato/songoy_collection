@@ -1,0 +1,76 @@
+<section class="summary" aria-label="Sommaire commande">
+  <header class="summary-header">
+    <div>
+      <p class="summary-kicker">Sommaire</p>
+      <h2 class="summary-title">Commande atelier</h2>
+    </div>
+    <span class="summary-status">Accepter</span>
+  </header>
+
+  @if (lignes.length) {
+    <div class="summary-lines">
+      @for (ligne of lignes; track $index) {
+        <article class="summary-line">
+          <div class="summary-line-main">
+            @if (ligne.imageHabitUrl) {
+              <img class="summary-line-image" [src]="ligne.imageHabitUrl" alt="Habit client">
+            } @else {
+              <span class="summary-line-icon" aria-hidden="true">
+                <i class="fa-solid fa-shirt"></i>
+              </span>
+            }
+            <div>
+              <strong>{{ ligne.designation }}</strong>
+              <span>{{ habitLabel(ligne.typeHabille) }} - {{ ligne.sourceHabit === 'CLIENT' ? 'Client' : 'Boutique' }}</span>
+              @if (ligne.sourceHabit === 'BOUTIQUE') {
+                <small>{{ ligne.couleurNom }}</small>
+              }
+            </div>
+          </div>
+
+          <div class="summary-line-meta">
+            <span>{{ ligne.quantite }} piece(s)</span>
+            <strong>{{ totalLigne(ligne) | number:'1.0-0' }} F</strong>
+          </div>
+
+          <button type="button" class="summary-remove" aria-label="Supprimer la ligne" (click)="removeLigne.emit($index)">
+            <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+          </button>
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="summary-empty">
+      <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+      <p>Ajoutez au moins un habit pour preparer la commande.</p>
+    </div>
+  }
+
+  <div class="summary-totals">
+    <div>
+      <span>Nombre pieces</span>
+      <strong>{{ totalPieces() }}</strong>
+    </div>
+    <div>
+      <span>Total commande</span>
+      <strong>{{ totalCommande() | number:'1.0-0' }} F</strong>
+    </div>
+    <div>
+      <span>Avance</span>
+      <strong>{{ avance() | number:'1.0-0' }} F</strong>
+    </div>
+    <div class="summary-total-main">
+      <span>Reste</span>
+      <strong>{{ reste() | number:'1.0-0' }} F</strong>
+    </div>
+  </div>
+
+  @if (submitted() && (!commandeForm.valid || !hasClientInfo() || !lignes.length)) {
+    <p class="summary-error">Completez le client, les dates et au moins une ligne.</p>
+  }
+
+  <button type="button" class="summary-submit" (click)="submit()">
+    <i class="fa-solid fa-check" aria-hidden="true"></i>
+    Accepter commande
+  </button>
+</section>

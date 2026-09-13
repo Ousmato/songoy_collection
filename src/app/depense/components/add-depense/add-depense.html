@@ -1,0 +1,81 @@
+<form class="depense-form" [formGroup]="form" (ngSubmit)="submit()">
+  <header class="depense-head">
+    <div class="depense-head-main">
+      <span class="depense-head-icon" aria-hidden="true">
+        <i class="fa-solid fa-receipt"></i>
+      </span>
+      <div>
+        <h2>Ajouter une dépense</h2>
+        <p>Salaire, transport, réparation ou autre frais</p>
+      </div>
+    </div>
+    <button type="button" class="depense-close" aria-label="Fermer" (click)="close.emit()">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+  </header>
+
+  <section class="depense-motifs" aria-label="Motif depense">
+    @for (motif of motifDepenseOptions; track motif.key) {
+      <label class="depense-motif">
+        <input type="radio" formControlName="motif" [value]="motif.key">
+        <span>{{ motif.value }}</span>
+      </label>
+    }
+  </section>
+
+  <div class="depense-grid">
+    <label class="depense-field">
+      <span>Date</span>
+      <input type="date" formControlName="date">
+    </label>
+
+    <label class="depense-field">
+      <span>Mode paiement</span>
+      <select formControlName="modePaiement">
+        @for (mode of modePaiementOptions; track mode.key) {
+          <option [value]="mode.key">{{ mode.value }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="depense-field">
+      <span>Montant</span>
+      <input type="number" min="100" formControlName="montant" placeholder="0">
+    </label>
+
+    @if (requiresPersonnel()) {
+      <label class="depense-field">
+        <span>Personnel</span>
+        <select2
+          class="depense-select2"
+          formControlName="idPersonnel"
+          [data]="personnelListOptionsData"
+          placeholder="Selectionner"
+          noResultMessage="Aucun personnel"
+        />
+      </label>
+    } @else {
+      <label class="depense-field">
+        <span>Fournisseur</span>
+        <input type="text" formControlName="fournisseurNom" placeholder="Nom du fournisseur">
+      </label>
+    }
+  </div>
+
+  @if (submitted() && form.invalid) {
+    <p class="depense-error">
+      @if (isSalaire()) {
+        Completez la date, le montant, le mode paiement et le personnel.
+      } @else if (requiresPersonnel()) {
+        Completez la date, le montant, le mode paiement et le personnel concerne.
+      } @else {
+        Completez la date, le montant, le mode paiement et le fournisseur.
+      }
+    </p>
+  }
+
+  <button type="submit" class="depense-submit">
+    <i class="fa-solid fa-check" aria-hidden="true"></i>
+    Enregistrer depense
+  </button>
+</form>

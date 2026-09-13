@@ -1,0 +1,75 @@
+<div class="add-cat-root">
+  <header class="add-cat-head">
+    <div>
+      <h2 class="add-cat-title">Nouvelle categorie</h2>
+      <p class="add-cat-kicker">Référentiel catalogue</p>
+    </div>
+    <button type="button" class="add-cat-close" (click)="onClose()" aria-label="Fermer">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+  </header>
+
+  <form [formGroup]="form" class="add-cat-form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="add-cat-body">
+      <div class="add-cat-row">
+        <!-- Nom -->
+        <div class="add-cat-field flex-2">
+          <label class="add-cat-label" for="add-cat-nom">Nom</label>
+          <div class="add-cat-input-wrap">
+            <i class="fa-solid fa-tag add-cat-icon" aria-hidden="true"></i>
+            <input
+              id="add-cat-nom" type="text" formControlName="nom"
+              class="add-cat-input" [class.add-cat-input-invalid]="nomCtrl?.invalid && nomCtrl?.touched"
+              placeholder="Ex: Tissu gezlux" autocomplete="off" maxlength="40">
+          </div>
+          @if (nomCtrl?.invalid && nomCtrl?.touched) {
+            <span class="add-cat-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Requis (3-40 car.)</span>
+          }
+        </div>
+
+        <!-- Unité -->
+        <div class="add-cat-field flex-1">
+          <label class="add-cat-label" for="add-cat-mesure">Unit&eacute;</label>
+          <div class="add-cat-input-wrap">
+            <i class="fa-solid fa-ruler-combined add-cat-icon" aria-hidden="true"></i>
+            <select
+              id="add-cat-mesure" formControlName="mesure"
+              class="add-cat-input add-cat-select" [class.add-cat-input-invalid]="mesureCtrl?.invalid && mesureCtrl?.touched">
+              <option value="" disabled selected>Choisir...</option>
+              @for (m of categoryMesureList; track m.key) { <option [value]="m.value">{{ m.key }}</option> }
+            </select>
+            <i class="fa-solid fa-caret-down add-cat-select-caret" aria-hidden="true"></i>
+          </div>
+          @if (mesureCtrl?.invalid && mesureCtrl?.touched) {
+            <span class="add-cat-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Requis</span>
+          }
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="add-cat-field">
+        <div class="add-cat-label-row">
+          <label class="add-cat-label" for="add-cat-desc">Description</label>
+          <span class="add-cat-counter">{{ (descriptionCtrl?.value?.length ?? 0) }} / 220</span>
+        </div>
+        <div class="add-cat-input-wrap">
+          <i class="fa-solid fa-align-left add-cat-icon add-cat-icon-top" aria-hidden="true"></i>
+          <textarea
+            id="add-cat-desc" formControlName="description" rows="2" maxlength="220"
+            class="add-cat-input add-cat-textarea" [class.add-cat-input-invalid]="descriptionCtrl?.invalid && descriptionCtrl?.touched"
+            placeholder="Types d'articles, finitions, tailles..."></textarea>
+        </div>
+        @if (descriptionCtrl?.invalid && descriptionCtrl?.touched) {
+          <span class="add-cat-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Requise (min. 6 car.)</span>
+        }
+      </div>
+    </div>
+
+    <footer class="add-cat-foot">
+      <button type="button" class="add-cat-btn add-cat-btn-ghost" (click)="onClose()">Annuler</button>
+      <button type="submit" class="add-cat-btn add-cat-btn-primary">
+        <i class="fa-solid fa-check" aria-hidden="true"></i> Cr&eacute;er
+      </button>
+    </footer>
+  </form>
+</div>

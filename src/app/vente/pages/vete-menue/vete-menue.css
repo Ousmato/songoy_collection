@@ -1,0 +1,527 @@
+:host {
+  display: block;
+}
+
+.vente-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.vente-menu-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.vente-menu-kicker {
+  margin: 0 0 0.25rem;
+  font-family: var(--sc-font-serif, 'Cormorant Garamond', serif);
+  font-size: 0.95rem;
+  font-style: italic;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sc-gold-primary, #A8892F);
+}
+
+.vente-menu-title {
+  margin: 0 0 0.25rem;
+  font-family: var(--sc-font-display, 'Playfair Display', serif);
+  font-weight: 800;
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  color: var(--sc-black-deep, #1F1A16);
+  line-height: 1.05;
+}
+
+.vente-menu-subtitle {
+  margin: 0;
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.9rem;
+  color: var(--sc-gray-500, #7D7168);
+}
+
+.vente-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(168, 137, 47, 0.18);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 1px 3px rgba(31, 26, 22, 0.035);
+}
+
+.vente-shortcut {
+  --vente-accent: var(--sc-gold-primary, #A8892F);
+  min-width: 0;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--vente-accent) 18%, transparent);
+  border-radius: 0.68rem;
+  background: color-mix(in srgb, var(--vente-accent) 7%, #fff);
+  color: var(--vente-accent);
+  cursor: pointer;
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.vente-shortcut:hover,
+.vente-shortcut:focus-visible {
+  background: var(--vente-accent);
+  color: #fff;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.vente-shortcut i {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--vente-accent) 14%, transparent);
+  font-size: 0.68rem;
+}
+
+.vente-shortcut:hover i,
+.vente-shortcut:focus-visible i {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.vente-shortcut span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vente-shortcut-gold {
+  --vente-accent: var(--sc-gold-primary, #A8892F);
+}
+
+.vente-shortcut-info {
+  --vente-accent: var(--sc-info, #3B5C7A);
+}
+
+.vente-shortcut-warning {
+  --vente-accent: var(--sc-warning, #C97A2B);
+}
+
+.vente-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.vente-stat {
+  --vente-accent: var(--sc-gold-primary, #A8892F);
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+  padding: 0.95rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--vente-accent) 22%, var(--sc-gray-100, #E6DED5));
+  border-radius: 0.9rem;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--vente-accent) 7%, #fff), #fff 62%),
+    #fff;
+  box-shadow: 0 1px 3px rgba(31, 26, 22, 0.04);
+}
+
+.vente-stat-gold {
+  --vente-accent: var(--sc-gold-primary, #A8892F);
+}
+
+.vente-stat-danger {
+  --vente-accent: var(--sc-danger, #9B3A2E);
+}
+
+.vente-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vente-accent);
+  background: color-mix(in srgb, var(--vente-accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--vente-accent) 18%, transparent);
+}
+
+.vente-stat-icon i {
+  font-size: 1rem;
+}
+
+.vente-stat-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.vente-stat-label {
+  margin: 0;
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--sc-gray-500, #7D7168);
+}
+
+.vente-stat-value {
+  display: block;
+  font-family: var(--sc-font-display, 'Playfair Display', serif);
+  font-size: clamp(1.05rem, 2vw, 1.38rem);
+  line-height: 1.15;
+  color: var(--sc-black-deep, #1F1A16);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vente-stat-helper {
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.72rem;
+  color: var(--vente-accent);
+  font-weight: 600;
+}
+
+.vente-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.vente-action {
+  --vente-accent: var(--sc-gold-primary, #A8892F);
+  position: relative;
+  min-width: 0;
+  min-height: 154px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.95rem;
+  border: 1px solid var(--sc-gray-100, #E6DED5);
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+  text-align: left;
+  box-shadow: 0 1px 3px rgba(31, 26, 22, 0.04);
+  overflow: hidden;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.vente-action::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--vente-accent), color-mix(in srgb, var(--vente-accent) 58%, #C9A24A));
+}
+
+.vente-action:hover,
+.vente-action:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--vente-accent) 36%, var(--sc-gray-100, #E6DED5));
+  box-shadow: 0 12px 26px rgba(31, 26, 22, 0.08);
+  outline: none;
+}
+
+.vente-action-gold {
+  --vente-accent: var(--sc-gold-primary, #A8892F);
+}
+
+.vente-action-info {
+  --vente-accent: var(--sc-info, #3B5C7A);
+}
+
+.vente-action-warning {
+  --vente-accent: var(--sc-warning, #C97A2B);
+}
+
+.vente-action-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vente-accent);
+  background: color-mix(in srgb, var(--vente-accent) 11%, transparent);
+}
+
+.vente-action-icon i {
+  font-size: 1rem;
+}
+
+.vente-action-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  flex: 1;
+}
+
+.vente-action-meta {
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vente-accent);
+}
+
+.vente-action-title {
+  font-family: var(--sc-font-display, 'Playfair Display', serif);
+  font-size: 1.08rem;
+  line-height: 1.15;
+  color: var(--sc-black-deep, #1F1A16);
+}
+
+.vente-action-desc {
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--sc-gray-500, #7D7168);
+}
+
+.vente-action-arrow {
+  align-self: flex-end;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vente-accent);
+  background: color-mix(in srgb, var(--vente-accent) 9%, transparent);
+}
+
+.vente-action-arrow i {
+  font-size: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .vente-menu {
+    gap: 1rem;
+  }
+
+  .vente-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .vente-action {
+    min-height: 138px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.62rem;
+    padding: 0.82rem;
+  }
+
+  .vente-action-arrow {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 640px) {
+  .vente-menu {
+    gap: 0.85rem;
+  }
+
+  .vente-menu-header {
+    align-items: flex-start;
+  }
+
+  .vente-menu-kicker {
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+  }
+
+  .vente-menu-title {
+    font-size: 1.65rem;
+  }
+
+  .vente-menu-subtitle {
+    font-size: 0.78rem;
+  }
+
+  .vente-shortcuts {
+    gap: 0.42rem;
+    padding: 0.5rem;
+    border-radius: 0.82rem;
+  }
+
+  .vente-shortcut {
+    height: 36px;
+    gap: 0.28rem;
+    padding: 0 0.36rem;
+    border-radius: 0.58rem;
+    font-size: 0.66rem;
+  }
+
+  .vente-shortcut i {
+    width: 16px;
+    height: 16px;
+    font-size: 0.58rem;
+  }
+
+  .vente-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .vente-stat {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 0.45rem;
+    padding: 0.68rem 0.5rem;
+    border-radius: 0.78rem;
+  }
+
+  .vente-stat-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 0.65rem;
+  }
+
+  .vente-stat-value {
+    max-width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .vente-stat-label {
+    font-size: 0.64rem;
+    line-height: 1.25;
+  }
+
+  .vente-stat-helper {
+    display: none;
+  }
+
+  .vente-action {
+    min-height: 116px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.72rem 0.5rem;
+    border-radius: 0.82rem;
+    text-align: center;
+  }
+
+  .vente-action-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+  }
+
+  .vente-action-title {
+    font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  .vente-action-desc {
+    display: none;
+  }
+
+  .vente-action-meta {
+    display: none;
+  }
+
+  .vente-action-arrow {
+    display: none;
+  }
+
+  .vente-action-body {
+    align-items: center;
+    flex: initial;
+  }
+}
+
+@media (max-width: 380px) {
+  .vente-shortcuts {
+    gap: 0.32rem;
+    padding: 0.42rem;
+  }
+
+  .vente-shortcut {
+    height: 34px;
+    padding: 0 0.25rem;
+    font-size: 0.58rem;
+  }
+
+  .vente-shortcut i {
+    width: 14px;
+    height: 14px;
+    font-size: 0.52rem;
+  }
+
+  .vente-stats {
+    gap: 0.45rem;
+  }
+
+  .vente-stat {
+    padding: 0.58rem 0.38rem;
+  }
+
+  .vente-stat-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .vente-stat-icon i {
+    font-size: 0.86rem;
+  }
+
+  .vente-stat-value {
+    font-size: 0.78rem;
+  }
+
+  .vente-stat-label {
+    font-size: 0.58rem;
+  }
+
+  .vente-actions {
+    gap: 0.55rem;
+  }
+
+  .vente-action {
+    min-height: 104px;
+    padding: 0.62rem 0.38rem;
+  }
+
+  .vente-action-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .vente-action-icon i {
+    font-size: 0.88rem;
+  }
+
+  .vente-action-title {
+    font-size: 0.72rem;
+  }
+}

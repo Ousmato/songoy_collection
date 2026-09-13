@@ -1,0 +1,41 @@
+<section class="commande-menu">
+  <header class="commande-menu-header">
+    <div>
+      <h1 class="commande-menu-title">Commandes</h1>
+      <p class="commande-menu-subtitle">Suivi des travaux, livraisons et credits - {{ today }}</p>
+    </div>
+
+    <button type="button" class="commande-primary-action" (click)="goToAddCommande()">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      <span>Commande</span>
+    </button>
+  </header>
+
+  <section class="commande-stats" aria-label="Indicateurs commandes">
+    @for (stat of stats; track stat.label) {
+      <article class="commande-stat commande-stat-{{ stat.tone }}">
+        <span class="commande-stat-icon" aria-hidden="true">
+          <i [class]="stat.icon"></i>
+        </span>
+        <div class="commande-stat-content">
+          <p class="commande-stat-label">{{ stat.label }}</p>
+          <strong class="commande-stat-value">{{ stat.value }}</strong>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="commande-actions" aria-label="Sous menus commandes">
+    @for (item of menuItems; track item.title) {
+      <button type="button" class="commande-action commande-action-{{ item.tone }}" (click)="goToMenuItem(item)">
+        <span class="commande-action-icon" aria-hidden="true">
+          <i [class]="item.icon"></i>
+        </span>
+        <span class="commande-action-body">
+          <span class="commande-action-meta">{{ item.meta }}</span>
+          <strong class="commande-action-title">{{ item.title }}</strong>
+        </span>
+      </button>
+    }
+  </section>
+</section>

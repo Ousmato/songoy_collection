@@ -1,0 +1,69 @@
+<div class="add-type-root">
+  <header class="add-type-head">
+    <div>
+      <p class="add-type-kicker">Catalogue article</p>
+      <h2 class="add-type-title">Nouveau type</h2>
+    </div>
+    <button type="button" class="add-type-close" (click)="onClose()" aria-label="Fermer">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+  </header>
+
+  <form [formGroup]="form" class="add-type-form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="add-type-body">
+      <div class="add-type-field">
+        <label class="add-type-label" for="add-type-nom">Nom</label>
+        <div class="add-type-input-wrap">
+          <i class="fa-solid fa-tags add-type-icon" aria-hidden="true"></i>
+          <input
+            id="add-type-nom"
+            type="text"
+            formControlName="nom"
+            class="add-type-input"
+            [class.add-type-input-invalid]="nomCtrl?.invalid && nomCtrl?.touched"
+            placeholder="Ex: Bazin riche"
+            autocomplete="off"
+            maxlength="40">
+        </div>
+        @if (nomCtrl?.invalid && nomCtrl?.touched) {
+          <span class="add-type-error">
+            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+            Requis (3-40 car.)
+          </span>
+        }
+      </div>
+
+      <div class="add-type-field">
+        <div class="add-type-label-row">
+          <label class="add-type-label" for="add-type-desc">Description</label>
+          <span class="add-type-counter">{{ (descriptionCtrl?.value?.length ?? 0) }} / 220</span>
+        </div>
+        <div class="add-type-input-wrap">
+          <i class="fa-solid fa-align-left add-type-icon add-type-icon-top" aria-hidden="true"></i>
+          <textarea
+            id="add-type-desc"
+            formControlName="description"
+            rows="3"
+            maxlength="220"
+            class="add-type-input add-type-textarea"
+            [class.add-type-input-invalid]="descriptionCtrl?.invalid && descriptionCtrl?.touched"
+            placeholder="Usage, qualite, finition..."></textarea>
+        </div>
+        @if (descriptionCtrl?.invalid && descriptionCtrl?.touched) {
+          <span class="add-type-error">
+            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+            Requise (min. 6 car.)
+          </span>
+        }
+      </div>
+    </div>
+
+    <footer class="add-type-foot">
+      <button type="button" class="add-type-btn add-type-btn-ghost" (click)="onClose()">Annuler</button>
+      <button type="submit" class="add-type-btn add-type-btn-primary">
+        <i class="fa-solid fa-check" aria-hidden="true"></i>
+        Creer
+      </button>
+    </footer>
+  </form>
+</div>

@@ -1,0 +1,181 @@
+<section class="dash">
+
+  <!-- =========== HEADER =========== -->
+  <header class="dash-header">
+    <div>
+      <p class="dash-kicker">Bienvenue dans</p>
+      <h1 class="dash-title">Tableau de bord</h1>
+      <p class="dash-subtitle">Gestion boutique &mdash; Songho&iuml; Collection &middot; {{ today }}</p>
+    </div>
+    <div class="dash-header-actions">
+      @for (s of shortcuts; track s.label) {
+        <a
+          class="btn-shortcut"
+          [class]="'btn-shortcut-' + s.tone"
+          [routerLink]="s.route || '/dashboard'">
+          <i class="fa-solid {{ s.icon }}" aria-hidden="true"></i>
+          {{ s.label }}
+        </a>
+      }
+    </div>
+  </header>
+
+  <!-- =========== 6 KPIS =========== -->
+  <section class="kpis">
+    @for (k of kpis; track k.label) {
+      <article class="kpi" [class]="'kpi-tone-' + k.tone">
+        <div class="kpi-row">
+          <span class="kpi-dot" aria-hidden="true"></span>
+          <span class="kpi-trend" [class.kpi-trend-up]="k.trendUp" [class.kpi-trend-down]="!k.trendUp">
+            <i class="fa-solid {{ k.trendUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }}" aria-hidden="true"></i> {{ k.trend }}
+          </span>
+        </div>
+        <p class="kpi-value">{{ k.value }}</p>
+        <p class="kpi-label">{{ k.label }}</p>
+      </article>
+    }
+  </section>
+
+  <!-- =========== VENTES JOURNALIERES (FULL WIDTH) =========== -->
+  <section class="grid-1">
+    <div class="panel panel-daily">
+      <div class="section-head section-head-in-panel">
+        <div>
+          <h2 class="section-head-title">Vente du jour</h2>
+          <p class="section-head-sub">7 transactions &mdash; Totalis&eacute; <strong>{{ dailySalesTotal }}</strong></p>
+        </div>
+        <button type="button" class="panel-link" routerLink="/ventes">
+          Rapport complet <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table table-sales">
+          <thead>
+            <tr>
+              <th scope="col">R&eacute;f&eacute;rence</th>
+              <th scope="col">Client</th>
+              <th scope="col">Articles</th>
+              <th scope="col">Paiement</th>
+              <th scope="col">Heure</th>
+              <th scope="col" class="col-num">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of dailySales; track s.id) {
+              <tr>
+                <td class="mono">{{ s.ref }}</td>
+                <td>
+                  <span class="avatar avatar-sm">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                  </span>
+                  {{ s.client }}
+                </td>
+                <td>{{ s.items }} article{{ s.items > 1 ? 's' : '' }}</td>
+                <td>
+                  <span class="pill pill-pay" [class]="'pill-pay-' + s.type">
+                    <i class="fa-solid {{ s.type === 'espèces' ? 'fa-money-bill-1' : s.type === 'mobile' ? 'fa-mobile-screen-button' : 'fa-credit-card' }}" aria-hidden="true"></i>
+                    {{ s.type }}
+                  </span>
+                </td>
+                <td class="muted">{{ s.hour }}</td>
+                <td class="col-num strong">{{ s.total }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" class="muted align-right">Total encaiss&eacute; aujourd'hui</td>
+              <td class="col-num primary">{{ dailySalesTotal }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========== TOP PRODUITS DU MOIS (FULL WIDTH SOUS VENTES) =========== -->
+  <section class="grid-1">
+    <div class="panel panel-toppro">
+      <div class="section-head section-head-in-panel">
+        <div>
+          <h2 class="section-head-title">Top produits du mois</h2>
+          <p class="section-head-sub">Performances &amp; parts de chiffre d'affaires</p>
+        </div>
+        <span class="panel-hint">
+          <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
+          Bas&eacute; sur {{ totalQtyTopProducts }} articles vendus
+        </span>
+      </div>
+
+      <ul class="top-products top-products-bars">
+        @for (p of topProducts; track p.id) {
+          <li class="top-product top-product-xlbar">
+            <div class="top-product-head">
+              <span class="top-product-rank">{{ p.rank }}</span>
+              <div class="top-product-names">
+                <p class="top-product-name">{{ p.name }}</p>
+                <p class="top-product-meta">
+                  <span class="cat-pill">{{ p.category }}</span>
+                  <span class="qty-badge">{{ p.qty }} unit&eacute;s</span>
+                </p>
+              </div>
+              <span class="top-product-rev">{{ p.revenue }}</span>
+            </div>
+            <div class="top-product-bar top-product-bar-xl">
+              <span class="top-product-fill" [style.width]="p.progress + '%'"></span>
+            </div>
+            <div class="top-product-legend">
+              <span class="top-product-pct">{{ p.progress }}% du CA top</span>
+              <span class="top-product-avg">Moy. {{ p.avgPrice }} / unit&eacute;</span>
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- =========== ALERTES STOCK =========== -->
+  <section class="grid-1">
+    <div class="panel panel-alerts">
+      <div class="section-head section-head-in-panel">
+        <div>
+          <h2 class="section-head-title">
+            <span class="alert-dot alert-dot-danger"></span>
+            Alertes stock
+          </h2>
+          <p class="section-head-sub">Articles &agrave; r&eacute;approvisionner en priorit&eacute;</p>
+        </div>
+        <button type="button" class="sc-btn-secondary sc-btn-sm" routerLink="/stock">
+          <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
+          Passer une commande fournisseur
+        </button>
+      </div>
+
+      <ul class="alerts">
+        @for (a of stockAlerts; track a.id) {
+          <li class="alert-row" [ngClass]="'alert-row-' + a.status">
+            <span class="alert-row-icon">
+              <i class="fa-solid {{ a.status === 'rupture' ? 'fa-circle-xmark' : a.status === 'critique' ? 'fa-circle-exclamation' : 'fa-circle-info' }}" aria-hidden="true"></i>
+            </span>
+            <div class="alert-row-info">
+              <p class="alert-row-name">{{ a.name }}</p>
+              <p class="alert-row-sku">SKU {{ a.sku }} &middot; Stock restant</p>
+            </div>
+            <span class="alert-row-count" [ngClass]="'alert-row-count-' + a.status">
+              {{ a.remaining }}
+            </span>
+            <span class="alert-row-pill" [ngClass]="'alert-row-pill-' + a.status">
+              {{ a.status === 'rupture' ? 'EN RUPTURE' : a.status === 'critique' ? 'CRITIQUE' : 'ALERTE' }}
+            </span>
+            <button type="button" class="alert-row-action" routerLink="/stock" [attr.aria-label]="'R\u00E9approvisionner ' + a.name">
+              <i class="fa-solid fa-cart-plus" aria-hidden="true"></i>
+              R&eacute;appro
+            </button>
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+
+</section>

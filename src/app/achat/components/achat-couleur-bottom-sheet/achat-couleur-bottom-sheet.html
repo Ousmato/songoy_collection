@@ -1,0 +1,42 @@
+<div class="sheet-backdrop" (click)="close.emit()">
+  <section class="sheet" (click)="$event.stopPropagation()" aria-label="Selection couleurs">
+    <div class="sheet-handle" aria-hidden="true"></div>
+
+    <header class="sheet-header">
+      <div>
+        <p class="sheet-kicker">{{ articleName }}</p>
+        <h2 class="sheet-title">Choisir les couleurs</h2>
+      </div>
+      <button type="button" class="sheet-close" aria-label="Fermer" (click)="close.emit()">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="sheet-grid">
+      @for (couleur of couleurs; track couleur.id) {
+        <button
+          type="button"
+          class="color-choice"
+          [class.color-choice-selected]="isSelected(couleur.id)"
+          (click)="toggleCouleur(couleur)"
+        >
+          <span class="color-choice-dot" aria-hidden="true"></span>
+          <span class="color-choice-content">
+            <strong>{{ couleur.nom }}</strong>
+            <small>{{ couleur.quantity }} en stock</small>
+          </span>
+          <i class="fa-solid fa-check color-choice-check" aria-hidden="true"></i>
+        </button>
+      } @empty {
+        <p class="sheet-empty">Selectionnez un article pour charger ses couleurs.</p>
+      }
+    </div>
+
+    <footer class="sheet-actions">
+      <button type="button" class="sheet-btn sheet-btn-ghost" (click)="close.emit()">Annuler</button>
+      <button type="button" class="sheet-btn sheet-btn-primary" (click)="validateSelection()">
+        Valider
+      </button>
+    </footer>
+  </section>
+</div>

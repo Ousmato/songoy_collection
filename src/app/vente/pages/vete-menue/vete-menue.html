@@ -1,0 +1,54 @@
+<section class="vente-menu">
+  <header class="vente-menu-header">
+    <div>
+      <h1 class="vente-menu-title">Ventes</h1>
+      <p class="vente-menu-subtitle">Vue de synthese et raccourcis de gestion - {{ today }}</p>
+    </div>
+  </header>
+
+  <nav class="vente-shortcuts" aria-label="Raccourcis ventes">
+    @for (item of quickActions; track item.label) {
+      <button
+        type="button"
+        class="vente-shortcut vente-shortcut-{{ item.tone }}"
+        (click)="goToQuickAction(item)"
+      >
+        <i [class]="item.icon" aria-hidden="true"></i>
+        <span>{{ item.label }}</span>
+      </button>
+    }
+  </nav>
+
+  <section class="vente-stats" aria-label="Indicateurs ventes">
+    @for (stat of stats; track stat.label) {
+      <article class="vente-stat vente-stat-{{ stat.tone }}">
+        <span class="vente-stat-icon" aria-hidden="true">
+          <i [class]="stat.icon"></i>
+        </span>
+        <div class="vente-stat-content">
+          <p class="vente-stat-label">{{ stat.label }}</p>
+          <strong class="vente-stat-value">{{ stat.value }}</strong>
+          <span class="vente-stat-helper">{{ stat.helper }}</span>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="vente-actions" aria-label="Sous menus ventes">
+    @for (item of menuItems; track item.title) {
+      <button type="button" class="vente-action vente-action-{{ item.tone }}" (click)="goToMenuItem(item)">
+        <span class="vente-action-icon" aria-hidden="true">
+          <i [class]="item.icon"></i>
+        </span>
+        <span class="vente-action-body">
+          <span class="vente-action-meta">{{ item.meta }}</span>
+          <strong class="vente-action-title">{{ item.title }}</strong>
+          <span class="vente-action-desc">{{ item.description }}</span>
+        </span>
+        <span class="vente-action-arrow" aria-hidden="true">
+          <i class="fa-solid fa-arrow-right"></i>
+        </span>
+      </button>
+    }
+  </section>
+</section>

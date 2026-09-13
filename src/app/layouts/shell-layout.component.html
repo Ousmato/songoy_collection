@@ -1,0 +1,38 @@
+<div class="shell">
+  <div class="shell-content">
+    <header class="shell-topbar">
+      <div class="shell-topbar-breadcrumb">
+        <i class="fa-solid fa-house" aria-hidden="true"></i>
+        <span class="shell-topbar-sep">/</span>
+        <span class="shell-topbar-current">{{ currentTitle() }}</span>
+      </div>
+
+      <div class="shell-topbar-user">
+        @if (activity.canSwitch) {
+          <select class="space-select" aria-label="Espace de travail" [value]="activity.space()" (change)="changeSpace($event)">
+            <option value="BOUTIQUE">Boutique</option>
+            <option value="ATELIER">Atelier couture</option>
+          </select>
+        }
+        <div class="shell-topbar-avatar">
+          <i class="fa-solid fa-user" aria-hidden="true"></i>
+        </div>
+        <div class="shell-topbar-user-info">
+          <span class="shell-topbar-user-name">Admin Songhoi</span>
+          <span class="shell-topbar-user-role">Super Administrateur</span>
+        </div>
+        <button type="button" class="shell-topbar-chev" aria-label="Menu utilisateur">
+          <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="shell-main">
+      <div class="sc-container shell-container">
+        <router-outlet />
+      </div>
+    </main>
+  </div>
+
+  <app-bottom-navigation-bar />
+</div>

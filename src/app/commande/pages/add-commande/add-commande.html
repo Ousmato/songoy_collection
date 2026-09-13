@@ -1,0 +1,193 @@
+<section class="commande-page">
+  <app-floating-back-button />
+
+  <header class="commande-header">
+    <div>
+      <h1 class="commande-title">Nouvelle commande atelier</h1>
+      <p class="commande-subtitle">Client, livraison, travaux et avance - {{ today }}</p>
+    </div>
+  </header>
+
+  <div class="commande-layout">
+    <div class="commande-main">
+      <form class="commande-panel" [formGroup]="commandeForm">
+        <div class="commande-panel-head">
+          <span class="commande-panel-icon" aria-hidden="true">
+            <i class="fa-solid fa-user-clock"></i>
+          </span>
+          <div>
+            <h2>Client et livraison</h2>
+            <p>Statut initial : accepter</p>
+          </div>
+        </div>
+
+        <div class="commande-form-grid">
+          <label class="commande-field">
+            <span>Date commande</span>
+            <input type="date" formControlName="dateCommande">
+          </label>
+
+          <label class="commande-field">
+            <span>Livraison prevue</span>
+            <input type="date" formControlName="dateLivraisonPrevue">
+          </label>
+
+          <label class="commande-field">
+            <span>Client</span>
+            <select2
+              class="commande-select2"
+              formControlName="clientId"
+              [data]="clientListOptionsData"
+              placeholder="Selectionner"
+              noResultMessage="Aucun client"
+            />
+          </label>
+
+          <label class="commande-field">
+            <span>Nom client libre</span>
+            <input type="text" formControlName="clientNom" placeholder="Client non enregistre">
+          </label>
+
+          <label class="commande-field commande-field-short">
+            <span>Avance</span>
+            <input type="number" min="0" formControlName="avance">
+          </label>
+        </div>
+      </form>
+
+      <form class="commande-panel commande-line-panel" [formGroup]="ligneForm">
+        <div class="commande-panel-head">
+          <span class="commande-panel-icon commande-panel-icon-work" aria-hidden="true">
+            <i class="fa-solid fa-scissors"></i>
+          </span>
+          @if (!isBoutiqueSource()) {
+            <label class="commande-habit-photo" aria-label="Selectionner une image de l'habit">
+              <input type="file" accept="image/*" (change)="onHabitImageSelected($event)">
+              @if (habitImagePreview()) {
+                <img [src]="habitImagePreview()" alt="Habit client">
+              } @else {
+                <i class="fa-solid fa-camera" aria-hidden="true"></i>
+              }
+            </label>
+          }
+          <div>
+            <h2>Habit a coudre</h2>
+            <p>Choisir la source avant les details</p>
+          </div>
+        </div>
+
+        <div class="commande-source-group" aria-label="Source habit">
+          @for (source of sourceOptions; track source.key) {
+            <label class="commande-source">
+              <input
+                type="radio"
+                formControlName="sourceHabit"
+                [value]="source.key"
+                (change)="setSource(source.key)"
+              >
+              <span>{{ source.value }}</span>
+            </label>
+          }
+        </div>
+
+        @if (isBoutiqueSource()) {
+          <section class="commande-stock-panel" aria-label="Matiere boutique">
+            <div class="commande-stock-head">
+              <span aria-hidden="true">
+                <i class="fa-solid fa-box-open"></i>
+              </span>
+              <strong>Matiere boutique</strong>
+            </div>
+
+            <div class="commande-form-grid">
+              <label class="commande-field">
+                <span>Categorie</span>
+                <select2
+                  class="commande-select2"
+                  formControlName="idCategorie"
+                  [data]="categoriesData"
+                  placeholder="Selectionner"
+                  noResultMessage="Aucune categorie"
+                  (update)="onCategorieUpdate($event)"
+                />
+              </label>
+
+              <label class="commande-field">
+                <span>Article</span>
+                <select2
+                  class="commande-select2"
+                  formControlName="idArticle"
+                  [data]="articlesData"
+                  placeholder="Selectionner"
+                  noResultMessage="Aucun article"
+                  (update)="onArticleUpdate($event)"
+                />
+              </label>
+
+              <label class="commande-field">
+                <span>Couleur</span>
+                <select2
+                  class="commande-select2"
+                  formControlName="idCouleur"
+                  [data]="couleursData"
+                  placeholder="Selectionner"
+                  noResultMessage="Aucune couleur"
+                />
+              </label>
+
+              <label class="commande-field">
+                <span>Prix matiere</span>
+                <input type="number" min="0" formControlName="prixMatiere">
+              </label>
+            </div>
+          </section>
+        }
+
+        <div class="commande-form-grid">
+          <label class="commande-field">
+            <span>Type habit</span>
+            <select formControlName="typeHabille">
+              @for (type of typeHabilleOptions; track type.key) {
+                <option [value]="type.key">{{ type.value }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="commande-field">
+            <span>Designation</span>
+            <input type="text" formControlName="designation" placeholder="Boubou brode">
+          </label>
+
+          <label class="commande-field">
+            <span>Quantite</span>
+            <input type="number" min="1" formControlName="quantite">
+          </label>
+
+          <label class="commande-field">
+            <span>Prix couture</span>
+            <input type="number" min="1" formControlName="prixUnitaire">
+          </label>
+        </div>
+
+        <button type="button" class="commande-add-line" (click)="addLine()">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          Ajouter ligne
+        </button>
+      </form>
+    </div>
+
+    <app-add-commande-sommary
+      [commandeForm]="commandeForm"
+      [lignes]="lignes()"
+      (removeLigne)="removeLine($event)"
+      (submitCommande)="handleSubmit($event)"
+    />
+  </div>
+
+  @if (lastRequest()) {
+    <aside class="commande-preview" aria-label="Derniere requete">
+      <strong>CommandeRequest pret</strong>
+      <span>{{ lastRequest()?.lignes?.length }} ligne(s) configuree(s)</span>
+    </aside>
+  }
+</section>

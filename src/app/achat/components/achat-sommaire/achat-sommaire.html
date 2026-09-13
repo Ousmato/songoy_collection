@@ -1,0 +1,83 @@
+<section class="summary" aria-label="Sommaire achat">
+  <header class="summary-header">
+    <div>
+      <p class="summary-kicker">Sommaire</p>
+      <h2 class="summary-title">Lignes achat</h2>
+    </div>
+    <span class="summary-count">{{ lignes().length }} couleur(s)</span>
+  </header>
+
+  @if (lignes().length) {
+    <div class="summary-lines">
+      @for (ligne of lignes(); track ligne.idCouleur) {
+        <article class="summary-line">
+          <div class="summary-line-head">
+            <span class="summary-color-dot" aria-hidden="true"></span>
+            <strong>{{ ligne.couleur }}</strong>
+            <button type="button" class="summary-remove" aria-label="Supprimer la couleur" (click)="removeLine(ligne.idCouleur)">
+              <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <div class="summary-fields">
+            <label class="summary-field">
+              <span>Quantite</span>
+              <input
+                type="number"
+                min="1"
+                [value]="ligne.quantite"
+                (input)="updateQuantite(ligne.idCouleur, $any($event.target).value)"
+              >
+            </label>
+            <label class="summary-field">
+              <span>Prix unitaire</span>
+              <input
+                type="number"
+                min="0"
+                [value]="ligne.prix"
+                (input)="updatePrix(ligne.idCouleur, $any($event.target).value)"
+              >
+            </label>
+            <div class="summary-line-total">
+              <span>Total</span>
+              <strong>{{ ligne.quantite * ligne.prix | number:'1.0-0' }} F</strong>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="summary-empty">
+      <i class="fa-solid fa-palette" aria-hidden="true"></i>
+      <p>Choisissez les couleurs pour preparer les lignes achat.</p>
+    </div>
+  }
+
+  <div class="summary-totals">
+    <div>
+      <span>Nombre achete</span>
+      <strong>{{ totalArticles() }}</strong>
+    </div>
+    <div>
+      <span>Achat</span>
+      <strong>{{ totalAchat() | number:'1.0-0' }} F</strong>
+    </div>
+    <div>
+      <span>Autre frais</span>
+      <strong>{{ frais() | number:'1.0-0' }} F</strong>
+    </div>
+    <div class="summary-total-main">
+      <span>Total</span>
+      <strong>{{ totalGeneral() | number:'1.0-0' }} F</strong>
+    </div>
+  </div>
+
+  @if (submitted() && (!achatForm.valid || !lignes().length)) {
+    <p class="summary-error">Completez les informations achat et ajoutez au moins une couleur.</p>
+  }
+
+  <button type="button" class="summary-submit" (click)="submit()">
+    <i class="fa-solid fa-check" aria-hidden="true"></i>
+    Enregistrer achat
+  </button>
+</section>
