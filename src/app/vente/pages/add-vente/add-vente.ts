@@ -95,7 +95,7 @@ export class AddVente implements OnInit {
   loadArticles(idCategorie: number): void {
     if (!idCategorie || !this.user?.id) return;
 
-    this.dependencyService.articleService.loadArticles(idCategorie, this.user.id).subscribe(res => {
+    this.dependencyService.articleService.loadArticlesByCategoryId(idCategorie, this.user.id).subscribe(res => {
       this.articlesData = res.map<Select2Option>((art: SimpleArticleResponse, index) => ({
         id: `art-${art.id ?? index}-${index}`,
         value: art.id,

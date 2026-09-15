@@ -52,9 +52,9 @@ export class StockMenue {
       tone: 'info',
     },
     {
-      label: 'Couleur',
-      route: AdminRoutePaths.addCouleur,
-      icon: 'fa-solid fa-plus',
+      label: 'Vente',
+      route: AdminRoutePaths.addVente,
+      icon: 'fa-solid fa-cash-register',
       tone: 'info',
     },
   ];
@@ -94,10 +94,10 @@ export class StockMenue {
       tone: 'gold',
     },
     {
-      title: 'Stock article',
-      route: AdminRoutePaths.stockParArticle,
-      icon: 'fa-solid fa-boxes-stacked',
-      tone: 'success',
+      title: 'Historique des ventes',
+      route: AdminRoutePaths.listVentes,
+      icon: 'fa-solid fa-receipt',
+      tone: 'info',
     },
     {
       title: 'Mouvement stock',
@@ -110,6 +110,11 @@ export class StockMenue {
   goToQuickAction(item: StockQuickAction): void {
     if (item.route === AdminRoutePaths.addAchat) {
       this.routePath.toAddAchat();
+      return;
+    }
+
+    if (item.route === AdminRoutePaths.addVente) {
+      this.routePath.toAddVente();
       return;
     }
 

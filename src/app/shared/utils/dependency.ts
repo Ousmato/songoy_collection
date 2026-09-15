@@ -7,6 +7,7 @@ import { FournisseurService } from "../../fournisseur/services/fournisseur.servi
 import { AdminService } from "../../admin/service/admin.service";
 import { ClientService } from "../../client/services/client.service";
 import { CommandeService } from "../../commande/service/commande.service";
+import { ReceptionService } from "../../achat/services/reception.service";
 
 @Injectable({
     providedIn: 'root'
@@ -23,4 +24,8 @@ export class DependencyService {
 
     clientService = inject(ClientService);
     commandeService = inject(CommandeService);
+    receptionService = inject(ReceptionService);
+
+    httpResponse = inject(ResponseMessageService)
+
 }

@@ -1,1 +1,95 @@
-<p>list-article works!</p>
+﻿<section class="articles-page">
+  <app-floating-back-button />
+
+  <header class="articles-header">
+    <div>
+      <p class="eyebrow">Catalogue boutique</p>
+      <h1>Articles</h1>
+      <p>Retrouvez vos articles et gérez leurs variantes.</p>
+    </div>
+
+    <a class="primary-button" routerLink="/admin/add-article">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      Nouvel article
+    </a>
+  </header>
+
+  <section class="toolbar">
+    <label class="search-box">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <span class="sr-only">Rechercher</span>
+      <input
+        type="search"
+        placeholder="Rechercher un article..."
+        [value]="search()"
+        (input)="search.set($any($event.target).value)"
+      />
+    </label>
+
+    <div class="category-tabs" role="tablist" aria-label="Filtrer par catégorie">
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="categoryFilter() === null"
+        [class.active]="categoryFilter() === null"
+        (click)="selectCategory(null)"
+      >
+        Toutes
+      </button>
+
+      @for (category of categories(); track category.id) {
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="categoryFilter() === category.id"
+          [class.active]="categoryFilter() === category.id"
+          (click)="selectCategory(category.id)"
+        >
+          {{ category.nom }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="article-list">
+    @for (article of filteredArticles(); track article.id) {
+      <article class="article-row">
+        <div class="article-visual" aria-hidden="true">
+          <i class="fa-solid fa-shirt" aria-hidden="true"></i>
+          <span class="variant-count">
+            {{ article.quantity }} en stock
+          </span>
+        </div>
+
+        <div class="article-content">
+          <div class="article-meta">
+            <span>{{ article.nom }}</span>
+            <small>{{ article.quantity }} en stock</small>
+          </div>
+
+          <h2>{{ article.nom }} {{ article.typeNom }}</h2>
+          <p>Prix à partir de {{ article.prixVente ?? 0 | number:'1.0-0' }} FCFA</p>
+
+          <div class="article-actions">
+            <a [routerLink]="['/admin/article-variants', article.id]">
+              Gérer les variantes
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+            <button type="button" aria-label="Plus d’options">
+              <i class="fa-solid fa-ellipsis" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </article>
+    } @empty {
+      <div class="empty-state">
+        <i class="fa-solid fa-box-open" aria-hidden="true"></i>
+        <h2>Aucun article trouvé</h2>
+        <p>Modifiez votre recherche ou créez un nouvel article.</p>
+        <a class="primary-button" routerLink="/admin/add-article">
+          Ajouter un article
+        </a>
+      </div>
+    }
+  </section>
+</section>

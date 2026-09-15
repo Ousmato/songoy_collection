@@ -1,0 +1,237 @@
+﻿:host {
+  display: block;
+}
+
+.characteristics-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+.characteristics-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.kicker {
+  margin: 0 0 .45rem;
+  color: #a8892f;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.page-title {
+  margin: 0;
+  color: #241d18;
+  font-family: var(--sc-font-display, Georgia, serif);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+}
+
+.page-subtitle {
+  max-width: 560px;
+  margin: .5rem 0 0;
+  color: #766b62;
+  line-height: 1.55;
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .65rem .85rem;
+  border: 1px solid #e8dfd4;
+  border-radius: 999px;
+  background: #fffaf3;
+  color: #7b6a58;
+  font-size: .75rem;
+  white-space: nowrap;
+}
+
+.header-badge i {
+  color: #a8892f;
+}
+
+.panel {
+  overflow: hidden;
+  border: 1px solid #e9e1d8;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 14px 35px rgba(48, 35, 23, .06);
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 1.4rem;
+  border-bottom: 1px solid #eee7df;
+  background: linear-gradient(135deg, #fffdf9, #faf6ef);
+}
+
+.panel-title {
+  margin: 0;
+  color: #2a211b;
+  font-size: 1.05rem;
+}
+
+.panel-hint {
+  margin: .35rem 0 0;
+  color: #897d72;
+  font-size: .78rem;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-width: min(280px, 100%);
+  padding: .6rem .75rem;
+  border: 1px solid #ddd3c9;
+  border-radius: .6rem;
+  background: #fff;
+  color: #a8892f;
+}
+
+.search-input input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #332a24;
+  font: inherit;
+  font-size: .8rem;
+}
+
+.characteristics-list {
+  display: grid;
+  gap: .85rem;
+  padding: 1.2rem 1.4rem 1.4rem;
+}
+
+.category-title {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin: .4rem 0 0;
+  color: #44372d;
+  font-size: .85rem;
+  font-weight: 750;
+}
+
+.category-title::before {
+  width: 4px;
+  height: 1.1rem;
+  border-radius: 4px;
+  background: #a8892f;
+  content: '';
+}
+
+.characteristic-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: .9rem 1rem;
+  border: 1px solid #eee8e1;
+  border-radius: .7rem;
+  background: #fff;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.characteristic-row:hover {
+  border-color: #d9c69e;
+  box-shadow: 0 8px 20px rgba(48, 35, 23, .06);
+  transform: translateY(-1px);
+}
+
+.characteristic-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: .55rem;
+  background: #f8f1e4;
+  color: #a8892f;
+}
+
+.characteristic-main {
+  display: grid;
+  gap: .2rem;
+  min-width: 0;
+}
+
+.characteristic-main strong {
+  overflow: hidden;
+  color: #2c241e;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.characteristic-main small {
+  color: #9a9086;
+  font-size: .7rem;
+}
+
+.characteristic-type,
+.characteristic-required {
+  padding: .35rem .65rem;
+  border-radius: 999px;
+  background: #f5f0e8;
+  color: #74675b;
+  font-size: .7rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.characteristic-required.is-required {
+  background: #e9f4ed;
+  color: #39734c;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 700px) {
+  .characteristics-page {
+    padding: 1rem .85rem 2rem;
+  }
+
+  .characteristics-header,
+  .panel-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .header-badge {
+    align-self: flex-start;
+  }
+
+  .search-input {
+    min-width: 0;
+  }
+
+  .characteristic-row {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: .7rem;
+  }
+
+  .characteristic-type,
+  .characteristic-required {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

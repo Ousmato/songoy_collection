@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -10,19 +11,14 @@ import { Router } from '@angular/router';
 })
 export class FloatingBackButton {
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
 
   @Input() fallbackUrl = '/admin/dashboard';
   @Input() ariaLabel = 'Retour';
+  @Input() direct = false;
+  @Input() useHistory = false;
 
   private readonly menuReturnRoutes = [
-    {
-      parent: '/admin/list-ventes',
-      routes: [
-        '/admin/reglement-credit',
-        '/admin/add-vente',
-        '/admin/add-reglement',
-      ],
-    },
     {
       parent: '/admin/list-commandes',
       routes: [
@@ -36,7 +32,14 @@ export class FloatingBackButton {
     {
       parent: '/admin/list-stock',
       routes: [
+        '/admin/list-articles',
+        '/admin/add-article',
+        '/admin/article-variants',
         '/admin/historique-achat',
+        '/admin/list-ventes',
+        '/admin/add-vente',
+        '/admin/add-reglement',
+        '/admin/reglement-credit',
         '/admin/article-list',
         '/admin/stock-par-article',
         '/admin/mouvement-stock',
@@ -60,6 +63,8 @@ export class FloatingBackButton {
       routes: [
         '/admin/list-article-category',
         '/admin/list-article-type',
+        '/admin/list-caracteristique',
+        '/admin/add-attribute',
         '/admin/list-depenses-atelier',
         '/admin/configuration-boutique',
         '/admin/preferences',
@@ -68,10 +73,23 @@ export class FloatingBackButton {
   ];
 
   goBack(): void {
+    if (this.useHistory && this.hasBrowserHistory()) {
+      this.location.back();
+      return;
+    }
+
     this.router.navigateByUrl(this.resolveReturnUrl());
   }
 
+  private hasBrowserHistory(): boolean {
+    return typeof window !== 'undefined' && window.history.length > 1;
+  }
+
   private resolveReturnUrl(): string {
+    if (this.direct) {
+      return this.fallbackUrl;
+    }
+
     const currentUrl = this.router.url.split('?')[0].split('#')[0];
     const match = this.menuReturnRoutes.find(group =>
       group.routes.some(route => currentUrl === route || currentUrl.startsWith(`${route}/`))

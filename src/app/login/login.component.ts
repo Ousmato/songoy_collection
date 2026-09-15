@@ -2,9 +2,8 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { environment } from '../../environments/environment';
-import { UserRole } from '../admin/model/admin.enum';
-import { LoginResponseDto } from '../admin/model/admin.model';
+import { AdminService } from '../admin/service/admin.service';
+import { LoginRequestDto, LoginResponseDto } from '../admin/model/admin.model';
 
 @Component({
   selector: 'app-login',
@@ -16,20 +15,16 @@ import { LoginResponseDto } from '../admin/model/admin.model';
 export class LoginComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
-
-  private readonly mockUsers = environment.auth.enableMockLogin
-    ? [{ email: 'admin@songoy.mg', password: 'admin123' }]
-    : [];
+  private readonly adminService = inject(AdminService);
 
   loginForm!: FormGroup;
   isLoading = signal(false);
   showPassword = signal(false);
   errorMessage = signal<string | null>(null);
   year = new Date().getFullYear();
-  envName = environment.name;
 
-  emailCtrlInvalid = computed(() => {
-    const c = this.loginForm?.get('email');
+  accessCodeCtrlInvalid = computed(() => {
+    const c = this.loginForm?.get('accessCode');
     return c ? (c.touched && c.invalid) : false;
   });
   passwordCtrlInvalid = computed(() => {
@@ -39,9 +34,8 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
-      email:    ['', [Validators.required, Validators.email]],
+      accessCode: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      remember: [false]
     });
   }
 
@@ -55,46 +49,21 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    const formData = this.loginForm.getRawValue();
+    const formData: LoginRequestDto = this.loginForm.getRawValue();
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    setTimeout(() => {
-      if (environment.auth.enableMockLogin && this.mockUsers.length > 0) {
-        const { email, password } = formData;
-        const valid = this.mockUsers.some(
-          u => u.email === email && u.password === password
-        );
-        if (valid) {
-          this.setMockSession(email);
-          this.isLoading.set(false);
-          this.router.navigateByUrl('/admin/dashboard');
-          return;
-        }
-      }
-
-      this.isLoading.set(false);
-      this.errorMessage.set('Identifiants incorrects. Contactez l\'administrateur ou réessayez.');
-    }, environment.api.enableMock ? 950 : 0);
-  }
-
-  private setMockSession(email: string): void {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const user: LoginResponseDto = {
-      id: 1,
-      loginType: 'ADMIN',
-      role: UserRole.ADMIN,
-      nom: 'Songhoi',
-      prenom: 'Admin',
-      email,
-      telephone: '+223 00 00 00 00',
-      accessToken: 'mock-songoy-token',
-    };
-
-    sessionStorage.setItem('user', JSON.stringify(user));
-    sessionStorage.setItem('accessToken', user.accessToken);
+    this.adminService.login(formData).subscribe({
+      next: (user: LoginResponseDto) => {
+        sessionStorage.setItem('user', JSON.stringify(user));
+        this.isLoading.set(false);
+        this.router.navigateByUrl(user.entite === 'ATELIER' ? '/admin/list-commandes' : '/admin/dashboard');
+      },
+      error: (error) => {
+        console.error('Échec de connexion au backend', error);
+        this.isLoading.set(false);
+        this.errorMessage.set('Code d’accès ou mot de passe incorrect.');
+      },
+    });
   }
 }

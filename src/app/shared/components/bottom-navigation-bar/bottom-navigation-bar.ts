@@ -17,12 +17,6 @@ export class BottomNavigationBar {
   private readonly activity = inject(ActivitySpaceService);
   private readonly activeRouteGroups: Record<string, string[]> = {
     Dashboard: ['/admin/dashboard'],
-    Ventes: [
-      '/admin/list-ventes',
-      '/admin/add-vente',
-      '/admin/add-reglement',
-      '/admin/reglement-credit',
-    ],
     Commande: [
       '/admin/list-commandes',
       '/admin/add-commande',
@@ -34,8 +28,15 @@ export class BottomNavigationBar {
     Stock: [
       '/admin/list-stock',
       '/admin/stock',
+      '/admin/list-articles',
+      '/admin/add-article',
+      '/admin/article-variants',
       '/admin/add-achat',
       '/admin/historique-achat',
+      '/admin/list-ventes',
+      '/admin/add-vente',
+      '/admin/add-reglement',
+      '/admin/reglement-credit',
       '/admin/article-list',
       '/admin/stock-par-article',
       '/admin/mouvement-stock',
@@ -54,8 +55,13 @@ export class BottomNavigationBar {
       '/admin/list-paramettre',
       '/admin/list-article-category',
       '/admin/list-article-type',
-      // '/admin/add-categorie',
-      // '/admin/add-type-article',
+      '/admin/list-caracteristique',
+      '/admin/list-depenses-atelier',
+      '/admin/add-categorie',
+      '/admin/add-type-article',
+      '/admin/add-depense',
+      '/admin/configuration-boutique',
+      '/admin/preferences',
     ],
   };
 

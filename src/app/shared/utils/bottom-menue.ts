@@ -45,11 +45,6 @@ export class BottomMenue {
                 path: '/admin/dashboard'
             },
             {
-                icon: 'fa-solid fa-cash-register',
-                label: 'Ventes',
-                path: '/admin/list-ventes'
-            },
-            {
                 icon: 'fa-solid fa-cubes-stacked',
                 label: 'Stock',
                 path: '/admin/list-stock'

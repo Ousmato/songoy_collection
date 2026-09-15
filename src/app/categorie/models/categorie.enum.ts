@@ -1,9 +1,15 @@
 import { EnumMethodes } from "../../shared/utils/util-methode";
 
 export enum CategoryMesure {
-  UNIT = "Unité",
-  METER = "Mètre",
+  UNITE = "Unité",
+  METRE = "Mètre",
   PAGNE = "Pagne",
+  CARTON = "Carton",
+}
+
+export enum CategoryType {
+  TRANSFERT = "Transfert",
+  SIMPLE = "Simple",
 }
 
 export function getCategoryMesureKey(value: CategoryMesure): keyof typeof CategoryMesure {
@@ -21,4 +27,5 @@ export function getCategoryMesureKey(value: CategoryMesure): keyof typeof Catego
 
     return key as keyof typeof CategoryMesure;
 }
+
 

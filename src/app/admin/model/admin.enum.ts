@@ -7,11 +7,26 @@ export enum LoginType {
 }
 
 
-export enum UserRole {
-    ADMIN = 'Admin', 
-    CAISSIER = 'Caissier', 
-    USERS_ROLE = 'User'
+export enum PersonnelRole {
+   ADMIN = 'ADMIN',
+    CAISSIER = 'CAISSIER',
+    APPRENANT = 'APPRENANT',
+    JUNIOR = 'JUNIOR',
+    MENTOR = 'MENTOR',
+    CLIENT = 'CLIENT',
+    RESPONSABLE = 'RESPONSABLE',
+    COUTURIER = 'COUTURIER',
+    SUPER_ADMIN = 'SUPER_ADMIN',
   }
+
+export enum Entite {
+  GLOBAL = 'GLOBAL',
+  BOUTIQUE = 'BOUTIQUE',
+  ATELIER = 'ATELIER',
+}
+
+
+export type TypeEntiteKey = keyof typeof Entite;
 
   
 export type LoginTypeKey = keyof typeof LoginType;

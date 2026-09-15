@@ -28,7 +28,9 @@ export class ActivitySpaceService {
   // The current static shell represents the administrator when no session exists.
   get canSwitch(): boolean {
     const user = getUserFromSessionStorage();
-    return !user || user.loginType === 'ADMIN';
+    // Les administrateurs (y compris le super administrateur) ont accès aux
+    // deux espaces. Les autres personnels restent dans leur entité.
+    return !user || user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' || user.loginType === 'ADMIN';
   }
 
   select(space: ActivitySpace): void {

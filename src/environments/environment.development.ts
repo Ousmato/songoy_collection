@@ -34,7 +34,7 @@ export const environment: EnvironmentConfig = {
   name: 'development',
   appVersion: '1.0.0',
   api: {
-    baseUrl: 'http://localhost:4200/api/v1',
+    baseUrl: 'http://localhost:8080/api/v1',
     timeoutMs: 15000,
     enableMock: true,
   },

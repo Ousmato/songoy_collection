@@ -1,30 +1,60 @@
-import { LoginTypeKey, UserRole } from "./admin.enum";
+import { CategoryMesure } from "../../categorie/models/categorie.enum";
+import { ModePaiement } from "../../shared/model/util.enum";
+import { Entite, PersonnelRole } from "./admin.enum";
 
-
-
-  export interface ConfirmCodeRequest {
-    email: string;
-    code: string;
-}
-
-
-export interface LoginResponseDto {
-    id: number;
-    loginType: LoginTypeKey;
-    role: UserRole;
-
-    nom: string;
-    prenom: string;
-
-    email: string;
-
-    telephone: string;
-    accessToken: string
-}
-
+/** Représentation minimale d'un administrateur dans les réponses d'achat. */
 export interface SimpleAdminResponse {
   id: number;
-  role: UserRole;
   nom: string;
   prenom: string;
 }
+
+export interface SimplePersonnelResponse {
+  id: number;
+  nom: string;
+  prenom: string;
+  adresse: string;
+  telephone: string;
+  dateNaissance?: string;
+  role: PersonnelRole;
+  entite: Entite;
+
+}
+
+export interface LoginRequestDto{
+  accessCode: string
+  password: string
+}
+
+export interface PersonnelRequestDto {
+  nom: string;
+  prenom: string;
+  adresse: string;
+  telephone: string;
+  dateNaissance?: string;
+  role: PersonnelRole;
+  entite: Entite;
+}
+
+export interface LoginResponseDto {
+  id: number;
+  nom: string;
+  prenom: string;
+  accessCode: string;
+  role: PersonnelRole;
+  entite: Entite;
+  /** Ancienne propriété conservée temporairement pour les menus non migrés. */
+  loginType?: string;
+}
+
+export interface Personnel{
+  
+}
+
+
+export interface PersonnelAchatDto {
+  id: number;
+  nom: string;
+  prenom: string;
+}
+

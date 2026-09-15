@@ -2,6 +2,8 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { BottomNavigationBar } from '../shared/components/bottom-navigation-bar/bottom-navigation-bar';
 import { ActivitySpace, ActivitySpaceService } from '../shared/service/activity-space.service';
+import { getUserFromSessionStorage } from '../admin/shared/auth.util';
+import { LoginResponseDto } from '../admin/model/admin.model';
 
 @Component({
   selector: 'app-shell-layout',
@@ -13,6 +15,23 @@ import { ActivitySpace, ActivitySpaceService } from '../shared/service/activity-
 export class ShellLayoutComponent implements OnInit {
   private router = inject(Router);
   readonly activity = inject(ActivitySpaceService);
+  readonly connectedUser: LoginResponseDto | null = getUserFromSessionStorage();
+
+  get userName(): string {
+    if (!this.connectedUser) return 'Utilisateur';
+    return `${this.connectedUser.prenom ?? ''} ${this.connectedUser.nom ?? ''}`.trim() || 'Utilisateur';
+  }
+
+  get userRole(): string {
+    const labels: Record<string, string> = {
+      SUPER_ADMIN: 'Super administrateur',
+      ADMIN: 'Administrateur',
+      RESPONSABLE: 'Responsable',
+      CAISSIER: 'Caissier',
+      COUTURIER: 'Couturier',
+    };
+    return labels[this.connectedUser?.role ?? ''] ?? this.connectedUser?.role ?? 'Personnel';
+  }
 
   changeSpace(event: Event): void {
     const space = (event.target as HTMLSelectElement).value as ActivitySpace;

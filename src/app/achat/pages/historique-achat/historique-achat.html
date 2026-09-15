@@ -1,1 +1,153 @@
-<p>historique-achat works!</p>
+<section class="history-page">
+  <app-floating-back-button />
+
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Stock / Achats</p>
+      <h1>Historique des achats</h1>
+      <p>Suivez les réceptions, les paiements et les crédits fournisseurs.</p>
+    </div>
+
+    <a class="primary-button" routerLink="/admin/add-achat">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      Nouvelle réception
+    </a>
+  </header>
+
+  <section class="summary-grid" aria-label="Résumé des achats">
+    <article class="summary-card">
+      <span class="summary-icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
+      <div>
+        <small>Réceptions</small>
+        <strong>{{ totalAchats() }}</strong>
+      </div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon paid"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
+      <div>
+        <small>Montant payé</small>
+        <strong>{{ totalDepense() | number:'1.0-0' }} <em>FCFA</em></strong>
+      </div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon credit"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span>
+      <div>
+        <small>Crédit fournisseur</small>
+        <strong>{{ totalCredit() | number:'1.0-0' }} <em>FCFA</em></strong>
+      </div>
+    </article>
+  </section>
+
+  <section class="toolbar" aria-label="Filtres de l’historique">
+    <label class="search-field">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <span class="sr-only">Rechercher</span>
+      <input
+        type="search"
+        placeholder="Référence, fournisseur ou facture"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+      />
+    </label>
+
+    <div class="status-filters" role="tablist" aria-label="Filtrer par paiement">
+      @for (option of paymentOptions; track option.key) {
+        <button
+          type="button"
+          role="tab"
+          [class.active]="paymentFilter() === option.key"
+          [attr.aria-selected]="paymentFilter() === option.key"
+          (click)="paymentFilter.set(option.key)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="history-panel">
+    <div class="panel-heading">
+      <div>
+        <h2>Réceptions enregistrées</h2>
+        <p>{{ filteredAchats().length }} résultat(s)</p>
+      </div>
+      <button type="button" class="filter-button" aria-label="Filtrer les résultats">
+        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="empty-state">
+        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+        <h3>Chargement de l’historique</h3>
+        <p>Les réceptions sont en cours de récupération.</p>
+      </div>
+    } @else if (error()) {
+      <div class="empty-state">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <h3>Impossible de charger les achats</h3>
+        <p>{{ error() }}</p>
+        <button type="button" class="primary-button" (click)="loadHistorique()">
+          Réessayer
+        </button>
+      </div>
+    } @else if (filteredAchats().length) {
+      <div class="history-table" role="table" aria-label="Historique des achats">
+        <div class="table-header" role="row">
+          <span>Réception</span>
+          <span>Fournisseur</span>
+          <span>Lignes</span>
+          <span>Total</span>
+          <span>Paiement</span>
+          <span></span>
+        </div>
+
+        @for (achat of filteredAchats(); track achat.id) {
+          <article class="history-row" role="row">
+            <div class="reception-cell" data-label="Réception">
+              <strong>{{ achat.reference }}</strong>
+              <small>{{ achat.date | date:'dd/MM/yyyy à HH:mm' }}</small>
+            </div>
+            <div class="supplier-cell" data-label="Fournisseur">
+              <strong>{{ formatSupplier(achat.fournisseur) }}</strong>
+              @if (achat.numeroFacture) {
+                <small>Facture {{ achat.numeroFacture }}</small>
+              } @else {
+                <small>Sans facture</small>
+              }
+            </div>
+            <div class="lines-cell" data-label="Lignes">
+              {{ achat.nombreLignes }} ligne{{ achat.nombreLignes > 1 ? 's' : '' }}
+            </div>
+            <div class="total-cell" data-label="Total">
+              <strong>{{ achat.totalAchat | number:'1.0-0' }} FCFA</strong>
+              <small>Payé : {{ achat.montantPaye | number:'1.0-0' }} FCFA</small>
+            </div>
+            <div class="payment-cell" data-label="Paiement">
+              <span class="status-badge" [class]="statusClass(achat.statutPaiement)">
+                {{ achat.statutPaiement }}
+              </span>
+              @if (achat.resteAPayer > 0) {
+                <small>Reste {{ achat.resteAPayer | number:'1.0-0' }} FCFA</small>
+              }
+            </div>
+            <a
+              class="row-action"
+              [routerLink]="['/admin/historique-achat', achat.id]"
+              [attr.aria-label]="'Voir le détail de la réception ' + achat.reference"
+            >
+              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </a>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+        <h3>Aucune réception trouvée</h3>
+        <p>Modifiez votre recherche ou enregistrez une nouvelle réception.</p>
+        <a class="primary-button" routerLink="/admin/add-achat">Nouvelle réception</a>
+      </div>
+    }
+  </section>
+</section>

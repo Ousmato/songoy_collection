@@ -45,6 +45,32 @@ export const APP_ROUTES: Routes = [
           import('../../article/pages/add-article/add-article').then((m) => m.AddArticle),
       },
       {
+        path: 'article-variants',
+        title: 'Variantes article',
+        data: { title: 'Variantes article' },
+        loadComponent: () =>
+          import('../../article/pages/article-variants/article-variants').then(
+            (m) => m.ArticleVariants,
+          ),
+      },
+      {
+        path: 'article-variants/:articleId/stock/:variantId',
+        title: 'Stock initial',
+        loadComponent: () =>
+          import('../../stock/pages/add-initial-stock/add-initial-stock').then(
+            (m) => m.AddInitialStock,
+          ),
+      },
+      {
+        path: 'article-variants/:articleId',
+        title: 'Variantes article',
+        data: { title: 'Variantes article' },
+        loadComponent: () =>
+          import('../../article/pages/article-variants/article-variants').then(
+            (m) => m.ArticleVariants,
+          ),
+      },
+      {
         path: 'article-list',
         title: 'Liste des articles',
         data: { title: 'Liste des articles' },
@@ -79,10 +105,10 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'list-ventes',
-        title: 'Ventes',
-        data: { title: 'Ventes' },
+        title: 'Historique des ventes',
+        data: { title: 'Historique des ventes' },
         loadComponent: () =>
-          import('../../vente/pages/vete-menue/vete-menue').then((m) => m.VeteMenue),
+          import('../../vente/pages/list-vente/list-vente').then((m) => m.ListVente),
       },
       {
         path: 'add-vente',
@@ -147,8 +173,8 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'add-achat',
-        title: 'Nouvel achat',
-        data: { title: 'Nouvel achat' },
+        title: 'Nouvelle réception',
+        data: { title: 'Nouvelle réception' },
         loadComponent: () =>
           import('../../achat/pages/ajouter-achat/ajouter-achat').then((m) => m.AjouterAchat),
       },
@@ -170,6 +196,15 @@ export const APP_ROUTES: Routes = [
         loadComponent: () =>
           import('../../achat/pages/historique-achat/historique-achat').then(
             (m) => m.HistoriqueAchat,
+          ),
+      },
+      {
+        path: 'historique-achat/:achatId',
+        title: "Détail de l'achat",
+        data: { title: "Détail de l'achat" },
+        loadComponent: () =>
+          import('../../achat/pages/detail-achat/detail-achat').then(
+            (m) => m.DetailAchat,
           ),
       },
       {
@@ -209,7 +244,10 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'add-personnel',
-        redirectTo: 'list-personnel',
+        title: 'Ajouter un personnel',
+        data: { title: 'Ajouter un personnel' },
+        loadComponent: () =>
+          import('../../admin/pages/add-personnel/add-personnel').then((m) => m.AddPersonnel),
       },
       {
         path: 'list-personnel',
@@ -226,6 +264,24 @@ export const APP_ROUTES: Routes = [
         data: { title: 'Settings' },
         loadComponent: () =>
           import('../../setting/pages/setting-menue/setting-menue').then((m) => m.SettingMenue),
+      },
+      {
+        path: 'list-caracteristique',
+        title: 'Caractéristiques',
+        data: { title: 'Caractéristiques' },
+        loadComponent: () =>
+          import('../../categorie/pages/list-caracteristique/list-caracteristique').then(
+            (m) => m.ListCaracteristique,
+        ),
+      },
+      {
+        path: 'add-attribute',
+        title: 'Ajouter une caractéristique',
+        data: { title: 'Ajouter une caractéristique' },
+        loadComponent: () =>
+          import('../../categorie/pages/add-attribute/add-attribute').then(
+            (m) => m.AddAttribute,
+          ),
       },
       {
         path: 'configuration-boutique',

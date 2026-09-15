@@ -4,7 +4,10 @@ import { ReactiveFormsModule, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { DependencyService } from '../../../shared/utils/dependency';
 import { EnumMethodes } from '../../../shared/utils/util-methode';
-import { CategoryMesure } from '../../models/categorie.enum';
+import { CategoryMesure, CategoryType } from '../../models/categorie.enum';
+import { Entite } from '../../../admin/model/admin.enum';
+import { Categorie } from '../../models/categorie.model';
+import { getUserFromSessionStorage } from '../../../admin/shared/auth.util';
 
 @Component({
   selector: 'app-add-categorie',
@@ -21,6 +24,9 @@ export class AddCategorieComponent implements OnInit {
   private router = inject(Router);
   form!: FormGroup;
   categoryMesureList = EnumMethodes.getEnumKeyVale(CategoryMesure);
+  categoryEntiteList = EnumMethodes.getEnumKeyVale(Entite);
+  categoryTypeList = EnumMethodes.getEnumKeyVale(CategoryType);
+
 
   ngOnInit(): void {
     this.loadForm();
@@ -29,7 +35,9 @@ export class AddCategorieComponent implements OnInit {
   loadForm() {
     this.form = this.dependencyService.fb.group({
       nom: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(40)]],
-      mesure: ['', [Validators.required]],
+      mesureCategory: ['', [Validators.required]],
+      categoryType: ['', [Validators.required]],
+      entite: ['', [Validators.required]],
       description: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
@@ -49,10 +57,25 @@ export class AddCategorieComponent implements OnInit {
       return;
     }
 
-    this.onClose();
+    const user = getUserFromSessionStorage();
+    if (!user?.id) {
+      this.dependencyService.responseService.showErrorToast('Session administrateur introuvable.');
+      return;
+    }
+
+    const category = this.form.getRawValue() as Categorie;
+    this.dependencyService.categoryService.addCategorie(category, user.id).subscribe({
+      next: (result) => {
+        this.dependencyService.responseService.showSuccessToast(result?.message ?? 'Catégorie ajoutée avec succès.');
+        this.onClose();
+      },
+      error: (error) => {
+        this.dependencyService.responseService.showErrorToast(error?.error?.message ?? 'Impossible d’ajouter la catégorie.');
+      },
+    });
   }
 
   get nomCtrl() { return this.form.get('nom'); }
-  get mesureCtrl() { return this.form.get('mesure'); }
+  get mesureCtrl() { return this.form.get('mesureCategory'); }
   get descriptionCtrl() { return this.form.get('description'); }
 }

@@ -34,3 +34,5 @@ export interface LigneAchatResponse {
   quantite: number;
   prix: number;
 }
+
+

@@ -1,0 +1,75 @@
+<section class="personnel-form-page">
+  <header class="personnel-form-header">
+    <div>
+      <p class="personnel-kicker">Équipe interne</p>
+      <h1>Ajouter un personnel</h1>
+      <p class="personnel-subtitle">Créez un accès pour la boutique ou l’atelier.</p>
+    </div>
+    <!-- <a routerLink="/admin/list-personnel" class="back-link"><i class="fa-solid fa-arrow-left"></i> Retour</a> -->
+  </header>
+  @if (successMessage()) { <div class="form-alert success" role="status">{{ successMessage() }}</div> }
+  @if (errorMessage()) { <div class="form-alert error" role="alert">{{ errorMessage() }}</div> }
+  <form class="personnel-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <section class="form-card">
+      <div class="card-heading"><span class="card-icon"><i class="fa-solid fa-id-card"></i></span>
+        <div>
+          <h2>Identité</h2>
+          <p>Informations du collaborateur.</p>
+        </div>
+      </div>
+      <div class="fields-grid two-columns">
+        <label>Nom<input type="text" formControlName="nom" placeholder="Nom" />
+        @if (control('nom')?.touched &&
+          control('nom')?.invalid) 
+          { <small>Le nom est obligatoire.</small> }
+        </label>
+        <label>Prénom<input type="text" formControlName="prenom" placeholder="Prénom" />
+        @if (control('prenom')?.touched
+          && control('prenom')?.invalid) 
+          { <small>Le prénom est obligatoire.</small> }
+        </label>
+        <label>Adresse<input type="text" formControlName="adresse" placeholder="Adresse" />
+          @if (control('adresse')?.touched && control('adresse')?.invalid) 
+          { <small>L’adresse est obligatoire.</small> }
+        </label>
+        <label>Téléphone<input type="tel" formControlName="telephone" inputmode="numeric" placeholder="76000000" />
+          @if(control('telephone')?.touched && control('telephone')?.invalid) 
+          { <small>Entrez exactement 8 chiffres.</small> }
+        </label>
+        <label>Date de naissance<input type="date" formControlName="dateNaissance" /></label>
+      </div>
+    </section>
+    <section class="form-card">
+      <div class="card-heading"><span class="card-icon"><i class="fa-solid fa-user-shield"></i></span>
+        <div>
+          <h2>Accès professionnel</h2>
+          <p>Le code d’accès sera généré automatiquement.</p>
+        </div>
+      </div>
+      <div class="fields-grid two-columns">
+        <label>Rôle<select formControlName="role">
+            <option value="" disabled>Choisir un rôle</option>
+            @for (option of roleOptions; track option.value) 
+            { <option   [value]="option.key">{{ option.value }}</option> }
+          </select>@if (control('role')?.touched && control('role')?.invalid) 
+          { <small>Le rôle est obligatoire.</small> }
+        </label>
+        <label>Entité<select formControlName="entite">
+            <option value="" disabled>Choisir une entité</option>
+            @for (option of entiteOptions; track option.value) {
+            <option [value]="option.key">{{ option.value }}</option> }
+          </select>
+          @if (control('entite')?.touched && control('entite')?.invalid) 
+          { <small>L’entité est obligatoire.</small> }
+        </label>
+      </div>
+      <div class="access-note"><i class="fa-solid fa-circle-info"></i><span>Le personnel poura se connecter avec un code au format
+          <strong>SON-XXXXXX</strong>.</span></div>
+    </section>
+    <div class="form-actions">
+      <!-- <a routerLink="/admin/list-personnel" class="cancel-button">Annuler</a> -->
+      <button
+        type="submit" class="submit-button" [disabled]="submitted()"><i class="fa-solid fa-user-plus"></i>{{ submitted()
+        ? 'Enregistrement…' : 'Ajouter le personnel' }}</button></div>
+  </form>
+</section>

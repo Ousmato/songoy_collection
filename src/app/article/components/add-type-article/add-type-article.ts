@@ -55,11 +55,11 @@ export class AddTypeArticle implements OnInit {
       next: (response) => {
         this.form.reset();
         this.loadForm();
-        this.dependenceService.responseService.showSuccessToast(response.message$);
+        this.dependenceService.responseService.showSuccessToast(response.message);
         this.onClose();
       },
       error: (error) => {
-        this.dependenceService.responseService.showErrorToast(error.message);
+        this.dependenceService.responseService.showErrorToast(error.error.message);
       }
     });
 

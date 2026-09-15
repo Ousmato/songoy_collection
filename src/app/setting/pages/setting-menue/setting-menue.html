@@ -23,7 +23,14 @@
         >
           <i [class]="item.icon" aria-hidden="true"></i>
           <span>{{ item.label }}</span>
-        </button>
+        </button>      } @else if (item.key === 'attribute') {
+        <a
+          class="setting-shortcut setting-shortcut-{{ item.tone }}"
+          [routerLink]="item.route"
+        >
+          <i [class]="item.icon" aria-hidden="true"></i>
+          <span>{{ item.label }}</span>
+        </a>
       } @else if (item.key === 'paiement') {
         <button
           type="button"

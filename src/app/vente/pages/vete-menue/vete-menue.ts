@@ -60,12 +60,6 @@ export class VeteMenue {
 
   quickActions: VenteQuickAction[] = [
     {
-      label: 'Vente',
-      route: AdminRoutePaths.addVente,
-      icon: 'fa-solid fa-plus',
-      tone: 'gold',
-    },
-    {
       label: 'Reglement',
       route: AdminRoutePaths.addReglement,
       icon: 'fa-solid fa-plus',

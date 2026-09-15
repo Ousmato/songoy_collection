@@ -110,7 +110,7 @@ export class AddCommande implements OnInit {
       return;
     }
 
-    this.dependencyService.articleService.loadArticles(idCategorie, this.user.id).subscribe({
+    this.dependencyService.articleService.loadArticlesByCategoryId(idCategorie, this.user.id).subscribe({
       next: (response) => {
         this.articlesData = response.map<Select2Option>((art: SimpleArticleResponse, index) => ({
           id: `art-${art.id ?? index}-${index}`,

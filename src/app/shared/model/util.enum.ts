@@ -1,10 +1,18 @@
+
+import { Entite, PersonnelRole, TypeEntiteKey } from "../../admin/model/admin.enum";
 import { EnumMethodes } from "../utils/util-methode";
 
-export enum UserRole {
+export { Entite, PersonnelRole } from "../../admin/model/admin.enum";
+
+/** Compatibilité avec l'ancien menu ; les permissions utilisent PersonnelRole. */
+export enum LoginType {
+    PERSONAL = 'Personnel',
     ADMIN = 'Admin',
     CAISSIER = 'Caissier',
-    USERS_ROLE = 'User'
+    USERS_ROLE = 'Client',
 }
+export type LoginTypeKey = keyof typeof LoginType;
+
 
 
 export interface ConfirmCodeRequest {
@@ -12,21 +20,12 @@ export interface ConfirmCodeRequest {
     code: string;
 }
 
-export enum LoginType {
-    PERSONAL = 'Personnel',
-    ADMIN = 'Admin',
-    CAISSIER = 'Caissier',
-    USERS_ROLE = 'Client'
-}
-
-export type LoginTypeKey = keyof typeof LoginType;
 
 
-
-export function getRoleKey(value: UserRole): keyof typeof UserRole {
+export function getRoleKey(value: PersonnelRole): keyof typeof PersonnelRole {
 
     const key = EnumMethodes.getEnumKeyByValue(
-        UserRole,
+        PersonnelRole,
         value
     );
 
@@ -36,12 +35,12 @@ export function getRoleKey(value: UserRole): keyof typeof UserRole {
         );
     }
 
-    return key as keyof typeof UserRole;
+    return key as keyof typeof PersonnelRole;
 }
 
 export enum ModePaiement {
     CASH = 'Cash',
-    CREDIT = 'Vente a credit',
+    CREDIT = 'A credit',
     MOBILE = 'Mobile',
     CHECKING = 'Cheque',
 }
@@ -63,17 +62,10 @@ export function getModePaiementKey(value: ModePaiement): ModePaiementKey {
     return key as ModePaiementKey;
 }
 
-export enum TypeEntite {
-    BOUTIQUE = 'Boutique',
-    ATELIER_COUTURE = 'Atelier couture',
-}
-
-export type TypeEntiteKey = keyof typeof TypeEntite;
-
-export function getTypeEntiteKey(value: TypeEntite): TypeEntiteKey {
+export function getTypeEntiteKey(value: Entite): TypeEntiteKey {
 
     const key = EnumMethodes.getEnumKeyByValue(
-        TypeEntite,
+        Entite,
         value
     );
 

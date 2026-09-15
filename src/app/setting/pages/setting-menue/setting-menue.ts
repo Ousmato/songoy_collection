@@ -6,7 +6,7 @@ import { AddCategorieComponent } from '../../../categorie/components/add-categor
 import { AddDepense } from '../../../depense/components/add-depense/add-depense';
 
 type SettingQuickAction = {
-  key: 'categorie' | 'typeArticle' | 'paiement' | 'depense';
+  key: 'categorie' | 'typeArticle' | 'attribute' | 'paiement' | 'depense';
   label: string;
   route: string;
   icon: string;
@@ -60,6 +60,13 @@ export class SettingMenue {
       icon: 'fa-solid fa-plus',
       tone: 'info',
     },
+    {
+      key: 'attribute',
+      label: 'Attribut catégorie',
+      route: '/admin/add-attribute',
+      icon: 'fa-solid fa-sliders',
+      tone: 'success',
+    },
   
     {
       key: 'depense',
@@ -111,6 +118,12 @@ export class SettingMenue {
       tone: 'info',
     },
     {
+      title: 'Caractéristiques',
+      route: '/admin/list-caracteristique',
+      icon: 'fa-solid fa-sliders',
+      tone: 'success',
+    },
+    {
       title: 'Historique paiement',
       route: '/admin/historique-paiement',
       icon: 'fa-solid fa-receipt',
@@ -155,4 +168,5 @@ export class SettingMenue {
   closeAddDepenseModal(): void {
     this.showAddDepenseModal.set(false);
   }
+
 }

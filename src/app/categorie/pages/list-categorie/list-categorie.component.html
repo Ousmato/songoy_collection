@@ -3,7 +3,7 @@
 
   <header class="page-header">
     <div>
-      <h1 class="page-title">Cat&eacute;gories d'articles</h1>
+      <h1 class="page-title">catégories d'articles</h1>
       <p class="page-subtitle">R&eacute;f&eacute;rentiel des familles de produits &middot; {{ today }}</p>
     </div>
   </header>
@@ -11,45 +11,47 @@
   <section class="panel panel-categories">
     <div class="panel-head">
       <div>
-        <h2 class="panel-title">Toutes les cat&eacute;gories</h2>
-        <p class="panel-hint">Cliquez sur une cat&eacute;gorie pour voir ses articles.</p>
+        <h2 class="panel-title">Toutes les catégories</h2>
+        <p class="panel-hint">Cliquez sur une catégorie pour voir ses articles.</p>
       </div>
       <div class="panel-filters">
         <div class="search-input">
           <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <input type="search" placeholder="Rechercher une cat&eacute;gorie..." aria-label="Rechercher une cat&eacute;gorie">
+          <input type="search" placeholder="Rechercher une cat&eacute;gorie..." aria-label="Rechercher une cat&eacute;gorie"
+            [value]="search()" (input)="search.set($any($event.target).value)">
         </div>
       </div>
     </div>
 
     <div class="categories-grid">
-      @for (c of categories(); track c.id) {
-        <article class="cat-card cat-card-accent-{{ c.accent }}">
+      
+      @for (c of filteredCategories(); track c.id) {
+        <article class="cat-card cat-card-accent-gold">
           <div class="cat-card-head">
-            <span class="cat-card-icon" [style.background]="'color-mix(in srgb, ' + c.color + ' 14%, transparent)'" [style.color]="c.color">
-              <i class="fa-solid {{ c.icon }}" aria-hidden="true"></i>
+            <span class="cat-card-icon" [style.background]="'color-mix(in srgb, #A8892F 14%, transparent)'" [style.color]="'#A8892F'">
+              <i class="fa-solid fa-tag" aria-hidden="true"></i>
             </span>
-            <span class="cat-card-pill cat-card-pill-{{ c.accent }}">
-              {{ c.mesure }}
+            <span class="cat-card-pill cat-card-pill-gold">
+              {{ getUniteLabel(c) }}
             </span>
+            <span class="cat-card-pill cat-card-pill-gold">{{ getTypeLabel(c) }}</span>
           </div>
 
           <h3 class="cat-card-name">{{ c.nom }}</h3>
           <p class="cat-card-desc">{{ c.description }}</p>
+          <small class="cat-card-entity">Entité : {{ getEntiteLabel(c) }}</small>
 
           <div class="cat-card-foot">
             <div class="cat-card-meta">
               <span class="cat-card-count">
-                <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i> {{ c.productCount }} articles
+                <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i> {{ c.nombreArticle || 0 }} articles
               </span>
-              <span class="cat-card-ratio" [style.background]="'linear-gradient(90deg, ' + c.color + ' 0%, color-mix(in srgb, ' + c.color + ' 60%, #A8892F) 100%)'">
-                <span class="cat-card-ratio-fill" [style.width]="c.productCount > 80 ? '92%' : (c.productCount > 40 ? '70%' : (c.productCount > 20 ? '48%' : '28%'))"></span>
+              <span class="cat-card-ratio" [style.background]="'linear-gradient(90deg, #A8892F 0%, #C9A24A 100%)'">
+                <span class="cat-card-ratio-fill" [style.width]="(c.nombreArticle || 0) > 80 ? '92%' : ((c.nombreArticle || 0) > 40 ? '70%' : ((c.nombreArticle || 0) > 20 ? '48%' : '28%'))"></span>
               </span>
             </div>
             <div class="cat-card-actions">
-              <button type="button" class="sc-btn-sm sc-btn-sm-ghost" aria-label="Voir la cat&eacute;gorie">
-                <i class="fa-solid fa-eye" aria-hidden="true"></i>
-              </button>
+             
               <button type="button" class="sc-btn-sm sc-btn-sm-ghost" aria-label="Modifier la cat&eacute;gorie">
                 <i class="fa-solid fa-pen" aria-hidden="true"></i>
               </button>
@@ -59,6 +61,9 @@
             </div>
           </div>
         </article>
+      }
+      @empty {
+        <p class="panel-hint">Aucune catégorie ne correspond à votre recherche.</p>
       }
     </div>
   </section>

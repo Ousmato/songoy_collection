@@ -1,0 +1,633 @@
+:host {
+  display: block;
+}
+
+.attribute-page {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: 28px 32px 48px;
+  color: var(--sc-brown-dark);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-header > div {
+  min-width: 0;
+  max-width: 760px;
+}
+
+.page-kicker {
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sc-gray-500);
+}
+
+  .page-header h1 {
+  margin: 0;
+  font-size: clamp(1.55rem, 2vw, 2rem);
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--sc-black-deep);
+}
+
+.page-intro {
+  margin: 9px 0 0;
+  max-width: 680px;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--sc-gray-500);
+}
+
+/* =========================================================
+   LAYOUT
+========================================================= */
+
+.attribute-content {
+  min-width: 0;
+  overflow: hidden;
+
+  border: 1px solid var(--sc-gray-100);
+  border-radius: 14px;
+  background: #ffffff;
+
+  box-shadow:
+    0 1px 2px rgba(31, 26, 22, 0.03),
+    0 8px 30px rgba(31, 26, 22, 0.035);
+}
+
+/* =========================================================
+   CONTENT HEADING
+========================================================= */
+
+.content-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--sc-gray-100);
+  background: var(--sc-cream-warm);
+}
+
+.heading-icon {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+  background: var(--sc-cream-bg);
+  color: var(--sc-gray-700);
+
+  font-size: 1rem;
+}
+
+.content-heading h2 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--sc-black-deep);
+}
+
+.content-heading p {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--sc-gray-500);
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.attribute-content form {
+  display: flex;
+  flex-direction: column;
+}
+
+.attribute-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 20px;
+  padding: 26px 24px 30px;
+}
+
+.attribute-field-full,
+.mode-fieldset,
+.check-field {
+  grid-column: 1 / -1;
+}
+
+/* =========================================================
+   LABELS / INPUTS
+========================================================= */
+
+.attribute-fields label {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  font-size: 0.82rem;
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--sc-gray-700);
+}
+
+.attribute-fields input:not([type='checkbox']),
+.attribute-fields select {
+  width: 100%;
+  min-height: 44px;
+
+  padding: 0 13px;
+
+  border: 1px solid var(--sc-gray-300);
+  border-radius: 9px;
+
+  outline: none;
+  background: #ffffff;
+  color: var(--sc-brown-dark);
+
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 400;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.attribute-fields input::placeholder {
+  color: var(--sc-gray-300);
+}
+
+.attribute-fields input:not([type='checkbox']):hover,
+.attribute-fields select:hover {
+  border-color: var(--sc-gold-light);
+}
+
+.attribute-fields input:not([type='checkbox']):focus,
+.attribute-fields select:focus {
+  border-color: var(--sc-gray-700);
+  box-shadow: 0 0 0 3px rgba(168, 137, 47, 0.09);
+}
+
+.attribute-fields select {
+  cursor: pointer;
+}
+
+/* =========================================================
+   ERROR & HINTS
+========================================================= */
+
+.field-hint {
+  display: block;
+  margin-top: -1px;
+
+  font-size: 0.72rem !important;
+  line-height: 1.45;
+  font-weight: 400 !important;
+  color: var(--sc-gray-500) !important;
+}
+
+.attribute-fields label > small:not(.field-hint) {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--sc-danger);
+}
+
+/* =========================================================
+   MODE
+========================================================= */
+
+.mode-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.mode-fieldset legend {
+  margin-bottom: 9px;
+
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--sc-gray-700);
+}
+
+.attribute-mode {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.attribute-mode button {
+  min-height: 48px;
+  padding: 11px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+
+  border: 1px solid var(--sc-gray-100);
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: var(--sc-gray-700);
+
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.attribute-mode button i {
+  width: 28px;
+  height: 28px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+  background: var(--sc-cream-bg);
+
+  font-size: 0.72rem;
+
+  transition: inherit;
+}
+
+.attribute-mode button:hover {
+  border-color: var(--sc-gold-light);
+  background: var(--sc-cream-warm);
+}
+
+.attribute-mode button.active {
+  border-color: var(--sc-gold-primary);
+  background: var(--sc-cream-warm);
+  color: var(--sc-black-deep);
+
+  box-shadow: 0 0 0 2px rgba(168, 137, 47, 0.07);
+}
+
+.attribute-mode button.active i {
+  background: var(--sc-gold-primary);
+  color: #ffffff;
+}
+
+/* =========================================================
+   CHECKBOX
+========================================================= */
+
+.check-field {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start;
+  gap: 11px !important;
+
+  margin-top: 2px;
+  padding: 15px 16px;
+
+  border: 1px solid var(--sc-gray-100);
+  border-radius: 10px;
+
+  background: var(--sc-cream-warm);
+  cursor: pointer;
+}
+
+.check-field input {
+  flex: 0 0 auto;
+
+  width: 17px;
+  height: 17px;
+
+  margin: 2px 0 0;
+
+  accent-color: var(--sc-gold-primary);
+  cursor: pointer;
+}
+
+.check-field span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.check-field strong {
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: var(--sc-brown-dark);
+}
+
+.check-field small {
+  font-size: 0.72rem !important;
+  line-height: 1.4;
+  font-weight: 400 !important;
+  color: var(--sc-gray-500) !important;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.attribute-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+
+  padding: 18px 24px;
+
+  border-top: 1px solid var(--sc-gray-100);
+  background: var(--sc-cream-warm);
+}
+
+.attribute-btn {
+  min-height: 42px;
+  padding: 0 18px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border-radius: 9px;
+  border: 1px solid transparent;
+
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+.attribute-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.attribute-btn.ghost {
+  border-color: var(--sc-gray-100);
+  background: #ffffff;
+  color: var(--sc-gray-700);
+}
+
+.attribute-btn.ghost:hover:not(:disabled) {
+  background: var(--sc-cream-warm);
+  border-color: var(--sc-gold-light);
+  color: var(--sc-brown-dark);
+}
+
+.attribute-btn.primary {
+  border-color: var(--sc-gold-primary);
+  background: var(--sc-gold-primary);
+  color: #ffffff;
+}
+
+.attribute-btn.primary:hover:not(:disabled) {
+  background: var(--sc-brown-dark);
+  border-color: var(--sc-brown-dark);
+  box-shadow: 0 4px 12px rgba(31, 26, 22, 0.15);
+}
+
+.attribute-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SELECT2
+========================================================= */
+
+.attribute-select2 {
+  width: 100%;
+}
+
+:host ::ng-deep .attribute-select2 .select2-container {
+  width: 100% !important;
+}
+
+:host ::ng-deep .attribute-select2 .select2-selection {
+  min-height: 44px !important;
+
+  display: flex;
+  align-items: center;
+
+  border: 1px solid var(--sc-gray-300) !important;
+  border-radius: 9px !important;
+
+  background: #ffffff !important;
+
+  box-shadow: none !important;
+}
+
+:host ::ng-deep .attribute-select2 .select2-selection:hover {
+  border-color: var(--sc-gold-light) !important;
+}
+
+:host ::ng-deep .attribute-select2 .select2-selection__rendered {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+
+  padding: 5px 10px !important;
+}
+
+:host ::ng-deep .attribute-select2 .select2-selection__choice {
+  margin: 0 !important;
+  padding: 4px 8px !important;
+
+  border: 1px solid var(--sc-gray-100) !important;
+  border-radius: 6px !important;
+
+  background: var(--sc-cream-bg) !important;
+  color: var(--sc-gray-700) !important;
+
+  font-size: 0.72rem !important;
+}
+
+:host ::ng-deep .attribute-select2 .select2-search__field {
+  min-height: 28px !important;
+  font-size: 0.8rem !important;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1050px) {
+  .attribute-page {
+    padding-inline: 24px;
+  }
+
+}
+
+/* =========================================================
+   MOBILE / SMALL TABLET
+========================================================= */
+
+@media (max-width: 768px) {
+  .attribute-page {
+    width: 100%;
+    padding: 20px 0 36px;
+  }
+
+  .page-header {
+    margin-bottom: 20px;
+  }
+
+  .page-header h1 {
+    font-size: 1.45rem;
+  }
+
+  .page-intro {
+    font-size: 0.84rem;
+  }
+
+  .content-heading {
+    padding: 17px 18px;
+  }
+
+  .attribute-fields {
+    grid-template-columns: 1fr;
+    gap: 19px;
+    padding: 22px 18px 25px;
+  }
+
+  .attribute-mode button {
+    padding-inline: 12px;
+  }
+
+  .attribute-actions {
+    padding: 15px 18px;
+  }
+
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 520px) {
+  .attribute-page {
+    padding: 14px 0 28px;
+  }
+
+  .page-kicker {
+    font-size: 0.68rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .page-intro {
+    margin-top: 7px;
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .attribute-content {
+    border-radius: 11px;
+  }
+
+  .content-heading {
+    gap: 11px;
+    padding: 15px;
+  }
+
+  .heading-icon {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .content-heading h2 {
+    font-size: 0.9rem;
+  }
+
+  .content-heading p {
+    font-size: 0.72rem;
+  }
+
+  .attribute-fields {
+    gap: 18px;
+    padding: 19px 15px 22px;
+  }
+
+  .attribute-mode {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .attribute-mode button {
+    min-height: 44px;
+  }
+
+  .attribute-fields input:not([type='checkbox']),
+  .attribute-fields select {
+    min-height: 42px;
+    font-size: 0.8rem;
+  }
+
+  .check-field {
+    padding: 13px;
+  }
+
+  .attribute-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+
+    padding: 14px 15px;
+  }
+
+  .attribute-btn {
+    width: 100%;
+    min-height: 42px;
+  }
+
+}
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+.attribute-mode button:focus-visible,
+.attribute-btn:focus-visible,
+.check-field:focus-within {
+  outline: 2px solid var(--sc-gold-primary);
+  outline-offset: 2px;
+}

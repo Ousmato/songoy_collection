@@ -1,1 +1,112 @@
-<p>add-article works!</p>
+<section class="article-page">
+  <app-floating-back-button />
+
+  <header class="article-header">
+    <p class="kicker">Catalogue boutique</p>
+    <h1>Ajouter un article</h1>
+    <p class="subtitle">
+      Créez un article et préparez ses images avant l’enregistrement.
+    </p>
+  </header>
+
+  <form class="article-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <section class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-box" aria-hidden="true"></i>
+        <div>
+          <h2>Informations de l’article</h2>
+        <p>Associez l’article à une catégorie et à un type. Le prix sera défini sur chaque variante.</p>
+        </div>
+      </div>
+
+      <div class="fields">
+        <label for="categoryId">
+          Catégorie
+          <select id="categoryId" formControlName="categoryId">
+            <option value="" disabled>Choisir une catégorie</option>
+            @for (category of categoryList; track category.id) {
+              <option [value]="category.id">{{ category.nom }}</option>
+            }
+          </select>
+          @if (control('categoryId')?.touched && control('categoryId')?.invalid) {
+            <small>La catégorie est obligatoire.</small>
+          }
+        </label>
+
+        <label for="articleTypeId">
+          Type d’article
+          <select id="articleTypeId" formControlName="articleTypeId">
+            <option value="" disabled>Choisir un type</option>
+            @for (type of articleTypeList; track type.id) {
+              <option [value]="type.id">{{ type.nom }}</option>
+            }
+          </select>
+          @if (control('articleTypeId')?.touched && control('articleTypeId')?.invalid) {
+            <small>Le type est obligatoire.</small>
+          }
+        </label>
+
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-images" aria-hidden="true"></i>
+        <div>
+          <h2>Images de l’article</h2>
+          <p>Les fichiers HEIC sont convertis et optimisés avant l’enregistrement.</p>
+        </div>
+      </div>
+
+      <label class="dropzone" for="articleImages">
+        <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+        <strong>Choisir les images</strong>
+        <span>JPG, PNG, WEBP, HEIC · plusieurs fichiers possibles</span>
+        <input
+          id="articleImages"
+          type="file"
+          accept="image/*,.heic,.heif"
+          multiple
+          (change)="onFilesSelected($event)"
+        />
+      </label>
+
+      @if (processingImages()) {
+        <p class="processing">
+          <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+          Traitement des images...
+        </p>
+      }
+
+      @if (previews().length) {
+        <div class="previews">
+          @for (preview of previews(); track preview.url; let i = $index) {
+            <div class="preview">
+              <img [src]="preview.url" [alt]="preview.file.name" />
+              <button
+                type="button"
+                (click)="removeImage(i)"
+                [attr.aria-label]="'Supprimer ' + preview.file.name"
+              >
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
+              <span>{{ preview.file.name }}</span>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <div class="actions">
+      
+      <button
+        type="submit"
+        class="submit"
+        [disabled]="processingImages() || submitted()"
+      >
+        <i class="fa-solid fa-check" aria-hidden="true"></i>
+        Préparer l’article
+      </button>
+    </div>
+  </form>
+</section>

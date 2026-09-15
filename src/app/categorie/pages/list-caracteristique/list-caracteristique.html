@@ -1,0 +1,69 @@
+﻿<section class="page characteristics-page">
+  <app-floating-back-button/>
+
+  <header class="page-header characteristics-header">
+    <div class="header-copy">
+      <h1 class="page-title">Caractéristiques</h1>
+      <p class="page-subtitle">
+        Les informations utilisées pour décrire les variantes des articles.
+      </p>
+    </div>
+    <div class="header-badge">
+      <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+      <span>Paramètres du catalogue</span>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">Caractéristiques configurées</h2>
+        <p class="panel-hint">Définissez les informations propres aux variantes.</p>
+      </div>
+
+      <label class="search-input">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="sr-only">Rechercher une caractéristique</span>
+        <input
+          type="search"
+          placeholder="Rechercher..."
+          [value]="search()"
+          (input)="search.set($any($event.target).value)"
+        />
+      </label>
+    </div>
+
+    <div class="characteristics-list">
+      @for (category of filteredCaracteristiques(); track category.categoryId) {
+        <h3 class="category-title">{{ category.categoryNom }}</h3>
+
+        @for (attribute of category.attributes; track attribute.id) {
+          <article class="characteristic-row">
+            <span class="characteristic-icon">
+              <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+            </span>
+
+            <div class="characteristic-main">
+              <strong>{{ attribute.label }}</strong>
+              <small>{{ attribute.key }}</small>
+            </div>
+
+            <span class="characteristic-type">
+              {{ typeLabel(attribute.type) }}
+            </span>
+
+            <span
+              class="characteristic-required"
+              [class.is-required]="attribute.obligatoire"
+            >
+              {{ attribute.obligatoire ? 'Obligatoire' : 'Facultative' }}
+            </span>
+          </article>
+        }
+      } @empty {
+        <p class="panel-hint">Aucune caractéristique trouvée.</p>
+      }
+    </div>
+  </section>
+</section>
+

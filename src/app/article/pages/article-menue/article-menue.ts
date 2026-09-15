@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-article-menue',
-  imports: [],
+  imports: [RouterModule],
   templateUrl: './article-menue.html',
   styleUrl: './article-menue.css',
 })

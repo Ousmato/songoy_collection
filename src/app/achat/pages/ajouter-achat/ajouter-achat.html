@@ -1,131 +1,413 @@
-<section class="achat-page">
+<section class="reception-page">
   <app-floating-back-button />
-
-  <header class="achat-header">
-    <div>
-      <h1 class="achat-title">Nouvel achat</h1>
-      <p class="achat-subtitle">Reception article, couleurs et fournisseur - {{ today }}</p>
-    </div>
+  <header class="page-heading">
+    <p class="eyebrow">Boutique / Réception fournisseur</p>
+    <h1>Nouvelle réception</h1>
+    <p>Renseignez les variantes réellement reçues et leur prix d’achat.</p>
   </header>
 
-  <div class="achat-layout">
-    <form class="achat-form" [formGroup]="form">
-      <section class="achat-panel">
-        <div class="achat-panel-head">
-          <span class="achat-panel-icon" aria-hidden="true">
-            <i class="fa-solid fa-file-invoice"></i>
-          </span>
-          <div>
-            <h2>Informations achat</h2>
-            <p>Date, paiement, frais et fournisseur</p>
-          </div>
-        </div>
-
-        <div class="achat-form-grid">
-          <label class="achat-field">
-            <span>Date achat</span>
-            <input type="date" formControlName="date">
-          </label>
-
-          <label class="achat-field">
-            <span>Mode paiement</span>
-            <select formControlName="modePaiement">
-              @for (mode of modePaiementOptions; track mode.key) {
-                <option [value]="mode.key">{{ mode.value }}</option>
-              }
-            </select>
-          </label>
-
-          <label class="achat-field">
-            <span>Frais</span>
-            <input type="number" min="0" formControlName="frais" placeholder="0">
-          </label>
-
-          <label class="achat-field">
-            <span>Fournisseur</span>
-            <select2
-              class="achat-select2"
-              formControlName="idFournisseur"
-              [data]="fournisseursData"
-              placeholder="Selectionner"
-              noResultMessage="Aucun fournisseur"
-            />
-          </label>
-
-          <label class="achat-field achat-field-full">
-            <span>Fournisseur libre</span>
-            <input type="text" formControlName="fournisseurNom" placeholder="Nom du fournisseur">
-          </label>
-        </div>
-      </section>
-
-      <section class="achat-panel">
-        <div class="achat-panel-head">
-          <span class="achat-panel-icon achat-panel-icon-info" aria-hidden="true">
-            <i class="fa-solid fa-shirt"></i>
-          </span>
-          <div>
-            <h2>Article et couleurs</h2>
-            <p>Choisir un article puis plusieurs couleurs</p>
-          </div>
-        </div>
-
-        <div class="achat-form-grid">
-          <label class="achat-field">
-            <span>Categorie</span>
-            <select2
-              class="achat-select2"
-              formControlName="idCategorie"
-              [data]="categoriesData"
-              placeholder="Selectionner"
-              noResultMessage="Aucune categorie"
-              (update)="onCategorieUpdate($event)"
-            />
-          </label>
-
-          <label class="achat-field">
-            <span>Article</span>
-            <select2
-              class="achat-select2"
-              formControlName="idArticle"
-              [data]="articlesData"
-              placeholder="Selectionner"
-              noResultMessage="Aucun article"
-              (update)="onArticleUpdate($event)"
-            />
-          </label>
-        </div>
-
-        <button type="button" class="achat-color-btn" (click)="openCouleurSheet()" [disabled]="!couleurs().length">
-          <i class="fa-solid fa-plus" aria-hidden="true"></i>
-          Couleurs
-          <span>{{ selectedCouleurs().length }}</span>
-        </button>
-      </section>
-    </form>
-
-    <app-achat-sommaire
-      [achatForm]="form"
-      [selectedCouleurs]="selectedCouleurs()"
-      (removeCouleur)="removeCouleur($event)"
-      (submitAchat)="handleSubmit($event)"
-    />
-  </div>
-
-  @if (lastRequest()) {
-    <aside class="achat-preview" aria-label="Derniere requete">
-      <strong>RequestAchat pret</strong>
-      <span>{{ lastRequest()?.lignes?.length }} ligne(s) configuree(s)</span>
-    </aside>
+  @if (loading()) {
+    <p role="status">Chargement du catalogue…</p>
+  }
+  @if (error()) {
+    <div class="error-banner" role="alert">
+      <span>{{ error() }}</span>
+      <button
+        type="button"
+        (click)="loadCatalogue()"
+        [disabled]="loading()"
+      >Recharger les données</button>
+    </div>
   }
 
-  @if (showCouleurSheet()) {
-    <app-achat-couleur-bottom-sheet
-      [couleurs]="couleurs()"
-      [selectedIds]="selectedCouleurIds()"
-      [articleName]="selectedArticleName()"
-      (close)="closeCouleurSheet()"
-      (applySelection)="applyCouleurs($event)"
-    />
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="reception-layout">
+      <div class="reception-content">
+        <section class="panel">
+          <h2>Informations de réception</h2>
+          <div class="fields">
+            <fieldset class="supplier-mode">
+              <legend>Fournisseur</legend>
+              <div class="supplier-options">
+                <label class="supplier-option">
+                  <input
+                    type="radio"
+                    formControlName="fournisseurMode"
+                    value="existant"
+                    (change)="changeFournisseurMode()"
+                  />
+                  <span>Fournisseur enregistré</span>
+                </label>
+                <label class="supplier-option">
+                  <input
+                    type="radio"
+                    formControlName="fournisseurMode"
+                    value="libre"
+                    (change)="changeFournisseurMode()"
+                  />
+                  <span>Saisir un nom</span>
+                </label>
+              </div>
+            </fieldset>
+
+            @if (form.controls['fournisseurMode'].value === 'existant') {
+              <label>
+                Fournisseur enregistré
+                <select formControlName="fournisseurId">
+                  <option [ngValue]="0" disabled>Choisir un fournisseur</option>
+                  @for (supplier of fournisseurs(); track supplier.id) {
+                    <option [ngValue]="supplier.id">
+                      {{ supplier.nom }} {{ supplier.prenom }}
+                    </option>
+                  }
+                </select>
+                @if (form.controls['fournisseurId'].touched && form.controls['fournisseurId'].invalid) {
+                  <small class="error">Choisissez un fournisseur.</small>
+                }
+              </label>
+            } @else {
+              <label>
+                Nom du fournisseur
+                <input
+                  type="text"
+                  formControlName="nomFournisseur"
+                  placeholder="Nom de la personne ou du commerce"
+                />
+                @if (form.controls['nomFournisseur'].touched && form.controls['nomFournisseur'].invalid) {
+                  <small class="error">Saisissez le nom du fournisseur.</small>
+                }
+              </label>
+            }
+
+            <label>
+              Moyen de paiement
+              <select formControlName="modePaiement">
+                @for (option of paiementOptions; track option.key) {
+                  <option [value]="option.key">{{ option.value }}</option>
+                }
+              </select>
+            </label>
+
+            <label>
+              Date de réception
+              <input
+                type="date"
+                formControlName="date"
+              >
+              @if (form.controls['date'].touched && form.controls['date'].invalid) {
+                <small class="error">La date est obligatoire.</small>
+              }
+            </label>
+            <label>
+              N° facture (Facultatif)
+              <input
+                formControlName="numeroFacture"
+                placeholder="Ex. FAC-2026-015"
+              >
+            </label>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Ajouter une variante reçue</h2>
+          <div class="fields">
+            <label>
+              Article
+              <select
+                [ngModel]="articleId"
+                (ngModelChange)="selectArticle($event)"
+                [ngModelOptions]="{standalone: true}"
+                [disabled]="loading()"
+              >
+                <option [ngValue]="0" disabled>Choisir un article</option>
+                @for (article of articles(); track article.id) {
+                  <option [ngValue]="article.id">{{ articleLabel(article) }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              Variante
+              <select
+                [(ngModel)]="variantId"
+                [ngModelOptions]="{standalone: true}"
+                [disabled]="!articleId || loadingVariants()"
+              >
+                <option [ngValue]="0" disabled>{{ loadingVariants() ? 'Chargement…' : 'Choisir une variante' }}</option>
+                @for (variant of variants(); track variant.id) {
+                  <option [ngValue]="variant.id">{{ variant.reference }}</option>
+                }
+              </select>
+              @if (articleId && !loadingVariants() && !variants().length) {
+                <small>Aucune variante disponible pour cet article.</small>
+              }
+            </label>
+            <fieldset class="supplier-mode">
+              <legend>Prix d’achat connu</legend>
+              <div class="supplier-options">
+                <label class="supplier-option">
+                  <input
+                    type="radio"
+                    name="priceMode"
+                    value="unitaire"
+                    [(ngModel)]="priceMode"
+                    [ngModelOptions]="{standalone: true}"
+                  />
+                  <span>Je connais le prix unitaire</span>
+                </label>
+                <label class="supplier-option">
+                  <input
+                    type="radio"
+                    name="priceMode"
+                    value="total"
+                    [(ngModel)]="priceMode"
+                    [ngModelOptions]="{standalone: true}"
+                  />
+                  <span>Je connais le montant total</span>
+                </label>
+              </div>
+            </fieldset>
+            <label>
+              Quantité reçue
+              <span class="input-with-suffix">
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
+                  [(ngModel)]="quantity"
+                  [ngModelOptions]="{standalone: true}"
+                >
+                <span class="input-suffix">{{ unit }}</span>
+              </span>
+            </label>
+            @if (priceMode === 'unitaire') {
+              <label>
+                Prix d’achat unitaire
+                <span class="input-with-suffix">
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    [(ngModel)]="purchasePrice"
+                    [ngModelOptions]="{standalone: true}"
+                  />
+                  <span class="input-suffix">FCFA</span>
+                </span>
+              </label>
+            } @else {
+              <label>
+                Montant total de cette variante
+                <span class="input-with-suffix">
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    [(ngModel)]="purchaseTotal"
+                    [ngModelOptions]="{standalone: true}"
+                  />
+                  <span class="input-suffix">FCFA</span>
+                </span>
+              </label>
+            }
+          </div>
+          @if (quantity > 0 && finalUnitPrice > 0) {
+            <p class="preview-note" aria-live="polite">
+              @if (priceMode === 'total') {
+                Prix unitaire calculé :
+                <strong>{{ finalUnitPrice | number:'1.2-2' }} FCFA / {{ unit }}</strong>
+              } @else {
+                Total de cette variante :
+                <strong>{{ quantity * finalUnitPrice | number:'1.0-0' }} FCFA</strong>
+              }
+            </p>
+          }
+          <div class="line-action">
+            <button
+              type="button"
+              class="secondary"
+              (click)="addLine()"
+              [disabled]="loading() || loadingVariants()"
+            >
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              Ajouter à la réception
+            </button>
+          </div>
+        </section>
+
+        <section class="panel received-lines">
+          <h2>Variantes reçues <span class="badge">{{ lines().length }}</span></h2>
+          @for (line of lines(); track line.variantId) {
+            <article class="reception-line">
+              <div class="line-title">
+                <div>
+                  <strong>{{ line.article }}</strong>
+                  <small>{{ line.reference }}</small>
+                </div>
+                <button
+                  type="button"
+                  class="remove"
+                  (click)="removeLine(line.variantId)"
+                  [attr.aria-label]="'Retirer ' + line.reference"
+                >
+                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="line-fields">
+                <label>
+                  Quantité
+                  <span class="input-with-suffix">
+                    <input
+                      type="number"
+                      min="0"
+                      step="any"
+                      [ngModel]="line.quantite"
+                      (ngModelChange)="updateLine(line.variantId, 'quantite', $event)"
+                      [ngModelOptions]="{standalone: true}"
+                    >
+                    <span class="input-suffix">{{ line.unite }}</span>
+                  </span>
+                </label>
+                <label>
+                  Prix unitaire
+                  <span class="input-with-suffix">
+                    <input
+                      type="number"
+                      min="0"
+                      step="any"
+                      [ngModel]="line.prixAchat"
+                      (ngModelChange)="updateLine(line.variantId, 'prixAchat', $event)"
+                      [ngModelOptions]="{standalone: true}"
+                    >
+                    <span class="input-suffix">FCFA</span>
+                  </span>
+                </label>
+                <div class="line-total">
+                  <small>Total (FCFA)</small>
+                  <strong>{{ lineTotal(line) | number:'1.0-0' }}</strong>
+                </div>
+              </div>
+              @if (!validLine(line)) {
+                <small class="error">Vérifiez la quantité et le prix d’achat de cette ligne.</small>
+              }
+            </article>
+          } @empty {
+            <p class="empty-state">Ajoutez les variantes et les quantités reçues pour préparer votre réception.</p>
+          }
+        </section>
+      </div>
+
+      <aside class="panel payment-panel">
+        <h2>Paiement fournisseur</h2>
+        <div class="purchase-total">
+          <span>Coût des marchandises</span>
+          <strong>{{ total() | number:'1.0-0' }} <small>FCFA</small></strong>
+        </div>
+        <label>
+          Montant payé
+          <span class="input-with-suffix">
+            <input
+              type="number"
+              min="0"
+              step="1"
+              [max]="total()"
+              formControlName="montantPaye"
+            >
+            <span class="input-suffix">FCFA</span>
+          </span>
+          <small>Indiquez 0 pour un achat entièrement à crédit.</small>
+        </label>
+        <div class="balance">
+          <span>Reste à payer</span>
+          <strong>{{ remaining | number:'1.0-0' }} FCFA</strong>
+        </div>
+        @if (remaining < 0) {
+          <small class="error">Le paiement dépasse le coût des marchandises.</small>
+        }
+        <button
+          type="submit"
+          class="primary"
+          [disabled]="loading() || !lines().length"
+        >
+          Préparer la réception
+        </button>
+        <p class="preview-note">Préparation uniquement : aucun stock ni paiement n’est encore enregistré.</p>
+      </aside>
+    </div>
+  </form>
+
+  @if (lastRequest(); as request) {
+    <section class="prepared" aria-labelledby="reception-summary-title">
+      <h2 id="reception-summary-title">Récapitulatif de la réception</h2>
+      <p role="status">Vérifiez les informations ci-dessous. Rien n’est encore enregistré.</p>
+
+      <dl class="summary-info">
+        <div>
+          <dt>Fournisseur</dt>
+          <dd>{{ preparedSupplier(request) }}</dd>
+        </div>
+        <div>
+          <dt>Date de réception</dt>
+          <dd>{{ request.date | date:'dd/MM/yyyy' }}</dd>
+        </div>
+        <div>
+          <dt>Destination</dt>
+          <dd>Boutique</dd>
+        </div>
+        @if (request.numeroFacture) {
+          <div>
+            <dt>N° facture</dt>
+            <dd>{{ request.numeroFacture }}</dd>
+          </div>
+        }
+      </dl>
+
+      <h3>Articles reçus</h3>
+      <div class="summary-lines">
+        @for (line of lines(); track line.variantId) {
+          <div class="summary-line">
+            <div>
+              <strong>{{ line.article }}</strong>
+              <small>{{ line.reference }}</small>
+              <span>
+                {{ line.quantite | number:'1.0-6' }} {{ line.unite }}
+                × {{ line.prixAchat | number:'1.2-2' }} FCFA
+              </span>
+            </div>
+            <strong>{{ lineTotal(line) | number:'1.0-0' }} FCFA</strong>
+          </div>
+        }
+      </div>
+
+      <dl class="summary-info summary-payment">
+        <div>
+          <dt>Total des marchandises</dt>
+          <dd>{{ total() | number:'1.0-0' }} FCFA</dd>
+        </div>
+        <div>
+          <dt>Montant payé · {{ preparedPaymentLabel(request) }}</dt>
+          <dd>{{ (request.paiement?.montant ?? 0) | number:'1.0-0' }} FCFA</dd>
+        </div>
+        <div>
+          <dt>Reste à payer au fournisseur</dt>
+          <dd>{{ remaining | number:'1.0-0' }} FCFA</dd>
+        </div>
+      </dl>
+      <p>Pour corriger une information, modifiez le formulaire puis préparez à nouveau la réception.</p>
+      <div class="prepared-actions">
+        <button
+          type="button"
+          class="primary"
+          (click)="validateReception()"
+          [disabled]="submitting()"
+        >
+          @if (submitting()) {
+            <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+            Enregistrement…
+          } @else {
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            Valider et enregistrer la réception
+          }
+        </button>
+      </div>
+    </section>
   }
 </section>

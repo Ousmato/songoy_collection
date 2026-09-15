@@ -33,16 +33,33 @@
           <div class="add-cat-input-wrap">
             <i class="fa-solid fa-ruler-combined add-cat-icon" aria-hidden="true"></i>
             <select
-              id="add-cat-mesure" formControlName="mesure"
+              id="add-cat-mesure" formControlName="mesureCategory"
               class="add-cat-input add-cat-select" [class.add-cat-input-invalid]="mesureCtrl?.invalid && mesureCtrl?.touched">
               <option value="" disabled selected>Choisir...</option>
-              @for (m of categoryMesureList; track m.key) { <option [value]="m.value">{{ m.key }}</option> }
+              @for (m of categoryMesureList; track m.key) { <option [value]="m.key">{{ m.value }}</option> }
             </select>
             <i class="fa-solid fa-caret-down add-cat-select-caret" aria-hidden="true"></i>
           </div>
           @if (mesureCtrl?.invalid && mesureCtrl?.touched) {
             <span class="add-cat-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Requis</span>
           }
+        </div>
+      </div>
+
+      <div class="add-cat-row">
+        <div class="add-cat-field flex-1">
+          <label class="add-cat-label" for="add-cat-type">Type</label>
+          <select id="add-cat-type" formControlName="categoryType" class="add-cat-input add-cat-select">
+            <option value="" disabled>Choisir...</option>
+            @for (type of categoryTypeList; track type.key) { <option [value]="type.key">{{ type.value }}</option> }
+          </select>
+        </div>
+        <div class="add-cat-field flex-1">
+          <label class="add-cat-label" for="add-cat-entite">Entité</label>
+          <select id="add-cat-entite" formControlName="entite" class="add-cat-input add-cat-select">
+            <option value="" disabled>Choisir...</option>
+            @for (entity of categoryEntiteList; track entity.key) { <option [value]="entity.value">{{ entity.key }}</option> }
+          </select>
         </div>
       </div>
 

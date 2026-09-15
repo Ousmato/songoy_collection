@@ -1,4 +1,4 @@
-import { LoginType, UserRole } from "../model/util.enum";
+import { LoginType, PersonnelRole } from "../model/util.enum";
 
 
 export class EnumMethodes{
@@ -35,20 +35,20 @@ export class EnumMethodes{
         return key as keyof typeof LoginType;
       }
 
-      static getRoleKey(value: UserRole): keyof typeof UserRole {
+      static getRoleKey(value: PersonnelRole): keyof typeof PersonnelRole {
 
         const key = this.getEnumKeyByValue(
-          UserRole,
+          PersonnelRole,
           value
         );
 
         if (!key) {
           throw new Error(
-            `UserRole introuvable pour la valeur : ${value}`
+            `PersonnelRole introuvable pour la valeur : ${value}`
           );
         }
 
-        return key as keyof typeof UserRole;
+        return key as keyof typeof PersonnelRole;
       }
 
 

@@ -1,0 +1,145 @@
+<section class="attribute-page">
+  <app-floating-back-button />
+
+  <header class="page-header">
+    <div>
+      <p class="page-kicker">Catalogue / Caractéristiques</p>
+      <h1>Ajouter une caractéristique</h1>
+      <p class="page-intro">
+        Créez une caractéristique réutilisable et associez-la aux catégories concernées.
+      </p>
+    </div>
+
+  </header>
+
+  <div class="attribute-layout">
+    <main class="attribute-content">
+      <div class="content-heading">
+        <div class="heading-icon" aria-hidden="true">
+          <i class="fa-solid fa-sliders"></i>
+        </div>
+        <div>
+          <h2>Configuration</h2>
+          <p>Les informations seront utilisées lors de la création des variantes.</p>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="attribute-fields">
+          <fieldset class="mode-fieldset">
+            <legend>Que souhaitez-vous faire ?</legend>
+            <div class="attribute-mode" role="group" aria-label="Mode de caractéristique">
+              <button
+                type="button"
+                [class.active]="control('mode')?.value === 'new'"
+                (click)="selectMode('new')"
+              >
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                <span>Créer une nouvelle</span>
+              </button>
+              <button
+                type="button"
+                [class.active]="control('mode')?.value === 'existing'"
+                (click)="selectMode('existing')"
+              >
+                <i class="fa-solid fa-link" aria-hidden="true"></i>
+                <span>Utiliser une existante</span>
+              </button>
+            </div>
+          </fieldset>
+
+          <label class="attribute-field-full">
+            Catégories concernées
+            <select2
+              class="attribute-select2"
+              formControlName="categoryIds"
+              [data]="categoriesData"
+              [multiple]="true"
+              [showSelectAll]="true"
+              selectAllText="Tout sélectionner"
+              removeAllText="Tout désélectionner"
+              placeholder="Choisir une ou plusieurs catégories"
+              noResultMessage="Aucune catégorie trouvée"
+            />
+            <small class="field-hint">
+              La caractéristique sera disponible pour toutes les catégories sélectionnées.
+            </small>
+            @if (control('categoryIds')?.touched && control('categoryIds')?.invalid) {
+              <small>Choisissez au moins une catégorie.</small>
+            }
+          </label>
+
+          @if (control('mode')?.value === 'existing') {
+            <label class="attribute-field-full">
+              Caractéristique à réutiliser
+              <select formControlName="existingKey">
+                <option value="" disabled>Choisir une caractéristique</option>
+                @for (attribute of existingAttributes(); track attribute.key) {
+                  <option [value]="attribute.key">
+                    {{ attribute.label }} · {{ attribute.type | lowercase }}
+                  </option>
+                }
+              </select>
+              <small class="field-hint">
+                La définition existante sera réutilisée sans créer de doublon.
+              </small>
+              @if (control('existingKey')?.touched && control('existingKey')?.invalid) {
+                <small>Choisissez une caractéristique.</small>
+              }
+            </label>
+          } @else {
+            <label>
+              Nom affiché
+              <input formControlName="label" placeholder="Ex. Pointure, matière ou couleur" />
+              @if (control('label')?.touched && control('label')?.hasError('required')) {
+                <small>Le nom est obligatoire.</small>
+              }
+              @if (control('label')?.hasError('invalidName')) {
+                <small>Le nom doit contenir des lettres ou des chiffres.</small>
+              }
+            </label>
+
+            <label>
+              Type de valeur
+              <select formControlName="type">
+                <option value="" disabled>Choisir un type</option>
+                <option value="TEXT">Texte</option>
+                <option value="NUMBER">Nombre</option>
+                <option value="SELECT">Liste de choix</option>
+                <option value="DATE">Date</option>
+              </select>
+              @if (control('type')?.touched && control('type')?.invalid) {
+                <small>Le type est obligatoire.</small>
+              }
+            </label>
+          }
+
+          <label class="check-field">
+            <input type="checkbox" formControlName="obligatoire" />
+            <span>
+              <strong>Valeur obligatoire</strong>
+              <small>Chaque variante devra renseigner cette caractéristique.</small>
+            </span>
+          </label>
+        </div>
+
+        <footer class="attribute-actions">
+         
+          <button
+            type="submit"
+            class="attribute-btn primary"
+            [disabled]="submitting()"
+          >
+            @if (submitting()) {
+              <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+              Enregistrement...
+            } @else {
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+              Enregistrer la caractéristique
+            }
+          </button>
+        </footer>
+      </form>
+    </main>
+  </div>
+</section>
