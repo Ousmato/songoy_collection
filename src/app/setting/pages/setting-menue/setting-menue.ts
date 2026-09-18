@@ -3,7 +3,6 @@ import { Component, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AddTypeArticle } from '../../../article/components/add-type-article/add-type-article';
 import { AddCategorieComponent } from '../../../categorie/components/add-categorie/add-categorie.component';
-import { AddDepense } from '../../../depense/components/add-depense/add-depense';
 
 type SettingQuickAction = {
   key: 'categorie' | 'typeArticle' | 'attribute' | 'paiement' | 'depense';
@@ -30,7 +29,7 @@ type SettingMenuItem = {
 @Component({
   selector: 'app-setting-menue',
   standalone: true,
-  imports: [CommonModule, RouterModule, AddCategorieComponent, AddTypeArticle, AddDepense],
+  imports: [CommonModule, RouterModule, AddCategorieComponent, AddTypeArticle],
   templateUrl: './setting-menue.html',
   styleUrl: './setting-menue.css',
 })
@@ -38,7 +37,6 @@ export class SettingMenue {
   showAddCategorieModal = signal(false);
   showAddTypeArticleModal = signal(false);
   showAddPaiementModal = signal(false);
-  showAddDepenseModal = signal(false);
 
   today = new Date().toLocaleDateString('fr-FR', {
     month: 'long',
@@ -130,7 +128,7 @@ export class SettingMenue {
       tone: 'success',
     },
     {
-      title: 'Depenses du mois',
+      title: 'Historique des dépenses',
       route: '/admin/list-depenses-atelier',
       icon: 'fa-solid fa-file-invoice-dollar',
       tone: 'warning',
@@ -159,14 +157,6 @@ export class SettingMenue {
 
   closeAddPaiementModal(): void {
     this.showAddPaiementModal.set(false);
-  }
-
-  openAddDepenseModal(): void {
-    this.showAddDepenseModal.set(true);
-  }
-
-  closeAddDepenseModal(): void {
-    this.showAddDepenseModal.set(false);
   }
 
 }

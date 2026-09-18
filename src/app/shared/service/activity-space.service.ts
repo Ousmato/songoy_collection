@@ -13,7 +13,7 @@ export class ActivitySpaceService {
     const router = inject(Router);
     const sync = (url: string) => {
       const path = url.split(/[?#]/)[0];
-      if (/^\/admin\/(list-commandes|add-commande|commandes-[^/]+|credits-commandes|list-depenses-atelier)$/.test(path)) {
+      if (/^\/admin\/(list-commandes|add-commande|commandes-[^/]+|credits-commandes)$/.test(path)) {
         this.selectedSpace.set('ATELIER');
       } else if (/^\/admin\/(dashboard|list-ventes|add-vente|list-stock|add-achat|historique-achat|article-list)$/.test(path)) {
         this.selectedSpace.set('BOUTIQUE');

@@ -167,6 +167,14 @@ body {
   min-height: 100vh;
 }
 
+/* Dans le shell, les pages defilent dans main, jamais dans le document. */
+html:has(app-shell-layout),
+body:has(app-shell-layout) {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--sc-font-display);
   font-weight: var(--sc-fw-bold);

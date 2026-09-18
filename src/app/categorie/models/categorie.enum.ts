@@ -2,6 +2,7 @@ import { EnumMethodes } from "../../shared/utils/util-methode";
 
 export enum CategoryMesure {
   UNITE = "Unité",
+  PAIRE = "Paire",
   METRE = "Mètre",
   PAGNE = "Pagne",
   CARTON = "Carton",

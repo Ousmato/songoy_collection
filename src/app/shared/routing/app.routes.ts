@@ -28,7 +28,7 @@ export const APP_ROUTES: Routes = [
         title: 'Dashboard',
         data: { title: 'Dashboard' },
         loadComponent: () =>
-          import('../../dasboard/dasboard.component').then((m) => m.DasboardComponent),
+          import('../../dashbord/pages/dasboard/dasboard.component').then((m) => m.DasboardComponent),
       },
       {
         path: 'list-articles',
@@ -51,14 +51,6 @@ export const APP_ROUTES: Routes = [
         loadComponent: () =>
           import('../../article/pages/article-variants/article-variants').then(
             (m) => m.ArticleVariants,
-          ),
-      },
-      {
-        path: 'article-variants/:articleId/stock/:variantId',
-        title: 'Stock initial',
-        loadComponent: () =>
-          import('../../stock/pages/add-initial-stock/add-initial-stock').then(
-            (m) => m.AddInitialStock,
           ),
       },
       {
@@ -111,9 +103,16 @@ export const APP_ROUTES: Routes = [
           import('../../vente/pages/list-vente/list-vente').then((m) => m.ListVente),
       },
       {
+        path: 'detail-vente/:venteId',
+        title: 'Détail de la vente',
+        data: { title: 'Détail de la vente' },
+        loadComponent: () =>
+          import('../../vente/pages/detail-vente/detail-vente').then((m) => m.DetailVente),
+      },
+      {
         path: 'add-vente',
         title: 'Nouvelle vente',
-        data: { title: 'Nouvelle vente' },
+        data: { title: 'Nouvelle vente', viewportLayout: true },
         loadComponent: () =>
           import('../../vente/pages/add-vente/add-vente').then((m) => m.AddVente),
       },
@@ -169,7 +168,7 @@ export const APP_ROUTES: Routes = [
         title: 'Achats',
         data: { title: 'Achats' },
         loadComponent: () =>
-          import('../../dasboard/dasboard.component').then((m) => m.DasboardComponent),
+          import('../../dashbord/pages/dasboard/dasboard.component').then((m) => m.DasboardComponent),
       },
       {
         path: 'add-achat',
@@ -292,12 +291,21 @@ export const APP_ROUTES: Routes = [
         redirectTo: 'list-paramettre',
       },
       {
-        path: 'list-depenses-atelier',
-        title: 'Depenses du mois',
-        data: { title: 'Depenses du mois' },
+        path: 'add-depense',
+        title: 'Nouvelle dépense',
+        data: { title: 'Nouvelle dépense' },
         loadComponent: () =>
-          import('../../depense/pages/list-depenses-atelier/list-depenses-atelier').then(
-            (m) => m.ListDepensesAtelier,
+          import('../../depense/components/add-depense/add-depense').then(
+            (m) => m.AddDepense,
+          ),
+      },
+      {
+        path: 'list-depenses-atelier',
+        title: 'Historique des dépenses',
+        data: { title: 'Historique des dépenses' },
+        loadComponent: () =>
+          import('../../depense/pages/historique-depense/historique-depense').then(
+            (m) => m.HistoriqueDepense,
           ),
       },
     ],

@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { BottomNavigationBar } from '../shared/components/bottom-navigation-bar/bottom-navigation-bar';
 import { ActivitySpace, ActivitySpaceService } from '../shared/service/activity-space.service';
@@ -14,6 +15,8 @@ import { LoginResponseDto } from '../admin/model/admin.model';
 })
 export class ShellLayoutComponent implements OnInit {
   private router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly viewportLayout = signal(false);
   readonly activity = inject(ActivitySpaceService);
   readonly connectedUser: LoginResponseDto | null = getUserFromSessionStorage();
 
@@ -56,7 +59,7 @@ export class ShellLayoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.router.events.subscribe((event) => {
+    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.updateCurrentTitle();
       }
@@ -66,6 +69,12 @@ export class ShellLayoutComponent implements OnInit {
   }
 
   private updateCurrentTitle(): void {
+    let route = this.router.routerState.root.snapshot;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    this.viewportLayout.set(route.data['viewportLayout'] === true);
+
     const title = this.deepestTitle(this.router.routerState.root.snapshot);
     if (title) this.currentTitle.set(title);
   }

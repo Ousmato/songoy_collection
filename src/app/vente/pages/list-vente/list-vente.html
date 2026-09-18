@@ -1,1 +1,173 @@
-<p>list-vente works!</p>
+<section class="sales-page">
+  <app-floating-back-button />
+
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Stock / Ventes</p>
+      <h1>Historique des ventes</h1>
+      <p>Consultez les ventes enregistrées et les montants restant à régler.</p>
+    </div>
+
+    <a class="primary-button" routerLink="/admin/add-vente">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      Nouvelle vente
+    </a>
+  </header>
+
+  <section class="summary-grid" aria-label="Résumé des ventes">
+    <article class="summary-card">
+      <span class="summary-icon">
+        <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+      </span>
+      <div>
+        <small>Ventes</small>
+        <strong>{{ totalVentes() }}</strong>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-icon sold">
+        <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+      </span>
+      <div>
+        <small>Total vendu</small>
+        <strong>{{ totalVendu() | number:'1.0-0' }} <em>FCFA</em></strong>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-icon paid">
+        <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+      </span>
+      <div>
+        <small>Encaissé</small>
+        <strong>{{ totalEncaisse() | number:'1.0-0' }} <em>FCFA</em></strong>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-icon credit">
+        <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>
+      </span>
+      <div>
+        <small>Crédit client</small>
+        <strong>{{ totalCredit() | number:'1.0-0' }} <em>FCFA</em></strong>
+      </div>
+    </article>
+  </section>
+
+  <section class="toolbar" aria-label="Filtres des ventes">
+    <label class="search-field">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <span class="sr-only">Rechercher</span>
+      <input
+        type="search"
+        placeholder="Facture ou nom du client"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+      />
+    </label>
+
+    <div class="status-filters" role="tablist" aria-label="Filtrer par statut">
+      @for (option of paymentOptions; track option.key) {
+        <button
+          type="button"
+          role="tab"
+          [class.active]="paymentFilter() === option.key"
+          [attr.aria-selected]="paymentFilter() === option.key"
+          (click)="paymentFilter.set(option.key)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="sales-panel">
+    <header class="panel-heading">
+      <div>
+        <h2>Ventes enregistrées</h2>
+        <p>{{ filteredVentes().length }} résultat(s)</p>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <div class="state-panel" role="status">
+        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+        <h3>Chargement de l’historique</h3>
+        <p>Les ventes sont en cours de récupération.</p>
+      </div>
+    } @else if (error()) {
+      <div class="state-panel" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <h3>Impossible de charger les ventes</h3>
+        <p>{{ error() }}</p>
+        <button type="button" class="primary-button" (click)="loadVentes()">
+          Réessayer
+        </button>
+      </div>
+    } @else if (filteredVentes().length) {
+      <div class="sales-table" role="table" aria-label="Historique des ventes">
+        <div class="table-header" role="row">
+          <span>Facture</span>
+          <span>Client</span>
+          <span>Total</span>
+          <span>Règlement</span>
+          <span>Statut</span>
+          <span></span>
+        </div>
+
+        @for (vente of filteredVentes(); track vente.id) {
+          <article class="sale-row" role="row">
+            <div class="invoice-cell" data-label="Facture">
+              <strong>{{ vente.numeroFacture || 'Facture sans numéro' }}</strong>
+              <small>{{ vente.date | date:'dd/MM/yyyy à HH:mm' }}</small>
+            </div>
+
+            <div class="client-cell" data-label="Client">
+              <span class="client-avatar" aria-hidden="true">
+                <i class="fa-solid fa-user"></i>
+              </span>
+              <strong>{{ clientLabel(vente.client) }}</strong>
+            </div>
+
+            <div class="amount-cell" data-label="Total">
+              <strong>{{ vente.totalVente | number:'1.0-0' }} FCFA</strong>
+              <small>Payé : {{ vente.montantPaye | number:'1.0-0' }} FCFA</small>
+            </div>
+
+            <div class="payment-cell" data-label="Règlement">
+              <span>{{ paymentLabel(vente.modePaiement) }}</span>
+              @if (vente.resteAPayer > 0) {
+                <small>Reste : {{ vente.resteAPayer | number:'1.0-0' }} FCFA</small>
+              }
+            </div>
+
+            <div class="status-cell" data-label="Statut">
+              <span class="status-badge" [class]="statusClass(vente.statutPaiement)">
+                {{ vente.statutPaiement }}
+              </span>
+            </div>
+
+            <a
+              class="row-action"
+              [routerLink]="['/admin/detail-vente', vente.id]"
+              [attr.aria-label]="'Voir le détail de la vente ' + (vente.numeroFacture || vente.id)"
+            >
+              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </a>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="state-panel">
+        <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+        <h3>Aucune vente trouvée</h3>
+        <p>Modifiez votre recherche ou enregistrez une nouvelle vente.</p>
+        <a class="primary-button" routerLink="/admin/add-vente">
+          Nouvelle vente
+        </a>
+      </div>
+    }
+  </section>
+</section>

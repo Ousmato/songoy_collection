@@ -41,14 +41,13 @@
           <span>{{ item.label }}</span>
         </button>
       } @else if (item.key === 'depense') {
-        <button
-          type="button"
+        <a
           class="setting-shortcut setting-shortcut-{{ item.tone }}"
-          (click)="openAddDepenseModal()"
+          [routerLink]="item.route"
         >
           <i [class]="item.icon" aria-hidden="true"></i>
           <span>{{ item.label }}</span>
-        </button>
+        </a>
       }
     }
   </nav>
@@ -132,14 +131,4 @@
     </div>
   }
 
-  @if (showAddDepenseModal()) {
-    <div class="setting-modal-backdrop" (click)="closeAddDepenseModal()">
-      <div class="setting-modal-stage setting-modal-stage-wide" (click)="$event.stopPropagation()">
-        <app-add-depense
-          (close)="closeAddDepenseModal()"
-          (submitDepense)="closeAddDepenseModal()"
-        ></app-add-depense>
-      </div>
-    </div>
-  }
 </section>

@@ -2,6 +2,7 @@ import { CategoryMesure } from "../../categorie/models/categorie.enum";
 
 export interface SimpleArticleResponse {
   id: number;
+  urlImage?: string | null;
   nom?: string
   prixVente?: number;
   idType: number;

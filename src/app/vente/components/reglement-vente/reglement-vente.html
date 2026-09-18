@@ -1,0 +1,120 @@
+@if (resteAPayer > 0) {
+  <div class="payment-trigger">
+    <div class="trigger-summary">
+      <span class="trigger-icon" aria-hidden="true">
+        <i class="fa-solid fa-wallet"></i>
+      </span>
+      <div>
+        <strong>Solde à régler</strong>
+        <span>{{ resteAPayer | number:'1.0-2' }} FCFA restant</span>
+      </div>
+    </div>
+    <button type="button" class="open-button" (click)="openModal()">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      Ajouter un règlement
+    </button>
+  </div>
+}
+
+@if (modalOpen()) {
+  <div class="modal-backdrop" role="presentation" (click)="closeModal()">
+    <section
+      class="payment-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="payment-modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-header">
+        <div>
+          <p class="payment-kicker">Suivi du paiement</p>
+          <h2 id="payment-modal-title">Ajouter un règlement</h2>
+        </div>
+        <button
+          type="button"
+          class="close-button"
+          aria-label="Fermer la fenêtre"
+          [disabled]="submitting()"
+          (click)="closeModal()"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="modal-balance">
+        <span>Reste à payer</span>
+        <strong>{{ resteAPayer | number:'1.0-2' }} FCFA</strong>
+      </div>
+
+      <form class="payment-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <label class="amount-field">
+          Montant versé
+          <span class="input-suffix">
+            <input
+              type="number"
+              formControlName="montant"
+              min="0.01"
+              [max]="resteAPayer"
+              step="0.01"
+              inputmode="decimal"
+            />
+            <span>FCFA</span>
+          </span>
+          @if (form.controls.montant.touched && form.controls.montant.hasError('required')) {
+            <small>Indiquez le montant versé.</small>
+          }
+          @if (form.controls.montant.touched && form.controls.montant.hasError('min')) {
+            <small>Le montant doit être positif.</small>
+          }
+          @if (amountExceedsRemaining()) {
+            <small>Le montant dépasse le reste à payer.</small>
+          }
+        </label>
+
+        <fieldset class="mode-field">
+          <legend>Moyen de paiement</legend>
+          <div class="payment-modes">
+            @for (mode of paymentModes; track mode.key) {
+              <label>
+                <input type="radio" formControlName="modePaiement" [value]="mode.key" />
+                <span>{{ mode.value }}</span>
+              </label>
+            }
+          </div>
+        </fieldset>
+
+        <label class="date-field">
+          Date du règlement
+          <input type="datetime-local" formControlName="date" />
+        </label>
+
+        @if (error()) {
+          <p class="feedback error" role="alert">{{ error() }}</p>
+        }
+        @if (success()) {
+          <p class="feedback success" role="status">{{ success() }}</p>
+        }
+
+        <footer class="modal-actions">
+          <button
+            type="button"
+            class="cancel-button"
+            [disabled]="submitting()"
+            (click)="closeModal()"
+          >
+            Annuler
+          </button>
+          <button type="submit" class="submit-button" [disabled]="submitting()">
+            @if (submitting()) {
+              <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+              Enregistrement…
+            } @else {
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+              Enregistrer
+            }
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}

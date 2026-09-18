@@ -79,18 +79,20 @@ export function getTypeEntiteKey(value: Entite): TypeEntiteKey {
 }
 
 
-export enum MotifDepenseAtelier {
+export enum MotifDepense {
   SALAIRE = 'Salaire',
   TRANSPORT = 'Transport',
   REPARATION = 'Reparation',
   ACCESSOIRE = 'Accessoire',
+  ELECTRICITER = 'Electricité',
+  EAUX = 'Eaux',
   AUTRE = 'Autre',
 }
-export type MotifDepenseAtelierKey = keyof typeof MotifDepenseAtelier;
+export type MotifDepenseAtelierKey = keyof typeof MotifDepense;
 
-export function getMotifDepenseAtelierKey(value: MotifDepenseAtelier): MotifDepenseAtelierKey {
+export function getMotifDepenseAtelierKey(value: MotifDepense): MotifDepenseAtelierKey {
     const key = EnumMethodes.getEnumKeyByValue(
-        MotifDepenseAtelier,
+        MotifDepense,
         value
     );
 

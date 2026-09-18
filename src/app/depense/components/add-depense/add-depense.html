@@ -1,81 +1,207 @@
-<form class="depense-form" [formGroup]="form" (ngSubmit)="submit()">
-  <header class="depense-head">
-    <div class="depense-head-main">
-      <span class="depense-head-icon" aria-hidden="true">
-        <i class="fa-solid fa-receipt"></i>
-      </span>
-      <div>
-        <h2>Ajouter une dépense</h2>
-        <p>Salaire, transport, réparation ou autre frais</p>
-      </div>
+<section class="depense-page">
+  <app-floating-back-button
+    [useHistory]="true"
+    fallbackUrl="/admin/list-paramettre"
+    ariaLabel="Retour aux paramètres"
+  />
+
+  <header class="page-header">
+    <div>
+      <p class="page-kicker">Paramètres / Dépenses</p>
+      <h1>Nouvelle dépense</h1>
+      <p class="page-intro">
+        Enregistrez une charge avec son entite, son motif et son montant.
+      </p>
     </div>
-    <button type="button" class="depense-close" aria-label="Fermer" (click)="close.emit()">
-      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-    </button>
+
   </header>
 
-  <section class="depense-motifs" aria-label="Motif depense">
-    @for (motif of motifDepenseOptions; track motif.key) {
-      <label class="depense-motif">
-        <input type="radio" formControlName="motif" [value]="motif.key">
-        <span>{{ motif.value }}</span>
-      </label>
-    }
-  </section>
+  <form class="depense-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <section class="form-section" aria-labelledby="depense-motif-title">
+      <div class="section-heading">
+        <span class="section-icon" aria-hidden="true">
+          <i class="fa-solid fa-receipt"></i>
+        </span>
+        <div>
+          <h2 id="depense-motif-title">Nature de la dépense</h2>
+          <p>Choisissez le motif qui décrit le mieux cette charge.</p>
+        </div>
+      </div>
 
-  <div class="depense-grid">
-    <label class="depense-field">
-      <span>Date</span>
-      <input type="date" formControlName="date">
-    </label>
-
-    <label class="depense-field">
-      <span>Mode paiement</span>
-      <select formControlName="modePaiement">
-        @for (mode of modePaiementOptions; track mode.key) {
-          <option [value]="mode.key">{{ mode.value }}</option>
+      <div class="motif-list" role="radiogroup" aria-label="Motif de la dépense">
+        @for (motif of motifDepenseOptions; track motif.key) {
+          <label class="motif-option">
+            <input type="radio" formControlName="motif" [value]="motif.key" />
+            <span>{{ motif.value }}</span>
+          </label>
         }
-      </select>
-    </label>
+      </div>
+    </section>
 
-    <label class="depense-field">
-      <span>Montant</span>
-      <input type="number" min="100" formControlName="montant" placeholder="0">
-    </label>
+    <section class="form-section" aria-labelledby="depense-details-title">
+      <div class="section-heading">
+        <span class="section-icon" aria-hidden="true">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </span>
+        <div>
+          <h2 id="depense-details-title">Détails de l’opération</h2>
+          <p>Les informations saisies seront conservées dans l’historique.</p>
+        </div>
+      </div>
 
-    @if (requiresPersonnel()) {
-      <label class="depense-field">
-        <span>Personnel</span>
-        <select2
-          class="depense-select2"
-          formControlName="idPersonnel"
-          [data]="personnelListOptionsData"
-          placeholder="Selectionner"
-          noResultMessage="Aucun personnel"
-        />
-      </label>
-    } @else {
-      <label class="depense-field">
-        <span>Fournisseur</span>
-        <input type="text" formControlName="fournisseurNom" placeholder="Nom du fournisseur">
-      </label>
+      <div class="details-grid">
+        <fieldset class="entity-field field-wide">
+          <legend>Entité concernée</legend>
+          <div class="entity-list" role="radiogroup" aria-label="Entité concernée">
+            @for (entite of entiteOptions; track entite.key) {
+              <label class="entity-option">
+                <input type="radio" formControlName="entite" [value]="entite.key" />
+                <span>{{ entite.value }}</span>
+              </label>
+            }
+          </div>
+          @if (submitted() && control('entite')?.invalid) {
+            <small>Choisissez l’entité concernée.</small>
+          }
+
+
+          <label class="field field-wide">
+            <span>Libellé</span>
+            <input
+              type="text"
+              formControlName="libelle"
+              maxlength="120"
+              placeholder="Ex. Réparation ou frais de transport"
+            />
+            <small class="field-hint">Ajoutez une courte description pour retrouver facilement cette dépense.</small>
+          </label>
+        </fieldset>
+        <label class="field">
+          <span>Date</span>
+          <input type="date" formControlName="date" />
+          @if (submitted() && control('date')?.invalid) {
+            <small>Indiquez une date valide.</small>
+          }
+        </label>
+
+        <label class="field">
+          <span>Montant</span>
+          <div class="input-suffix">
+            <input type="number" min="0.01" step="0.01" formControlName="montant" placeholder="0,00" />
+            <em>F CFA</em>
+          </div>
+          @if (submitted() && control('montant')?.invalid) {
+            <small>Le montant doit être supérieur à zéro.</small>
+          }
+        </label>
+
+        <fieldset class="payment-field">
+          <legend>Mode de paiement</legend>
+          <div class="payment-list">
+            @for (mode of modePaiementOptions; track mode.key) {
+              @if (mode.key !== 'CREDIT') {
+                <label class="payment-option">
+                  <input type="radio" formControlName="modePaiement" [value]="mode.key" />
+                  <span>{{ mode.value }}</span>
+                </label>
+              }
+            }
+          </div>
+        </fieldset>
+
+        @if (requiresPersonnel()) {
+          <label class="field field-wide">
+            <span>Personnel concerné</span>
+            <select2
+              class="depense-select2"
+              formControlName="idPersonnel"
+              [data]="personnelListOptionsData"
+              placeholder="Sélectionner un membre du personnel"
+              noResultMessage="Aucun personnel trouvé"
+            />
+            @if (submitted() && control('idPersonnel')?.invalid) {
+              <small>Sélectionnez le bénéficiaire.</small>
+            }
+          </label>
+        } @else {
+          <fieldset class="supplier-field field-wide">
+            <legend>Fournisseur ou bénéficiaire</legend>
+            <p class="field-hint">
+              Indiquez si cette dépense concerne un contact de votre répertoire ou un intervenant ponctuel.
+            </p>
+            <div class="supplier-modes" role="radiogroup" aria-label="Type de fournisseur">
+              <label class="supplier-option">
+                <input
+                  type="radio"
+                  formControlName="fournisseurMode"
+                  value="existant"
+                  (change)="changeFournisseurMode()"
+                />
+                <span>Fournisseur enregistré</span>
+              </label>
+              <label class="supplier-option">
+                <input
+                  type="radio"
+                  formControlName="fournisseurMode"
+                  value="libre"
+                  (change)="changeFournisseurMode()"
+                />
+                <span>Nom libre</span>
+              </label>
+            </div>
+
+            @if (control('fournisseurMode')?.value === 'existant') {
+              <label class="field nested-field">
+                <span>Choisir dans le répertoire</span>
+                <select2
+                  class="depense-select2"
+                  formControlName="fournisseurId"
+                  [data]="fournisseurListOptionsData"
+                  placeholder="Choisir un fournisseur"
+                  noResultMessage="Aucun fournisseur trouvé"
+                />
+                @if (submitted() && control('fournisseurId')?.invalid) {
+                  <small>Choisissez un fournisseur.</small>
+                }
+              </label>
+            } @else {
+              <label class="field nested-field">
+                <span>Nom du fournisseur ponctuel</span>
+                <input
+                  type="text"
+                  formControlName="fournisseurNom"
+                  placeholder="Nom de la personne ou du commerce"
+                />
+                @if (submitted() && control('fournisseurNom')?.invalid) {
+                  <small>Saisissez le nom du fournisseur.</small>
+                }
+              </label>
+            }
+          </fieldset>
+        }
+      </div>
+    </section>
+
+    @if (submitted() && form.invalid) {
+      <p class="form-error" role="alert">
+        Vérifiez les champs signalés avant d’enregistrer la dépense.
+      </p>
     }
-  </div>
 
-  @if (submitted() && form.invalid) {
-    <p class="depense-error">
-      @if (isSalaire()) {
-        Completez la date, le montant, le mode paiement et le personnel.
-      } @else if (requiresPersonnel()) {
-        Completez la date, le montant, le mode paiement et le personnel concerne.
-      } @else {
-        Completez la date, le montant, le mode paiement et le fournisseur.
-      }
-    </p>
-  }
+    @if (error()) {
+      <p class="form-error" role="alert">{{ error() }}</p>
+    }
 
-  <button type="submit" class="depense-submit">
-    <i class="fa-solid fa-check" aria-hidden="true"></i>
-    Enregistrer depense
-  </button>
-</form>
+    <footer class="form-actions">
+
+      <button type="submit" class="button button-primary" [disabled]="submitting()">
+        <i class="fa-solid fa-check" aria-hidden="true"></i>
+                @if (submitting()) {
+          Enregistrement...
+        } @else {
+          Enregistrer la dépense
+        }
+      </button>
+    </footer>
+  </form>
+</section>

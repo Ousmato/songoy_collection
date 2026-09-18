@@ -1,19 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Select2, Select2Data, Select2Option, Select2UpdateEvent } from 'ng-select2-component';
-import { CouleurResponse } from '../../../article/models/article-couleur.model';
-import { SimpleArticleResponse } from '../../../article/models/article.model';
-import { Categorie } from '../../../categorie/models/categorie.model';
-import { Client } from '../../../client/models/client.model';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, Subscription } from 'rxjs';
+import { getUserFromSessionStorage } from '../../../admin/shared/auth.util';
+import {
+  ArticleVariantDto,
+  SimpleArticleResponse,
+} from '../../../article/models/article.model';
+import { CategoryDto } from '../../../categorie/models/categorie.dto';
+import { CategoryMesure } from '../../../categorie/models/categorie.enum';
 import { FloatingBackButton } from '../../../shared/components/floating-back-button/floating-back-button';
-import { ModePaiement, ModePaiementKey } from '../../../shared/model/util.enum';
 import { DependencyService } from '../../../shared/utils/dependency';
 import { EnumMethodes } from '../../../shared/utils/util-methode';
-import { getUserFromSessionStorage } from '../../../admin/shared/auth.util';
-import { AddVenteCouleurBottomSheet } from '../../components/add-vente-couleur-bottom-sheet/add-vente-couleur-bottom-sheet';
-import { AddVenteSommary } from '../../components/add-vente-sommary/add-vente-sommary';
-import { VenteRequest } from '../../models/vente.model';
+import { AddVenteCart } from '../../components/add-vente-cart/add-vente-cart';
+import { SaleLine, VariantSelection } from '../../models/vente.model';
 
 @Component({
   selector: 'app-add-vente',
@@ -21,139 +22,257 @@ import { VenteRequest } from '../../models/vente.model';
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
-    Select2,
     FloatingBackButton,
-    AddVenteCouleurBottomSheet,
-    AddVenteSommary,
+    AddVenteCart,
   ],
   templateUrl: './add-vente.html',
   styleUrl: './add-vente.css',
 })
 export class AddVente implements OnInit {
-  user = getUserFromSessionStorage();
-  dependencyService = inject(DependencyService);
-  form!: FormGroup;
+  private readonly dependency = inject(DependencyService);
+  private readonly destroyRef = inject(DestroyRef);
+  private catalogueRequest?: Subscription;
+  readonly user = getUserFromSessionStorage();
 
-  modePaiementOptions = EnumMethodes.getEnumeratedKeyValue(ModePaiement);
-  clientListOptionsData: Select2Data = [];
-  categoriesData: Select2Data = [];
-  articlesData: Select2Data = [];
+  readonly articles = signal<SimpleArticleResponse[]>([]);
+  readonly categories = signal<CategoryDto[]>([]);
 
-  couleurs = signal<CouleurResponse[]>([]);
-  selectedCouleurs = signal<CouleurResponse[]>([]);
-  selectedCouleurIds = computed(() => this.selectedCouleurs().map(couleur => couleur.id));
-  showCouleurSheet = signal(false);
-  lastRequest = signal<VenteRequest | null>(null);
+  readonly selections = signal<Record<number, VariantSelection>>({});
+  readonly lines = signal<SaleLine[]>([]);
+  readonly salePriceDrafts = signal<Record<number, string>>({});
+  readonly search = signal('');
+  readonly categoryId = signal<number | null>(null);
+  readonly loading = signal(false);
+  readonly catalogueError = signal('');
+  readonly categoryError = signal('');
+  readonly error = signal('');
+  readonly mobilePanel = signal<'catalogue' | 'cart'>('catalogue');
+  readonly failedImages = signal<Set<string>>(new Set());
 
-  today = new Date().toLocaleDateString('fr-FR', {
-    month: 'long',
-    year: 'numeric',
+  readonly filteredArticles = computed(() => {
+    const term = this.normalize(this.search());
+    return this.articles().filter(article => this.normalize(this.articleLabel(article)).includes(term));
   });
 
   ngOnInit(): void {
-    this.loadForm();
-    this.loadClients();
     this.loadCategories();
   }
 
-  loadForm(): void {
-    this.form = this.dependencyService.fb.group({
-      date: ['', Validators.required],
-      clientId: [''],
-      clientNom: [''],
-      modePaiement: ['CASH' satisfies ModePaiementKey, Validators.required],
-      idCategorie: ['', Validators.required],
-      idArticle: ['', Validators.required],
-    });
-  }
-
-  loadClients(): void {
-    if (!this.user?.id) return;
-
-    this.dependencyService.clientService.loadClients(this.user.id).subscribe(res => {
-      this.clientListOptionsData = res.map<Select2Option>((client: Client, index) => ({
-        id: `client-${client.id ?? index}-${index}`,
-        value: client.id ?? '',
-        label: `${client.nom ?? ''} ${client.prenom ?? ''}`.trim() || 'Client non definit',
-      })) as Select2Data;
-    });
+  onImageError(url: string): void {
+    this.failedImages.update(images => new Set(images).add(url));
   }
 
   loadCategories(): void {
     if (!this.user?.id) return;
+    this.categoryError.set('');
+    this.dependency.categoryService.loadCategories(this.user.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: categories => {
+          const availableCategories = categories ?? [];
+          this.categories.set(availableCategories);
 
-    this.dependencyService.categoryService.loadCategories(this.user.id).subscribe(res => {
-      this.categoriesData = res.map<Select2Option>((cat: Categorie, index) => ({
-        id: `cat-${cat.id ?? index}-${index}`,
-        value: cat.id ?? '',
-        label: cat.nom || 'Categorie non definit',
-      })) as Select2Data;
+          const firstCategoryId = availableCategories[0]?.id ?? null;
+          this.categoryId.set(firstCategoryId);
+
+          if (firstCategoryId === null) {
+            this.articles.set([]);
+            this.catalogueError.set('Aucune catégorie disponible.');
+            return;
+          }
+
+          this.loadArticles();
+        },
+        error: () => this.categoryError.set('Les catégories sont indisponibles.'),
+      });
+  }
+
+  selectCategory(id: number): void {
+    if (id === this.categoryId()) return;
+    this.categoryId.set(id);
+    this.loadArticles();
+  }
+
+  loadArticles(): void {
+    if (!this.user?.id) {
+      this.catalogueError.set('Reconnectez-vous pour accéder au catalogue.');
+      return;
+    }
+    this.catalogueRequest?.unsubscribe();
+    this.loading.set(true);
+    this.catalogueError.set('');
+    this.articles.set([]);
+    const categoryId = this.categoryId();
+    if (categoryId === null) {
+      this.loading.set(false);
+      this.catalogueError.set('Sélectionnez une catégorie pour afficher les articles.');
+      return;
+    }
+
+    const request = this.dependency.articleService.loadArticlesByCategoryId(categoryId, this.user.id);
+
+    this.catalogueRequest = request.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.loading.set(false)),
+    ).subscribe({
+      next: articles => this.articles.set(articles ?? []),
+      error: () => this.catalogueError.set('Impossible de charger les articles.'),
     });
   }
 
-  loadArticles(idCategorie: number): void {
-    if (!idCategorie || !this.user?.id) return;
+  loadVariants(article: SimpleArticleResponse): void {
+    if (!this.user?.id || this.selections()[article.id]?.loading) return;
+    this.selections.update(selections => ({
+      ...selections,
+      [article.id]: {
+        loading: true,
+        error: '',
+        variants: [],
+        attributes: [],
+        selectedId: null,
+      },
+    }));
+    this.dependency.articleService.loadArticleVariants(article.id, this.user.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: variants => this.updateSelection(article.id, {
+          loading: false,
+          variants: variants ?? [],
+          selectedId: variants?.length === 1 ? variants[0].id : null,
+        }),
+        error: () => this.updateSelection(article.id, {
+          loading: false,
+          error: 'Variantes indisponibles.',
+        }),
+      });
+    this.dependency.articleService.loadArticleContext(article.id, this.user.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: context => this.updateSelection(article.id, { attributes: context.attributes ?? [] }),
+        // Les références et valeurs restent lisibles si les libellés sont indisponibles.
+        error: () => this.updateSelection(article.id, { attributes: [] }),
+      });
+  }
 
-    this.dependencyService.articleService.loadArticlesByCategoryId(idCategorie, this.user.id).subscribe(res => {
-      this.articlesData = res.map<Select2Option>((art: SimpleArticleResponse, index) => ({
-        id: `art-${art.id ?? index}-${index}`,
-        value: art.id,
-        label: art.nom || 'Article non definit',
-      })) as Select2Data;
+  selectVariant(articleId: number, value: number | null): void {
+    this.updateSelection(articleId, { selectedId: Number(value) || null });
+  }
+
+  selectedVariant(articleId: number): ArticleVariantDto | undefined {
+    const selection = this.selections()[articleId];
+    return selection?.variants.find(variant => variant.id === selection.selectedId);
+  }
+
+  attributeLabel(articleId: number, key: string): string {
+    return this.selections()[articleId]?.attributes.find(item => item.id === Number(key))?.label ?? '';
+  }
+
+  available(variant: ArticleVariantDto): number {
+    const reserved = this.lines().find(line => line.variant.id === variant.id)?.quantite ?? 0;
+    return Math.max(0, this.roundQuantity(Number(variant.quantity || 0) - reserved));
+  }
+
+  addToCart(article: SimpleArticleResponse): void {
+    const variant = this.selectedVariant(article.id);
+    const prixVente = variant ? this.salePriceValue(variant) : 0;
+    if (!variant || this.available(variant) <= 0 || prixVente <= 0) return;
+
+    const added = Math.min(1, this.available(variant));
+    this.lines.update(lines => {
+      const existing = lines.find(line => line.variant.id === variant.id);
+      return existing
+        ? lines.map(line => line.variant.id === variant.id
+          ? {
+              ...line,
+              prixVente,
+              quantite: this.roundQuantity(line.quantite + added),
+            }
+          : line)
+        : [...lines, { article, variant, prixVente, quantite: added }];
     });
+    this.clearFeedback();
   }
 
-  loadCouleurs(idArticle: number): void {
-    if (!idArticle || !this.user?.id) return;
-
-    this.dependencyService.articleService.loadCouleurs(idArticle, this.user.id).subscribe(res => {
-      this.couleurs.set(res);
-    });
+  updateQuantity(line: SaleLine, value: number | string): void {
+    const quantity = Number(value);
+    if (!Number.isFinite(quantity) || quantity <= 0 || quantity > line.variant.quantity) {
+      this.error.set('La quantité doit être positive et ne pas dépasser le stock disponible.');
+      return;
+    }
+    this.lines.update(lines => lines.map(item => item.variant.id === line.variant.id
+      ? { ...item, quantite: this.roundQuantity(quantity) } : item));
+    this.clearFeedback();
   }
 
-  onCategorieUpdate(event: Select2UpdateEvent): void {
-    const idCategorie = Number(event.value ?? '');
-    this.form.patchValue({ idArticle: '' });
-    this.articlesData = [];
-    this.couleurs.set([]);
-    this.selectedCouleurs.set([]);
-
-    if (idCategorie) this.loadArticles(idCategorie);
+  changeQuantity(line: SaleLine, delta: number): void {
+    this.updateQuantity(line, Math.min(line.variant.quantity, this.roundQuantity(line.quantite + delta)));
   }
 
-  onArticleUpdate(event: Select2UpdateEvent): void {
-    const idArticle = Number(event.value ?? '');
-    this.couleurs.set([]);
-    this.selectedCouleurs.set([]);
-
-    if (idArticle) this.loadCouleurs(idArticle);
+  removeLine(id: number): void {
+    this.lines.update(lines => lines.filter(line => line.variant.id !== id));
+    this.clearFeedback();
   }
 
-  openCouleurSheet(): void {
-    this.showCouleurSheet.set(true);
+  clearCart(): void {
+    this.lines.set([]);
+    this.clearFeedback();
   }
 
-  closeCouleurSheet(): void {
-    this.showCouleurSheet.set(false);
+  salePrice(variant: ArticleVariantDto): string {
+    return this.salePriceDrafts()[variant.id] ?? String(variant.prixVente ?? '');
   }
 
-  applyCouleurs(couleurs: CouleurResponse[]): void {
-    this.selectedCouleurs.set(couleurs);
-    this.closeCouleurSheet();
+  isSalePriceValid(variant: ArticleVariantDto): boolean {
+    return this.salePriceValue(variant) > 0;
   }
 
-  removeCouleur(idCouleur: number): void {
-    this.selectedCouleurs.set(this.selectedCouleurs().filter(couleur => couleur.id !== idCouleur));
+  updateSalePrice(variant: ArticleVariantDto, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    this.salePriceDrafts.update(prices => ({ ...prices, [variant.id]: value }));
+
+    const prixVente = Number(value);
+    if (!Number.isFinite(prixVente) || prixVente <= 0) return;
+
+    this.lines.update(lines => lines.map(line => line.variant.id === variant.id
+      ? { ...line, prixVente: this.round(prixVente) }
+      : line));
   }
 
-  selectedArticleName(): string {
-    const idArticle = Number(this.form?.value?.idArticle);
-    return (this.articlesData as Select2Option[]).find(article => Number(article.value) === idArticle)?.label ?? 'Article';
+  private salePriceValue(variant: ArticleVariantDto): number {
+    const value = Number(this.salePrice(variant));
+    return Number.isFinite(value) && value > 0 ? this.round(value) : 0;
   }
 
-  handleSubmit(request: VenteRequest): void {
-    this.lastRequest.set(request);
-    console.log('VenteRequest simulation', request);
+  articleLabel(article: SimpleArticleResponse): string {
+    return [article.categoryNom || article.nom, article.typeNom].filter(Boolean).join(' — ');
+  }
+
+  unit(article: SimpleArticleResponse): string {
+    return EnumMethodes.getEnumValueByKey(CategoryMesure, article.categoryMesure)
+      ?? article.categoryMesure ?? '';
+  }
+
+  private clearFeedback(): void {
+    this.error.set('');
+  }
+
+  private updateSelection(articleId: number, patch: Partial<VariantSelection>): void {
+    this.selections.update(selections => ({
+      ...selections,
+      [articleId]: { ...selections[articleId], ...patch },
+    }));
+  }
+
+  private normalize(value: string): string {
+    return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  }
+
+  private round(value: number): number {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+  }
+
+  private roundQuantity(value: number): number {
+    return Math.round(value * 1e6) / 1e6;
   }
 }

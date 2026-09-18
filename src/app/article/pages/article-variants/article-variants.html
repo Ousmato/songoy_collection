@@ -66,13 +66,6 @@
               </p>
               <div class="value-list">@for (entry of (variant.attributs | keyvalue); track entry.key) {<span><b>#{{ entry.key }}</b>{{ entry.value }}</span>}</div>
               <button type="button" class="edit-button" (click)="editVariant(variant)" aria-label="Modifier la variante"><i class="fa-solid fa-pen"></i></button>
-              <a
-                class="stock-link"
-                [routerLink]="['/admin/article-variants', article.id, 'stock', variant.id]"
-              >
-                <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
-                Ajouter du stock
-              </a>
             </article>
           } @empty {<p class="empty-state">Aucune variante enregistrée.</p>}
         </div>

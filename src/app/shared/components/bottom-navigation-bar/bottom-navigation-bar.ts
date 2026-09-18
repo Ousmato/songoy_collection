@@ -74,7 +74,7 @@ export class BottomNavigationBar {
     }
     return [
       shared.find(item => item.label === 'Commande')!,
-      { label: 'Dépenses atelier', icon: 'fa-solid fa-wallet', path: '/admin/list-depenses-atelier' },
+      { label: 'Dépenses', icon: 'fa-solid fa-wallet', path: '/admin/list-depenses-atelier' },
       shared.find(item => item.label === 'Personnel')!,
       shared.find(item => item.label === 'Settings')!,
     ];

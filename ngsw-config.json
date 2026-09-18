@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/index.html",
+          "/favicon.ico",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js",
+          "/icons/**",
+          "/media/*.woff2",
+          "/media/*.woff"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [],
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/**/*__*",
+    "!/**/*__*/**",
+    "!/api",
+    "!/api/**"
+  ]
+}

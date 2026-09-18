@@ -143,17 +143,6 @@
   }
 }
 
-.stock-link {
-  display: inline-flex;
-  align-items: center;
-  gap: .4rem;
-  min-height: 44px;
-  margin-top: .5rem;
-  color: var(--sc-gold-primary);
-  font-size: .75rem;
-  font-weight: 600;
-}
-
 .variant-stock {
   margin: .4rem 0 0;
   color: var(--sc-gray-700);

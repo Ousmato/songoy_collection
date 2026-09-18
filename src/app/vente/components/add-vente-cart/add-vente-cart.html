@@ -1,0 +1,205 @@
+<aside class="cart-panel" id="sale-cart" aria-labelledby="cart-title">
+  <header class="cart-heading">
+    <div class="section-title">
+      <h2 id="cart-title">Panier</h2>
+      <span class="count" aria-live="polite">{{ lines.length }}</span>
+    </div>
+    <button
+      type="button"
+      class="text-button danger"
+      [disabled]="!lines.length"
+      (click)="clear.emit()"
+    >
+      Vider
+    </button>
+  </header>
+
+  <div class="cart-body" tabindex="0" aria-label="Articles et client du panier">
+    <div class="cart-lines">
+      @for (line of lines; track line.variant.id) {
+        <article class="cart-line">
+          <div class="cart-visual" aria-hidden="true">
+            <i class="fa-solid fa-box-open"></i>
+          </div>
+          <div class="cart-line-body">
+            <div class="cart-line-heading">
+              <h3>{{ articleLabel(line.article) }}</h3>
+              <button
+                type="button"
+                class="remove-button"
+                [attr.aria-label]="'Retirer ' + line.variant.reference"
+                (click)="remove.emit(line.variant.id)"
+              >
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
+            </div>
+            <p class="reference" [title]="line.variant.reference">
+              {{ line.variant.reference }}
+            </p>
+            <div class="attribute-chips compact">
+              @for (entry of (line.variant.attributs | keyvalue); track entry.key) {
+                <span>{{ entry.value }}</span>
+              }
+            </div>
+            <p class="unit-price">
+              {{ line.prixVente | number:'1.0-2' }}
+              F CFA / {{ unit(line.article) }}
+            </p>
+            <div class="cart-line-footer">
+              <div class="quantity-control">
+                <button
+                  type="button"
+                  [disabled]="line.quantite <= 1"
+                  [attr.aria-label]="'Diminuer la quantité de ' + line.variant.reference"
+                  (click)="increaseOrDecrease(line, -1)"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  min="0.000001"
+                  step="any"
+                  [max]="line.variant.quantity"
+                  [value]="line.quantite"
+                  [attr.aria-label]="'Quantité en ' + unit(line.article)"
+                  (change)="onQuantityChange(line, $event)"
+                />
+                <button
+                  type="button"
+                  [disabled]="line.quantite >= line.variant.quantity"
+                  [attr.aria-label]="'Augmenter la quantité de ' + line.variant.reference"
+                  (click)="increaseOrDecrease(line, 1)"
+                >
+                  +
+                </button>
+              </div>
+              <strong>
+                {{ lineTotal(line) | number:'1.0-2' }}
+                <small>F CFA</small>
+              </strong>
+            </div>
+          </div>
+        </article>
+      } @empty {
+        <div class="empty-cart">
+          <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i>
+          <h3>Votre panier est vide</h3>
+          <p>Choisissez une variante dans le catalogue pour commencer.</p>
+        </div>
+      }
+    </div>
+
+    <section class="cart-context" [formGroup]="form" aria-label="Client de la vente">
+      <div class="context-fields">
+        <div class="context-client">
+          <div class="radio-row">
+            <label>
+              <input type="radio" formControlName="clientMode" value="passage" />
+              Client de passage
+            </label>
+            <label>
+              <input type="radio" formControlName="clientMode" value="existant" />
+              Client enregistré
+            </label>
+          </div>
+
+          @if (form.controls['clientMode'].value === 'existant') {
+            <label class="field">
+              Client
+              <select formControlName="clientId">
+                <option [ngValue]="0">Choisir un client</option>
+                @for (client of clients(); track client.id) {
+                  <option [ngValue]="client.id">
+                    {{ client.nom }} {{ client.prenom }}
+                  </option>
+                }
+              </select>
+              @if (form.controls['clientId'].touched && form.controls['clientId'].hasError('required')) {
+                <small class="inline-error">Choisissez un client.</small>
+              }
+            </label>
+          } @else {
+            <label class="field">
+              Nom du client
+              <input
+                type="text"
+                formControlName="clientNom"
+                placeholder="Facultatif si la vente est entièrement payée"
+              />
+            </label>
+          }
+
+          @if (form.controls['clientMode'].value === 'existant' && clientError()) {
+            <p class="inline-error" role="alert">
+              {{ clientError() }}
+              <button type="button" class="text-button" (click)="loadClients()">
+                Réessayer
+              </button>
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <form
+    class="checkout"
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    novalidate
+  >
+    @if (error()) {
+      <p class="inline-error" role="alert">
+        {{ error() }}
+      </p>
+    }
+
+    <div class="totals" aria-live="polite">
+      <div class="grand-total">
+        <span>Total</span>
+        <strong>{{ total | number:'1.0-2' }} <small>F CFA</small></strong>
+      </div>
+    </div>
+    <div class="payment-method" aria-label="Mode de paiement">
+      <label class="payment-amount">
+        Montant payé
+        <span class="payment-amount-input">
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            formControlName="montantPaye"
+            [disabled]="form.controls['modePaiement'].value === 'CREDIT'"
+            aria-describedby="payment-remaining"
+          />
+          <span>F CFA</span>
+        </span>
+      </label>
+      <p class="payment-remaining" id="payment-remaining">
+        Reste à payer :
+        <strong>{{ remainingAmount() | number:'1.0-2' }} F CFA</strong>
+      </p>
+      <div class="payment-options">
+        @for (mode of paymentOptions; track mode.key) {
+          <label>
+            <input
+              type="radio"
+              formControlName="modePaiement"
+              [value]="mode.key"
+            />
+            <span>{{ mode.value }}</span>
+          </label>
+        }
+      </div>
+    </div>
+    <button type="submit" class="checkout-button" [disabled]="submitting()">
+      @if (submitting()) {
+        Enregistrement…
+        <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+      } @else {
+        Valider la vente
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      }
+    </button>
+  </form>
+</aside>

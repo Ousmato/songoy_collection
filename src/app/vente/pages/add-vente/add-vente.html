@@ -1,126 +1,255 @@
-<section class="vente-page">
+<section class="sale-page" aria-label="Nouvelle vente">
   <app-floating-back-button />
 
-  <header class="vente-header">
-    <div>
-      <h1 class="vente-title">Nouvelle vente</h1>
-      <p class="vente-subtitle">Client, article, couleurs et paiement - {{ today }}</p>
-    </div>
+  <header class="sale-heading">
+    <!-- <div>
+      <h1>Nouvelle vente</h1>
+      <p>Sélectionnez vos articles, puis complétez le panier.</p>
+    </div> -->
+    <nav class="mobile-panels" aria-label="Affichage de la vente">
+      <button
+        type="button"
+        [class.active]="mobilePanel() === 'catalogue'"
+        [attr.aria-pressed]="mobilePanel() === 'catalogue'"
+        aria-controls="sale-catalogue"
+        (click)="mobilePanel.set('catalogue')"
+      >
+        Catalogue
+      </button>
+      <button
+        type="button"
+        [class.active]="mobilePanel() === 'cart'"
+        [attr.aria-pressed]="mobilePanel() === 'cart'"
+        aria-controls="sale-cart"
+        (click)="mobilePanel.set('cart')"
+      >
+        Panier <span aria-live="polite">{{ lines().length }}</span>
+      </button>
+    </nav>
   </header>
 
-  <div class="vente-layout">
-    <form class="vente-form" [formGroup]="form">
-      <section class="vente-panel">
-        <div class="vente-panel-head">
-          <span class="vente-panel-icon" aria-hidden="true">
-            <i class="fa-solid fa-receipt"></i>
-          </span>
-          <div>
-            <h2>Informations vente</h2>
-            <p>Date, paiement, client ou nom libre</p>
+  @if (error()) {
+    <p class="sale-feedback" role="alert">{{ error() }}</p>
+  }
+
+  <div class="sale-workspace">
+    <section
+      class="catalogue"
+      id="sale-catalogue"
+      aria-labelledby="catalogue-title"
+      [class.mobile-inactive]="mobilePanel() !== 'catalogue'"
+    >
+      <div class="catalogue-tools">
+        <header class="catalogue-heading">
+          <h2 id="catalogue-title">
+            Catalogue <span class="count">{{ filteredArticles().length }}</span>
+          </h2>
+          <label class="search-field">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input
+              type="search"
+              aria-label="Rechercher un article"
+              placeholder="Rechercher dans cette catégorie…"
+              [ngModel]="search()"
+              (ngModelChange)="search.set($event)"
+            />
+          </label>
+        </header>
+
+        <nav class="category-strip" aria-label="Filtrer par catégorie">
+          @for (category of categories(); track category.id) {
+            <button
+              type="button"
+              [class.active]="categoryId() === category.id"
+              [attr.aria-pressed]="categoryId() === category.id"
+              (click)="selectCategory(category.id)"
+            >
+              {{ category.nom }}
+            </button>
+          }
+        </nav>
+      </div>
+
+      <div
+        class="catalogue-body"
+        tabindex="0"
+        aria-label="Articles du catalogue"
+        [attr.aria-busy]="loading()"
+      >
+        @if (categoryError()) {
+          <div class="catalogue-state" role="alert">
+            <p>{{ categoryError() }}</p>
+            <button type="button" class="secondary-button" (click)="loadCategories()">
+              Réessayer
+            </button>
           </div>
-        </div>
-
-        <div class="vente-form-grid">
-          <label class="vente-field">
-            <span>Date vente</span>
-            <input type="date" formControlName="date">
-          </label>
-
-          <label class="vente-field">
-            <span>Mode paiement</span>
-            <select formControlName="modePaiement">
-              @for (mode of modePaiementOptions; track mode.key) {
-                <option [value]="mode.key">{{ mode.value }}</option>
-              }
-            </select>
-          </label>
-
-          <label class="vente-field">
-            <span>Client</span>
-            <select2
-              class="vente-select2"
-              formControlName="clientId"
-              [data]="clientListOptionsData"
-              placeholder="Selectionner"
-              noResultMessage="Aucun client"
-            />
-          </label>
-
-          <label class="vente-field">
-            <span>Nom client libre</span>
-            <input type="text" formControlName="clientNom" placeholder="Client non enregistre">
-          </label>
-        </div>
-      </section>
-
-      <section class="vente-panel">
-        <div class="vente-panel-head">
-          <span class="vente-panel-icon vente-panel-icon-info" aria-hidden="true">
-            <i class="fa-solid fa-shirt"></i>
-          </span>
-          <div>
-            <h2>Article et couleurs</h2>
-            <p>Choisir un article puis plusieurs couleurs</p>
+        } @else if (loading()) {
+          <div class="catalogue-state" role="status">
+            <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+            <p>Chargement des articles…</p>
           </div>
-        </div>
+        } @else if (catalogueError()) {
+          <div class="catalogue-state" role="alert">
+            <i class="fa-solid fa-box-open" aria-hidden="true"></i>
+            <p>{{ catalogueError() }}</p>
+            <button type="button" class="secondary-button" (click)="loadArticles()">
+              Réessayer
+            </button>
+          </div>
+        } @else {
+          <div class="product-grid">
+            @for (article of filteredArticles(); track article.id) {
+              <article class="product-card">
+                @if (article.urlImage; as imageUrl) {
+                  @if (!failedImages().has(imageUrl)) {
+                    <div class="product-image">
+                      <img
+                        [src]="imageUrl"
+                        [alt]="articleLabel(article)"
+                        loading="lazy"
+                        decoding="async"
+                        (error)="onImageError(imageUrl)"
+                      />
+                    </div>
+                  }
+                }
 
-        <div class="vente-form-grid">
-          <label class="vente-field">
-            <span>Categorie</span>
-            <select2
-              class="vente-select2"
-              formControlName="idCategorie"
-              [data]="categoriesData"
-              placeholder="Selectionner"
-              noResultMessage="Aucune categorie"
-              (update)="onCategorieUpdate($event)"
-            />
-          </label>
+                <header class="product-heading">
+                  @if (!article.urlImage || failedImages().has(article.urlImage)) {
+                    <div class="product-icon" aria-hidden="true">
+                      <i class="fa-solid fa-box"></i>
+                    </div>
+                  }
+                  <div class="product-title">
+                    <p>{{ article.categoryNom }}</p>
+                    <h3>{{ article.typeNom || article.nom || article.categoryNom }}</h3>
+                  </div>
+                  <span class="stock-status" [class.unavailable]="article.quantity <= 0">
+                    {{ article.quantity > 0 ? 'En stock' : 'Épuisé' }}
+                  </span>
+                </header>
 
-          <label class="vente-field">
-            <span>Article</span>
-            <select2
-              class="vente-select2"
-              formControlName="idArticle"
-              [data]="articlesData"
-              placeholder="Selectionner"
-              noResultMessage="Aucun article"
-              (update)="onArticleUpdate($event)"
-            />
-          </label>
-        </div>
+                <div class="product-details">
+                  @if (selections()[article.id]; as selection) {
+                    @if (selection.loading) {
+                      <p class="muted" role="status">Chargement des variantes…</p>
+                    } @else if (selection.error) {
+                      <p class="inline-error" role="alert">{{ selection.error }}</p>
+                      <button type="button" class="secondary-button" (click)="loadVariants(article)">
+                        Réessayer
+                      </button>
+                    } @else if (!selection.variants.length) {
+                      <p class="muted">Aucune variante disponible.</p>
+                    } @else {
+                      <label class="field">
+                        Variante
+                        <select
+                          [ngModel]="selection.selectedId"
+                          (ngModelChange)="selectVariant(article.id, $event)"
+                        >
+                          <option [ngValue]="null">Choisir une variante</option>
+                          @for (variant of selection.variants; track variant.id) {
+                            <option [ngValue]="variant.id" [disabled]="variant.quantity <= 0">
+                              {{ variant.reference }}{{ variant.quantity <= 0 ? ' · Épuisée' : '' }}
+                            </option>
+                          }
+                        </select>
+                      </label>
+                      @if (selectedVariant(article.id); as variant) {
+                        <div class="attribute-chips">
+                          @for (entry of (variant.attributs | keyvalue); track entry.key) {
+                            <span>
+                              @if (attributeLabel(article.id, entry.key); as label) {
+                                <b>{{ label }}</b>
+                              }
+                              {{ entry.value }}
+                            </span>
+                          }
+                        </div>
+                        <p class="availability">
+                          Disponible : {{ available(variant) | number:'1.0-6' }} {{ unit(article) }}
+                        </p>
+                      }
+                    }
+                  } @else {
+                    <p class="availability">
+                      {{ article.quantity | number:'1.0-6' }} {{ unit(article) }} en stock
+                    </p>
+                    <button
+                      type="button"
+                      class="variant-button"
+                      [disabled]="article.quantity <= 0"
+                      (click)="loadVariants(article)"
+                    >
+                      Choisir une variante
+                      <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </button>
+                  }
+                </div>
 
-        <button type="button" class="vente-color-btn" (click)="openCouleurSheet()" [disabled]="!couleurs().length">
-          <i class="fa-solid fa-plus" aria-hidden="true"></i>
-          Couleurs
-          <span>{{ selectedCouleurs().length }}</span>
-        </button>
-      </section>
-    </form>
+                <footer class="product-footer">
+                  @if (selectedVariant(article.id); as variant) {
+                    <label class="field price-field">
+                      Prix de vente
+                      <span class="price-input">
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          [value]="salePrice(variant)"
+                          [attr.aria-invalid]="!isSalePriceValid(variant)"
+                          (input)="updateSalePrice(variant, $event)"
+                        />
+                        <span>F CFA</span>
+                      </span>
+                      <small>Catalogue : {{ variant.prixVente | number:'1.0-2' }} F CFA</small>
+                    </label>
+                  } @else {
+                    <div class="starting-price">
+                      @if (article.prixVente != null) {
+                        <small>À partir de</small>
+                        <strong>
+                          {{ article.prixVente | number:'1.0-2' }} <small>F CFA</small>
+                        </strong>
+                      } @else {
+                        <small>Prix selon la variante</small>
+                      }
+                    </div>
+                  }
 
-    <app-add-vente-sommary
-      [venteForm]="form"
-      [selectedCouleurs]="selectedCouleurs()"
-      (removeCouleur)="removeCouleur($event)"
-      (submitVente)="handleSubmit($event)"
+                  <button
+                    type="button"
+                    class="add-button"
+                    [disabled]="!selectedVariant(article.id)
+                      || available(selectedVariant(article.id)!) <= 0
+                      || !isSalePriceValid(selectedVariant(article.id)!)"
+                    [attr.aria-label]="'Ajouter ' + articleLabel(article) + ' au panier'"
+                    (click)="addToCart(article)"
+                  >
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    Ajouter
+                  </button>
+                </footer>
+              </article>
+            } @empty {
+              <div class="catalogue-state">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <h3>Aucun article trouvé</h3>
+                <p>Changez de catégorie ou modifiez votre recherche.</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <app-add-vente-cart
+      [class.mobile-inactive]="mobilePanel() !== 'cart'"
+      [lines]="lines()"
+      (clear)="clearCart()"
+      (remove)="removeLine($event)"
+      (quantityChange)="updateQuantity($event.line, $event.value)"
+      (quantityStep)="changeQuantity($event.line, $event.delta)"
     />
   </div>
-
-  @if (lastRequest()) {
-    <aside class="vente-preview" aria-label="Derniere requete">
-      <strong>VenteRequest pret</strong>
-      <span>{{ lastRequest()?.lignes?.length }} ligne(s) configuree(s)</span>
-    </aside>
-  }
-
-  @if (showCouleurSheet()) {
-    <app-add-vente-couleur-bottom-sheet
-      [couleurs]="couleurs()"
-      [selectedIds]="selectedCouleurIds()"
-      [articleName]="selectedArticleName()"
-      (close)="closeCouleurSheet()"
-      (applySelection)="applyCouleurs($event)"
-    />
-  }
 </section>

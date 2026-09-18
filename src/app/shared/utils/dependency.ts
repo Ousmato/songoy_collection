@@ -8,6 +8,9 @@ import { AdminService } from "../../admin/service/admin.service";
 import { ClientService } from "../../client/services/client.service";
 import { CommandeService } from "../../commande/service/commande.service";
 import { ReceptionService } from "../../achat/services/reception.service";
+import { VenteService } from "../../vente/services/vente.service";
+import { DepenseService } from "../../depense/services/depense.service";
+import { DashboardService } from "../../dashbord/services/dashboard.service";
 
 @Injectable({
     providedIn: 'root'
@@ -25,6 +28,9 @@ export class DependencyService {
     clientService = inject(ClientService);
     commandeService = inject(CommandeService);
     receptionService = inject(ReceptionService);
+    venteService = inject(VenteService);
+    depenseService = inject(DepenseService);
+    dashboardService = inject(DashboardService);
 
     httpResponse = inject(ResponseMessageService)
 
