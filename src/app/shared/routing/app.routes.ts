@@ -212,7 +212,12 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'mouvement-stock',
-        redirectTo: 'list-stock',
+        title: 'Historique des mouvements',
+        data: { title: 'Historique des mouvements' },
+        loadComponent: () =>
+          import('../../stock/pages/historique-mouvements/historique-mouvements').then(
+            (m) => m.HistoriqueMouvements,
+          ),
       },
       {
         path: 'clients',
@@ -220,19 +225,32 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'list-users',
-        redirectTo: 'list-personnel',
+        title: 'Liste des clients',
+        data: { title: 'Liste des clients' },
+        loadComponent: () =>
+          import('../../client/pages/list-client/list-client').then((m) => m.ListClient),
       },
       {
         path: 'add-client',
-        redirectTo: 'list-personnel',
+        redirectTo: 'add-personnel',
       },
       {
         path: 'fournisseurs',
-        redirectTo: 'list-personnel',
+        title: 'Fournisseurs',
+        data: { title: 'Fournisseurs' },
+        loadComponent: () =>
+          import('../../fournisseur/pages/list-fournisseur/list-fournisseur').then(
+            (m) => m.ListFournisseur,
+          ),
       },
       {
         path: 'add-fournisseur',
-        redirectTo: 'list-personnel',
+        title: 'Ajouter un fournisseur',
+        data: { title: 'Fournisseurs', openAddModal: true },
+        loadComponent: () =>
+          import('../../fournisseur/pages/list-fournisseur/list-fournisseur').then(
+            (m) => m.ListFournisseur,
+          ),
       },
       {
         path: 'personnel-list',

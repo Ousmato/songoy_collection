@@ -17,6 +17,7 @@ export enum PersonnelRole {
     RESPONSABLE = 'RESPONSABLE',
     COUTURIER = 'COUTURIER',
     SUPER_ADMIN = 'SUPER_ADMIN',
+    LIVREUR = 'Livreur',
   }
 
 export enum Entite {

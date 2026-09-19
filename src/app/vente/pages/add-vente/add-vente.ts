@@ -15,6 +15,7 @@ import { DependencyService } from '../../../shared/utils/dependency';
 import { EnumMethodes } from '../../../shared/utils/util-methode';
 import { AddVenteCart } from '../../components/add-vente-cart/add-vente-cart';
 import { SaleLine, VariantSelection } from '../../models/vente.model';
+import { resolveImageUrl } from '../../../shared/utils/image-url.util';
 
 @Component({
   selector: 'app-add-vente',
@@ -60,6 +61,14 @@ export class AddVente implements OnInit {
 
   onImageError(url: string): void {
     this.failedImages.update(images => new Set(images).add(url));
+  }
+
+  displayImageUrl(value?: string | null): string | null {
+    return resolveImageUrl(value, 'article-variants');
+  }
+
+  selectedVariantImageUrl(article: SimpleArticleResponse): string | null {
+    return this.displayImageUrl(this.selectedVariant(article.id)?.urlImage);
   }
 
   loadCategories(): void {

@@ -40,9 +40,12 @@ export interface ArticleVariantRequestDto {
   reference: string;
   prixVente: number;
   attributs: Record<number, string>;
+  /** Fichier image à envoyer uniquement lorsqu'une nouvelle image est choisie. */
+  image?: File | null;
 }
 
 export interface ArticleVariantDto extends ArticleVariantRequestDto {
   id: number;
   quantity: number;
+  urlImage?: string | null;
 }

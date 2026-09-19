@@ -1,4 +1,4 @@
-.page { display: flex; flex-direction: column; gap: 1.75rem; }
+.page { display: flex; flex-direction: column; gap: 1.75rem;  padding: 10px;}
 
 /* ---------- Header ---------- */
 .page-header {

@@ -17,7 +17,16 @@
     }
   </nav>
 
-  <section class="stock-stats" aria-label="Indicateurs stock">
+  @if (statsError()) {
+    <p class="stock-stats-error" role="alert">
+      Les statistiques du stock n'ont pas pu être chargées.
+      <button type="button" (click)="loadStats()" [disabled]="statsLoading()">
+        Réessayer
+      </button>
+    </p>
+  }
+
+  <section class="stock-stats" aria-label="Indicateurs stock" [attr.aria-busy]="statsLoading()">
     @for (stat of stats; track stat.label) {
       <article class="stock-stat stock-stat-{{ stat.tone }}">
         <span class="stock-stat-icon" aria-hidden="true">
@@ -25,7 +34,11 @@
         </span>
         <div class="stock-stat-content">
           <p class="stock-stat-label">{{ stat.label }}</p>
-          <strong class="stock-stat-value">{{ stat.value }}</strong>
+          @if (indicateurs(); as values) {
+            <strong class="stock-stat-value">{{ formatMoney(values[stat.key]) }}</strong>
+          } @else {
+            <strong class="stock-stat-value">{{ statsLoading() ? '…' : '—' }}</strong>
+          }
         </div>
       </article>
     }

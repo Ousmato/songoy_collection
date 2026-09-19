@@ -52,19 +52,26 @@
     }
   </nav>
 
-  <section class="setting-stats" aria-label="Indicateurs configuration">
-    @for (stat of stats; track stat.label) {
+  <section class="setting-stats" aria-label="Indicateurs configuration" [attr.aria-busy]="statsLoading()">
+    @for (stat of statCards; track stat.key) {
       <article class="setting-stat setting-stat-{{ stat.tone }}">
         <span class="setting-stat-icon" aria-hidden="true">
           <i [class]="stat.icon"></i>
         </span>
         <div class="setting-stat-content">
           <p class="setting-stat-label">{{ stat.label }}</p>
-          <strong class="setting-stat-value">{{ stat.value }}</strong>
+          <strong class="setting-stat-value">{{ statValue(stat) }}</strong>
         </div>
       </article>
     }
   </section>
+
+  @if (statsError()) {
+    <div class="setting-stats-error" role="alert">
+      <span>{{ statsError() }}</span>
+      <button type="button" (click)="loadStats()" [disabled]="statsLoading()">Réessayer</button>
+    </div>
+  }
 
   <section class="setting-actions" aria-label="Menus configuration">
     @for (item of menuItems; track item.title) {

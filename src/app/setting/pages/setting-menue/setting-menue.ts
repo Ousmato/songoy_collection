@@ -1,8 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { catchError, EMPTY, finalize } from 'rxjs';
 import { AddTypeArticle } from '../../../article/components/add-type-article/add-type-article';
 import { AddCategorieComponent } from '../../../categorie/components/add-categorie/add-categorie.component';
+import { getUserFromSessionStorage } from '../../../admin/shared/auth.util';
+import { SettingMenuStats } from '../../model/setting.dto';
+import { SettingService } from '../../service/setting.service';
 
 type SettingQuickAction = {
   key: 'categorie' | 'typeArticle' | 'attribute' | 'paiement' | 'depense';
@@ -13,10 +17,11 @@ type SettingQuickAction = {
 };
 
 type SettingStat = {
+  key: 'nombreCategoriesActives' | 'nombreTypesArticlesUtilises' | 'montantSalairesMois' | 'montantAutresDepensesMois';
   label: string;
-  value: string;
   icon: string;
   tone: 'gold' | 'info' | 'success' | 'warning';
+  format: 'count' | 'currency';
 };
 
 type SettingMenuItem = {
@@ -33,10 +38,19 @@ type SettingMenuItem = {
   templateUrl: './setting-menue.html',
   styleUrl: './setting-menue.css',
 })
-export class SettingMenue {
+export class SettingMenue implements OnInit {
+  private readonly settingService = inject(SettingService);
+  readonly user = getUserFromSessionStorage();
+
   showAddCategorieModal = signal(false);
   showAddTypeArticleModal = signal(false);
   showAddPaiementModal = signal(false);
+  readonly stats = signal<SettingMenuStats | null>(null);
+  readonly statsLoading = signal(false);
+  readonly statsError = signal('');
+
+  private readonly countFormatter = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
+  private readonly currencyFormatter = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 });
 
   today = new Date().toLocaleDateString('fr-FR', {
     month: 'long',
@@ -75,32 +89,68 @@ export class SettingMenue {
     },
   ];
 
-  stats: SettingStat[] = [
+  statCards: SettingStat[] = [
     {
-      label: 'Categories',
-      value: '15',
+      key: 'nombreCategoriesActives',
+      label: 'Catégories actives',
       icon: 'fa-solid fa-layer-group',
       tone: 'gold',
+      format: 'count',
     },
     {
-      label: 'Types articles',
-      value: '9',
+      key: 'nombreTypesArticlesUtilises',
+      label: 'Types utilisés',
       icon: 'fa-solid fa-tags',
       tone: 'info',
+      format: 'count',
     },
     {
+      key: 'montantSalairesMois',
       label: 'Salaire du mois',
-      value: '485 000 F',
       icon: 'fa-solid fa-money-bill-wave',
       tone: 'success',
+      format: 'currency',
     },
     {
-      label: 'Depense du mois',
-      value: '126 500 F',
+      key: 'montantAutresDepensesMois',
+      label: 'Autres dépenses du mois',
       icon: 'fa-solid fa-receipt',
       tone: 'warning',
+      format: 'currency',
     },
   ];
+
+  ngOnInit(): void {
+    this.loadStats();
+  }
+
+  loadStats(): void {
+    if (!this.user?.id) {
+      this.statsError.set('Votre session ne permet pas de charger les statistiques.');
+      return;
+    }
+
+    this.statsLoading.set(true);
+    this.statsError.set('');
+    this.settingService.getMenuStats(this.user.id).pipe(
+      catchError(error => {
+        const message = error?.error?.message;
+        this.statsError.set(
+          typeof message === 'string' ? message : 'Impossible de charger les statistiques du menu.',
+        );
+        return EMPTY;
+      }),
+      finalize(() => this.statsLoading.set(false)),
+    ).subscribe(stats => this.stats.set(stats));
+  }
+
+  statValue(card: SettingStat): string {
+    const value = this.stats()?.[card.key];
+    if (value == null) return this.statsLoading() ? '…' : '—';
+    return card.format === 'currency'
+      ? `${this.currencyFormatter.format(value)} FCFA`
+      : this.countFormatter.format(value);
+  }
 
   menuItems: SettingMenuItem[] = [
     {

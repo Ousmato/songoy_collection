@@ -1,11 +1,12 @@
 <section class="personnel-form-page">
+  <app-floating-back-button />
+
   <header class="personnel-form-header">
     <div>
       <p class="personnel-kicker">Équipe interne</p>
       <h1>Ajouter un personnel</h1>
       <p class="personnel-subtitle">Créez un accès pour la boutique ou l’atelier.</p>
     </div>
-    <!-- <a routerLink="/admin/list-personnel" class="back-link"><i class="fa-solid fa-arrow-left"></i> Retour</a> -->
   </header>
   @if (successMessage()) { <div class="form-alert success" role="status">{{ successMessage() }}</div> }
   @if (errorMessage()) { <div class="form-alert error" role="alert">{{ errorMessage() }}</div> }
@@ -47,16 +48,16 @@
         </div>
       </div>
       <div class="fields-grid two-columns">
-        <label>Rôle<select formControlName="role">
+        <label>Rôle<select formControlName="role" (change)="onRoleChange($event)">
             <option value="" disabled>Choisir un rôle</option>
-            @for (option of roleOptions; track option.value) 
+            @for (option of availableRoleOptions; track option.value) 
             { <option   [value]="option.key">{{ option.value }}</option> }
           </select>@if (control('role')?.touched && control('role')?.invalid) 
           { <small>Le rôle est obligatoire.</small> }
         </label>
         <label>Entité<select formControlName="entite">
             <option value="" disabled>Choisir une entité</option>
-            @for (option of entiteOptions; track option.value) {
+            @for (option of availableEntiteOptions; track option.value) {
             <option [value]="option.key">{{ option.value }}</option> }
           </select>
           @if (control('entite')?.touched && control('entite')?.invalid) 

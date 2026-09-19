@@ -7,11 +7,12 @@ import { Entite, PersonnelRole } from '../../model/admin.enum';
 import { PersonnelRequestDto } from '../../model/admin.model';
 import { RouterModule } from '@angular/router';
 import { EnumMethodes } from '../../../shared/utils/util-methode';
+import { FloatingBackButton } from '../../../shared/components/floating-back-button/floating-back-button';
 
 @Component({
   selector: 'app-add-personnel',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, FloatingBackButton],
   templateUrl: './add-personnel.html',
   styleUrl: './add-personnel.css',
 })
@@ -26,6 +27,25 @@ export class AddPersonnel implements OnInit {
   dependency = inject(DependencyService);
   roleOptions = EnumMethodes.getEnumKeyVale(PersonnelRole)
   entiteOptions = EnumMethodes.getEnumKeyVale(Entite)
+
+  get availableRoleOptions() {
+    if (this.user?.role === PersonnelRole.SUPER_ADMIN) {
+      return this.roleOptions.filter(option => option.key === 'ADMIN');
+    }
+    if (this.user?.role === PersonnelRole.ADMIN) {
+      return this.roleOptions.filter(option => option.key !== 'ADMIN' && option.key !== 'SUPER_ADMIN');
+    }
+    return [];
+  }
+
+  get availableEntiteOptions() {
+    const role = this.control('role')?.value;
+    if (this.user?.role === PersonnelRole.SUPER_ADMIN) {
+      return this.entiteOptions.filter(option => option.key === 'GLOBAL' && role === 'ADMIN');
+    }
+    return this.entiteOptions.filter(option => option.key !== 'GLOBAL');
+  }
+
   ngOnInit(): void {
     this.loadForm();
   }
@@ -44,6 +64,15 @@ export class AddPersonnel implements OnInit {
 
   control(name: string) {
     return this.form.get(name);
+  }
+
+  onRoleChange(event: Event): void {
+    const role = (event.target as HTMLSelectElement).value;
+    const currentEntite = String(this.control('entite')?.value ?? '');
+    const globalAllowed = this.user?.role === PersonnelRole.SUPER_ADMIN && role === 'ADMIN';
+    if (currentEntite === 'GLOBAL' && !globalAllowed) {
+      this.control('entite')?.setValue('');
+    }
   }
 
   submit(): void {

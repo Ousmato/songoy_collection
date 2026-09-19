@@ -1,6 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { catchError, EMPTY, finalize } from 'rxjs';
+import { PersonnelMenuStatsDto } from '../../model/admin.model';
+import { getUserFromSessionStorage } from '../../shared/auth.util';
+import { DependencyService } from '../../../shared/utils/dependency';
 
 type PersonnelQuickAction = {
   label: string;
@@ -9,9 +13,9 @@ type PersonnelQuickAction = {
   tone: 'gold' | 'info' | 'success';
 };
 
-type PersonnelStat = {
+type PersonnelStatCard = {
+  key: keyof PersonnelMenuStatsDto;
   label: string;
-  value: string;
   icon: string;
   tone: 'gold' | 'info' | 'success';
 };
@@ -30,11 +34,42 @@ type PersonnelMenuItem = {
   templateUrl: './personnel-menue.html',
   styleUrl: './personnel-menue.css',
 })
-export class PersonnelMenue {
+export class PersonnelMenue implements OnInit {
+  private readonly dependency = inject(DependencyService);
+  readonly user = getUserFromSessionStorage();
+  readonly statsLoading = signal(false);
+  readonly statsError = signal(false);
+  readonly stats = signal<PersonnelMenuStatsDto | null>(null);
+
+  readonly statCards: PersonnelStatCard[] = [
+    {
+      key: 'nombreClients',
+      label: 'Nombre de clients',
+      icon: 'fa-solid fa-user-group',
+      tone: 'gold',
+    },
+    {
+      key: 'nombreFournisseurs',
+      label: 'Nombre fournisseurs',
+      icon: 'fa-solid fa-truck-fast',
+      tone: 'info',
+    },
+    {
+      key: 'nombrePersonnel',
+      label: 'Nombre personnel',
+      icon: 'fa-solid fa-users-gear',
+      tone: 'success',
+    },
+  ];
+
   today = new Date().toLocaleDateString('fr-FR', {
     month: 'long',
     year: 'numeric',
   });
+
+  ngOnInit(): void {
+    this.loadStats();
+  }
 
   quickActions: PersonnelQuickAction[] = [
     {
@@ -57,26 +92,24 @@ export class PersonnelMenue {
     },
   ];
 
-  stats: PersonnelStat[] = [
-    {
-      label: 'Nombre de clients',
-      value: '248',
-      icon: 'fa-solid fa-user-group',
-      tone: 'gold',
-    },
-    {
-      label: 'Nombre fournisseurs',
-      value: '32',
-      icon: 'fa-solid fa-truck-fast',
-      tone: 'info',
-    },
-    {
-      label: 'Nombre personnel',
-      value: '18',
-      icon: 'fa-solid fa-users-gear',
-      tone: 'success',
-    },
-  ];
+  loadStats(): void {
+    if (!this.user?.id) {
+      this.statsError.set(true);
+      return;
+    }
+
+    const idAdmin = this.user.id;
+    this.statsLoading.set(true);
+    this.statsError.set(false);
+
+    this.dependency.adminService.loadPersonnelMenuStats(idAdmin).pipe(
+      catchError(() => {
+        this.statsError.set(true);
+        return EMPTY;
+      }),
+      finalize(() => this.statsLoading.set(false)),
+    ).subscribe(stats => this.stats.set(stats));
+  }
 
   menuItems: PersonnelMenuItem[] = [
     {

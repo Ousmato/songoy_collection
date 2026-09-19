@@ -14,6 +14,7 @@ export interface EnvironmentConfig {
   };
   assets: {
     baseUrl: string;
+    imagesBaseUrl: string;
     logoPath: string;
     faviconPath: string;
   };
@@ -34,7 +35,7 @@ export const environment: EnvironmentConfig = {
   name: 'local',
   appVersion: '1.0.0',
   api: {
-    baseUrl: 'http://localhost:3000/api',
+    baseUrl: 'http://localhost:4200/api',
     timeoutMs: 15000,
     enableMock: true,
   },
@@ -45,6 +46,7 @@ export const environment: EnvironmentConfig = {
   },
   assets: {
     baseUrl: '',
+    imagesBaseUrl: 'http://localhost/songoycollection',
     logoPath: 'favicon.ico',
     faviconPath: 'favicon.ico',
   },

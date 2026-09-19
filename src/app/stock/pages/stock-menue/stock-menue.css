@@ -115,6 +115,38 @@
   gap: 0.75rem;
 }
 
+.stock-stats-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid rgba(176, 62, 49, 0.2);
+  border-radius: 0.7rem;
+  background: #fff8f6;
+  color: #8d3328;
+  font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
+  font-size: 0.76rem;
+}
+
+.stock-stats-error button {
+  flex-shrink: 0;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.stock-stats-error button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
 .stock-stat {
   --stock-accent: var(--sc-gold-primary, #A8892F);
   display: grid;

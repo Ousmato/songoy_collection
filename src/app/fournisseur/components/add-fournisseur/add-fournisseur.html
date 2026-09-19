@@ -1,0 +1,77 @@
+@if (open) {
+  <div class="supplier-modal-backdrop" (click)="cancel()">
+    <section
+      class="supplier-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="supplier-modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="supplier-modal-header">
+        <div>
+          <p class="supplier-modal-kicker">Relations fournisseurs</p>
+          <h2 id="supplier-modal-title">Ajouter un fournisseur</h2>
+          <p>Renseignez les coordonnées du nouveau fournisseur.</p>
+        </div>
+        <button type="button" class="modal-close" aria-label="Fermer" (click)="cancel()">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="supplier-fields">
+          <label class="supplier-field">
+            <span>Nom</span>
+            <input type="text" formControlName="nom" autocomplete="family-name" placeholder="Saisir le nom" />
+            @if (form.controls.nom.touched && form.controls.nom.hasError('required')) {
+              <small>Le nom est obligatoire.</small>
+            }
+          </label>
+
+          <label class="supplier-field">
+            <span>Prénom</span>
+            <input type="text" formControlName="prenom" autocomplete="given-name" placeholder="Saisir le prenom" />
+            @if (form.controls.prenom.touched && form.controls.prenom.hasError('required')) {
+              <small>Le prénom est obligatoire.</small>
+            }
+          </label>
+
+          <label class="supplier-field">
+            <span>Téléphone</span>
+            <input type="tel" inputmode="numeric" maxlength="8" formControlName="telephone" autocomplete="tel"  placeholder="Ex: +223 70 00 00 00"/>
+            @if (form.controls.telephone.touched && form.controls.telephone.invalid) {
+              <small>Entrez un numéro de téléphone de 8 chiffres.</small>
+            }
+          </label>
+
+          <label class="supplier-field supplier-field-wide">
+            <span>Adresse</span>
+            <input type="text" formControlName="adresse" autocomplete="street-address" placeholder="Saisir l'addresse"/>
+            @if (form.controls.adresse.touched && form.controls.adresse.hasError('required')) {
+              <small>L’adresse est obligatoire.</small>
+            }
+          </label>
+        </div>
+
+        @if (error()) {
+          <p class="supplier-form-error" role="alert">{{ error() }}</p>
+        }
+
+        <footer class="supplier-modal-actions">
+          <button type="button" class="supplier-cancel" (click)="cancel()" [disabled]="submitting()">
+            Annuler
+          </button>
+          <button type="submit" class="supplier-submit" [disabled]="submitting()">
+            @if (submitting()) {
+              Enregistrement…
+              <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+            } @else {
+              <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+              Ajouter le fournisseur
+            }
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}

@@ -418,3 +418,5 @@ button:disabled {
     width: 100%;
   }
 }
+
+.reception-select2{display:block;width:100%;min-width:0}:host ::ng-deep .reception-select2 .select2-selection{box-sizing:border-box;min-height:43px;border:1px solid var(--sc-gray-300);border-radius:7px;background:#fff;color:var(--sc-gray-900);font:inherit}:host ::ng-deep .reception-select2 .select2-selection__rendered{min-height:41px;display:flex;align-items:center}:host ::ng-deep .reception-select2 .select2-selection:focus-within{outline:2px solid var(--sc-gold-primary);outline-offset:2px}

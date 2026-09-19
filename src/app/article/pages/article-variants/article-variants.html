@@ -1,5 +1,5 @@
 ﻿<section class="variants-page">
-  <app-floating-back-button />
+  <app-floating-back-button [useHistory]="true" />
 
   @if (context(); as article) {
     <header class="variants-header">
@@ -30,6 +30,41 @@
             @if (variantForm.controls.prixVente.touched && variantForm.controls.prixVente.invalid) {<small>Le prix est obligatoire.</small>}
           </label>
 
+          <div class="image-field">
+            <div class="image-field-label">
+              <span>Image de la variante</span>
+              <em>optionnelle</em>
+            </div>
+            <label class="image-picker" for="variantImage">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>{{ imageFile() ? 'Remplacer l’image' : 'Choisir une image' }}</span>
+              <small>JPG, PNG, WEBP ou HEIC · 5 Mo maximum</small>
+              <input
+                #variantImage
+                id="variantImage"
+                type="file"
+                accept="image/*,.heic,.heif"
+                (change)="onImageSelected($event)"
+              />
+            </label>
+            @if (processingImage()) {
+              <p class="image-processing"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Préparation de l’image...</p>
+            }
+            @if (imagePreviewUrl(); as imageUrl) {
+              <div class="image-preview">
+                <img [src]="imageUrl" alt="Aperçu de la variante" />
+                @if (imageFile()) {
+                  <button type="button" class="remove-image" (click)="removeImage(variantImage)" aria-label="Annuler la nouvelle image">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                  </button>
+                }
+              </div>
+            }
+            @if (imageError(); as error) {
+              <small class="image-error" role="alert">{{ error }}</small>
+            }
+          </div>
+
           <div class="attributes" formGroupName="attributs">
             <h3>Caractéristiques</h3>
             @for (attribute of attributes(); track attribute.id) {
@@ -43,7 +78,7 @@
             }
           </div>
 
-          <button class="primary-button" type="submit" [disabled]="submitting()">
+          <button class="primary-button" type="submit" [disabled]="submitting() || processingImage()">
             @if (submitting()) {<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement...} @else {<i class="fa-solid fa-check"></i> {{ editingVariantId() ? 'Enregistrer les modifications' : 'Enregistrer la variante' }} }
           </button>
           @if (editingVariantId()) {
@@ -57,7 +92,12 @@
         <div class="variant-list">
           @for (variant of variants(); track variant.id) {
             <article class="variant-item">
-                <div class="variant-main">
+              @if (displayImageUrl(variant.urlImage); as imageUrl) {
+                <img class="variant-image" [src]="imageUrl" [alt]="variant.reference" loading="lazy" />
+              } @else {
+                <span class="variant-image placeholder" aria-hidden="true"><i class="fa-solid fa-image"></i></span>
+              }
+              <div class="variant-main">
                   <strong [title]="variant.reference">{{ variant.reference }}</strong>
                   <span>{{ variant.prixVente | number:'1.0-0' }} FCFA</span>
                 </div>

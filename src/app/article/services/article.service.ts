@@ -40,15 +40,33 @@ export class ArticleService {
        addArticleVariant(articleId: number, variant: ArticleVariantRequestDto, idAdmin: number): Observable<httpResponse> {
         return this.http.post<httpResponse>(
             `${this.baseUrl}/add-article-variant/${articleId}/${idAdmin}`,
-            variant
+            this.variantPayload(variant)
         );
        }
 
        updateArticleVariant(variantId: number, variant: ArticleVariantRequestDto, idAdmin: number): Observable<httpResponse> {
         return this.http.put<httpResponse>(
             `${this.baseUrl}/update-article-variant/${variantId}/${idAdmin}`,
-            variant
+            this.variantPayload(variant)
         );
+       }
+
+       /** Le DTO est toujours transmis en multipart ; l'image reste facultative. */
+       private variantPayload(variant: ArticleVariantRequestDto): FormData {
+        const request = {
+            reference: variant.reference,
+            prixVente: variant.prixVente,
+            attributs: variant.attributs,
+        };
+        const formData = new FormData();
+        formData.append(
+            'request',
+            new Blob([JSON.stringify(request)], { type: 'application/json' })
+        );
+        if (variant.image) {
+            formData.append('image', variant.image, variant.image.name);
+        }
+        return formData;
        }
 
        loadArticleVariants(articleId: number, idAdmin: number): Observable<ArticleVariantDto[]> {

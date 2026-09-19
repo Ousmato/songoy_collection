@@ -1,1 +1,120 @@
-<p>list-fournisseur works!</p>
+<section class="supplier-page">
+  <app-floating-back-button />
+
+  <header class="supplier-page-header">
+    <div>
+      <p class="supplier-eyebrow">Relations boutique</p>
+      <h1>Fournisseurs</h1>
+      <p>Consultez vos fournisseurs et leurs coordonnées.</p>
+    </div>
+    <button type="button" class="supplier-add-button" (click)="openAddModal()">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      Ajouter un fournisseur
+    </button>
+  </header>
+
+  <section class="supplier-summary" aria-label="Nombre de fournisseurs">
+    <span class="supplier-summary-icon"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i></span>
+    <div>
+      <small>Fournisseurs enregistrés</small>
+      <strong>{{ fournisseurs().length }}</strong>
+    </div>
+  </section>
+
+  <section class="supplier-panel" aria-label="Liste des fournisseurs">
+    <div class="supplier-toolbar">
+      <label class="supplier-search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="sr-only">Rechercher un fournisseur</span>
+        <input
+          type="search"
+          placeholder="Nom, téléphone ou responsable"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+        />
+      </label>
+      <button
+        type="button"
+        class="supplier-reload"
+        (click)="loadFournisseurs()"
+        [disabled]="loading()"
+        aria-label="Actualiser la liste"
+        title="Actualiser"
+      >
+        <i class="fa-solid fa-rotate" [class.fa-spin]="loading()" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="supplier-state" role="status">
+        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+        <h2>Chargement des fournisseurs</h2>
+        <p>La liste est en cours de récupération.</p>
+      </div>
+    } @else if (error()) {
+      <div class="supplier-state supplier-error" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <h2>Impossible de charger les fournisseurs</h2>
+        <p>{{ error() }}</p>
+        <button type="button" class="supplier-add-button" (click)="loadFournisseurs()">Réessayer</button>
+      </div>
+    } @else if (fournisseurs().length === 0) {
+      <div class="supplier-state">
+        <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
+        <h2>Aucun fournisseur enregistré</h2>
+        <p>Ajoutez un fournisseur pour le retrouver ici.</p>
+        <button type="button" class="supplier-add-button" (click)="openAddModal()">
+          Ajouter un fournisseur
+        </button>
+      </div>
+    } @else if (filteredFournisseurs().length === 0) {
+      <div class="supplier-state">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <h2>Aucun résultat</h2>
+        <p>Essayez une autre recherche.</p>
+      </div>
+    } @else {
+      <div class="supplier-table" role="table" aria-label="Fournisseurs enregistrés">
+        <div class="supplier-table-header" role="row">
+          <span>Fournisseur</span>
+          <span>Téléphone</span>
+          <span>Adresse</span>
+          <span>Admin responsable</span>
+        </div>
+        @for (fournisseur of filteredFournisseurs(); track fournisseur.id) {
+          <article class="supplier-row" role="row">
+            <div class="supplier-person" data-label="Fournisseur">
+              <span class="supplier-avatar" aria-hidden="true">
+                {{ fournisseur.prenom.charAt(0) }}{{ fournisseur.nom.charAt(0) }}
+              </span>
+              <span class="supplier-identity">
+                <strong>{{ fullName(fournisseur) }}</strong>
+                <small>#{{ fournisseur.id }}</small>
+              </span>
+            </div>
+            <div data-label="Téléphone">
+              <a class="supplier-phone" [href]="'tel:' + fournisseur.telephone">{{ fournisseur.telephone }}</a>
+            </div>
+            <div data-label="Adresse">{{ fournisseur.adresse || '—' }}</div>
+            <div data-label="Admin responsable">
+              @if (fournisseur.adminResponsable; as responsable) {
+                <span class="supplier-responsable">
+                  <strong>{{ adminName(fournisseur) }}</strong>
+                  <small>Compte #{{ responsable.id }}</small>
+                </span>
+              } @else {
+                —
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <app-add-fournisseur
+    [open]="addModalOpen()"
+    (close)="closeAddModal()"
+    (saved)="onFournisseurSaved()"
+  />
+</section>

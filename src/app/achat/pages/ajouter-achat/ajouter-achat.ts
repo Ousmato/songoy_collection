@@ -13,6 +13,7 @@ import { FloatingBackButton } from '../../../shared/components/floating-back-but
 import { DependencyService } from '../../../shared/utils/dependency';
 import { EnumMethodes } from '../../../shared/utils/util-methode';
 import { Entite, ModePaiement } from '../../../shared/model/util.enum';
+import { Select2, Select2Data, Select2Option } from 'ng-select2-component';
 
 interface ReceptionLine {
   variantId: number;
@@ -26,7 +27,7 @@ interface ReceptionLine {
 @Component({
   selector: 'app-ajouter-achat',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, FloatingBackButton],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, Select2, FloatingBackButton],
   templateUrl: './ajouter-achat.html',
   styleUrl: './ajouter-achat.css'
 })
@@ -38,6 +39,9 @@ export class AjouterAchat implements OnInit {
   readonly articles = signal<SimpleArticleResponse[]>([]);
   readonly fournisseurs = signal<FournisseurResponse[]>([]);
   readonly variants = signal<ArticleVariantDto[]>([]);
+  articlesOptions: Select2Data = [];
+  fournisseursOptions: Select2Data = [];
+  variantsOptions: Select2Data = [];
   readonly lines = signal<ReceptionLine[]>([]);
   readonly loadingArticles = signal(false);
   readonly loadingFournisseurs = signal(false);
@@ -109,7 +113,14 @@ export class AjouterAchat implements OnInit {
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.loadingArticles.set(false))
     ).subscribe({
-      next: articles => this.articles.set(articles),
+      next: articles => {
+        this.articles.set(articles);
+        this.articlesOptions = articles.map<Select2Option>((article, index) => ({
+          id: `article-${article.id ?? index}-${index}`,
+          value: article.id,
+          label: this.articleLabel(article),
+        })) as Select2Data;
+      },
       error: () => this.error.set('Impossible de charger les articles. R?essayez.')
     });
   }
@@ -121,7 +132,14 @@ export class AjouterAchat implements OnInit {
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.loadingFournisseurs.set(false))
     ).subscribe({
-      next: fournisseurs => this.fournisseurs.set(fournisseurs),
+      next: fournisseurs => {
+        this.fournisseurs.set(fournisseurs);
+        this.fournisseursOptions = fournisseurs.map<Select2Option>((supplier, index) => ({
+          id: `supplier-${supplier.id ?? index}-${index}`,
+          value: supplier.id,
+          label: [supplier.nom, supplier.prenom].filter(Boolean).join(' ') || 'Fournisseur non défini',
+        })) as Select2Data;
+      },
       error: () => this.error.set('Impossible de charger les fournisseurs. R?essayez.')
     });
   }
@@ -131,6 +149,7 @@ export class AjouterAchat implements OnInit {
     this.articleId = Number(value);
     this.variantId = 0;
     this.variants.set([]);
+    this.variantsOptions = [];
     this.lastRequest.set(null);
 
     const article = this.articles().find(item => item.id === this.articleId);
@@ -150,7 +169,14 @@ export class AjouterAchat implements OnInit {
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.loadingVariants.set(false))
     ).subscribe({
-      next: variants => this.variants.set(variants),
+      next: variants => {
+        this.variants.set(variants);
+        this.variantsOptions = variants.map<Select2Option>((variant, index) => ({
+          id: `variant-${variant.id ?? index}-${index}`,
+          value: variant.id,
+          label: variant.reference || 'Variante non définie',
+        })) as Select2Data;
+      },
       error: () => this.error.set('Impossible de charger les variantes. S?lectionnez ? nouveau cet article.')
     });
   }

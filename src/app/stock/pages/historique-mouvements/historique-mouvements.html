@@ -1,0 +1,191 @@
+<section class="movement-page">
+  <app-floating-back-button />
+
+  <header class="movement-heading">
+    <div class="movement-heading-copy">
+      <p class="movement-eyebrow">Stock / Traçabilité</p>
+      <h1>Historique des mouvements</h1>
+      <p class="movement-subtitle">
+        Suivez chaque entrée et sortie de stock, avec son lot et son document d’origine.
+      </p>
+    </div>
+    <div class="movement-period-card">
+      <span class="movement-period-icon" aria-hidden="true">
+        <i class="fa-solid fa-calendar-days"></i>
+      </span>
+      <div>
+        <small>Période consultée</small>
+        <strong>{{ periodeLabel() }}</strong>
+      </div>
+    </div>
+  </header>
+
+  <section class="movement-filters" aria-label="Filtres des mouvements">
+    <label class="movement-field">
+      <span>Du</span>
+      <input type="date" [value]="dateDebut()" (change)="dateDebut.set($any($event.target).value)" />
+    </label>
+
+    <label class="movement-field">
+      <span>Au</span>
+      <input type="date" [value]="dateFin()" (change)="dateFin.set($any($event.target).value)" />
+    </label>
+
+    <label class="movement-field">
+      <span>Type de mouvement</span>
+      <select [value]="typeSelectionne()" (change)="typeSelectionne.set($any($event.target).value)">
+        <option value="">Tous les mouvements</option>
+        @for (option of typeOptions; track option.key) {
+          <option [value]="option.key">{{ option.value }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="movement-field movement-search-field">
+      <span>Recherche</span>
+      <div class="movement-search-input">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input
+          type="search"
+          placeholder="Article, variante, facture, tiers…"
+          [value]="recherche()"
+          (input)="recherche.set($any($event.target).value)"
+          (keydown.enter)="loadMouvements()"
+        />
+      </div>
+    </label>
+
+    <div class="movement-filter-actions">
+      <button type="button" class="movement-apply-button" (click)="loadMouvements()" [disabled]="loading()">
+        <i class="fa-solid fa-filter" aria-hidden="true"></i>
+        Filtrer
+      </button>
+      <button type="button" class="movement-reset-button" (click)="resetFilters()" [disabled]="loading()">
+        Réinitialiser
+      </button>
+    </div>
+  </section>
+
+  <section class="movement-overview" aria-label="Résumé des mouvements" [attr.aria-busy]="loading()">
+    <!-- <article class="movement-overview-card overview-total">
+      <span class="overview-icon"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i></span>
+      <div><small>Mouvements affichés</small><strong>{{ mouvements().length }}</strong></div>
+    </article> -->
+    <article class="movement-overview-card overview-entry">
+      <span class="overview-icon"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></span>
+      <div><small>Entrées</small><strong>{{ nombreEntrees() }}</strong></div>
+    </article>
+    <article class="movement-overview-card overview-exit">
+      <span class="overview-icon"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></span>
+      <div><small>Sorties</small><strong>{{ nombreSorties() }}</strong></div>
+    </article>
+  </section>
+
+  @if (errorMessage()) {
+    <div class="movement-error" role="alert">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <span>{{ errorMessage() }}</span>
+      <button type="button" (click)="loadMouvements()" [disabled]="loading()">Réessayer</button>
+    </div>
+  }
+
+  @if (loading() && mouvements().length === 0) {
+    <section class="movement-state" aria-live="polite">
+      <span class="movement-spinner" aria-hidden="true"></span>
+      <strong>Chargement des mouvements…</strong>
+      <p>Nous récupérons les opérations de la période.</p>
+    </section>
+  } @else if (!loading() && mouvements().length === 0 && !errorMessage()) {
+    <section class="movement-state movement-empty">
+      <span class="movement-empty-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span>
+      <strong>Aucun mouvement trouvé</strong>
+      <p>Essayez une autre période ou retirez certains filtres.</p>
+      <button type="button" class="movement-reset-button" (click)="resetFilters()">Réinitialiser les filtres</button>
+    </section>
+  } @else if (mouvements().length > 0) {
+    <section class="movement-results" aria-label="Résultats des mouvements">
+      <div class="movement-table-wrap">
+        <table class="movement-table">
+          <caption class="visually-hidden">Mouvements de stock de la période sélectionnée</caption>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Mouvement</th>
+              <th scope="col">Article / variante</th>
+              <th scope="col" class="align-right">Quantité</th>
+              <th scope="col">Tiers / responsable</th>
+              <th scope="col" class="align-right">Valeur au coût d’achat</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (mouvement of mouvements(); track mouvement.idMouvement) {
+              <tr>
+                <td class="movement-date-cell">
+                  <strong>{{ formatDate(mouvement.date) }}</strong>
+                  <small>{{ formatTime(mouvement.date) }}</small>
+                </td>
+                <td>
+                  <span class="movement-badge movement-badge-{{ movementTone(mouvement.type) }}">
+                    <i class="fa-solid" [class.fa-arrow-down]="movementTone(mouvement.type) === 'entry'"
+                      [class.fa-arrow-up]="movementTone(mouvement.type) === 'exit'"
+                      [class.fa-arrows-rotate]="movementTone(mouvement.type) === 'neutral'"
+                      aria-hidden="true"></i>
+                    {{ typeLabel(mouvement.type) }}
+                  </span>
+                </td>
+                <td class="movement-product-cell">
+                  <strong>{{ mouvement.article }}</strong>
+                  <small>{{ mouvement.referenceVariante }}</small>
+                </td>
+                <td class="align-right movement-quantity-cell">
+                  <strong>{{ formatQuantity(mouvement.quantite) }}</strong>
+                  <small>{{ uniteLabel(mouvement.unite) }}</small>
+                </td>
+                <td class="movement-party-cell">
+                  <strong>{{ mouvement.tiers || '—' }}</strong>
+                  <small>{{ mouvement.responsable || 'Responsable non renseigné' }}</small>
+                </td>
+                <td class="align-right movement-value-cell">
+                  <strong>{{ formatMoney(mouvement.valeurMouvement) }}</strong>
+                  <small>PU achat : {{ formatMoney(mouvement.coutAchatUnitaire) }}</small>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="movement-mobile-list">
+        @for (mouvement of mouvements(); track mouvement.idMouvement) {
+          <article class="movement-mobile-card">
+            <div class="mobile-card-heading">
+              <div class="mobile-card-date">
+                <strong>{{ formatDate(mouvement.date) }}</strong>
+                <small>{{ formatTime(mouvement.date) }}</small>
+              </div>
+              <span class="movement-badge movement-badge-{{ movementTone(mouvement.type) }}">
+                {{ typeLabel(mouvement.type) }}
+              </span>
+            </div>
+            <div class="mobile-card-product">
+              <strong>{{ mouvement.article }}</strong>
+              <span>{{ mouvement.referenceVariante }}</span>
+            </div>
+            <div class="mobile-card-metrics">
+              <div><small>Quantité</small><strong>{{ formatQuantity(mouvement.quantite) }} {{ uniteLabel(mouvement.unite) }}</strong></div>
+              <div><small>Valeur au coût d’achat</small><strong>{{ formatMoney(mouvement.valeurMouvement) }}</strong></div>
+            </div>
+            <div class="mobile-card-footer">
+              <span>{{ mouvement.tiers || '—' }}</span>
+              <small>{{ mouvement.responsable || 'Responsable non renseigné' }}</small>
+            </div>
+          </article>
+        }
+      </div>
+
+      <p class="movement-results-caption">
+        {{ mouvements().length }} mouvement{{ mouvements().length > 1 ? 's' : '' }} affiché{{ mouvements().length > 1 ? 's' : '' }}
+      </p>
+    </section>
+  }
+</section>

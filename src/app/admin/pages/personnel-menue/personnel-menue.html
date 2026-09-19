@@ -18,15 +18,26 @@
     }
   </nav>
 
-  <section class="personnel-stats" aria-label="Indicateurs personnel">
-    @for (stat of stats; track stat.label) {
+  @if (statsError()) {
+    <p class="personnel-stats-error" role="alert">
+      Certains indicateurs n'ont pas pu être chargés.
+      <button type="button" (click)="loadStats()" [disabled]="statsLoading()">
+        Réessayer
+      </button>
+    </p>
+  }
+
+  <section class="personnel-stats" aria-label="Indicateurs personnel" [attr.aria-busy]="statsLoading()">
+    @for (stat of statCards; track stat.key) {
       <article class="personnel-stat personnel-stat-{{ stat.tone }}">
         <span class="personnel-stat-icon" aria-hidden="true">
           <i [class]="stat.icon"></i>
         </span>
         <div class="personnel-stat-content">
           <p class="personnel-stat-label">{{ stat.label }}</p>
-          <strong class="personnel-stat-value">{{ stat.value }}</strong>
+          <strong class="personnel-stat-value">
+            {{ stats()?.[stat.key] ?? (statsLoading() ? '…' : '—') }}
+          </strong>
         </div>
       </article>
     }

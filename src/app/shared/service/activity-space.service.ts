@@ -15,7 +15,7 @@ export class ActivitySpaceService {
       const path = url.split(/[?#]/)[0];
       if (/^\/admin\/(list-commandes|add-commande|commandes-[^/]+|credits-commandes)$/.test(path)) {
         this.selectedSpace.set('ATELIER');
-      } else if (/^\/admin\/(dashboard|list-ventes|add-vente|list-stock|add-achat|historique-achat|article-list)$/.test(path)) {
+      } else if (/^\/admin\/(dashboard|list-ventes|add-vente|list-stock|add-achat|historique-achat|article-list|mouvement-stock)$/.test(path)) {
         this.selectedSpace.set('BOUTIQUE');
       }
     };

@@ -4,6 +4,8 @@ import { ModePaiement } from "../../shared/model/util.enum";
 export interface DashboardIndicateurs {
   caJour: number;
   ventesJour: number;
+  valeurEntree: number;
+  valeurSortie: number;
   beneficeEstime: number;
   valeurStock: number;
 }

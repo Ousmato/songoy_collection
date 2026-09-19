@@ -53,14 +53,13 @@
             @if (form.controls['fournisseurMode'].value === 'existant') {
               <label>
                 Fournisseur enregistré
-                <select formControlName="fournisseurId">
-                  <option [ngValue]="0" disabled>Choisir un fournisseur</option>
-                  @for (supplier of fournisseurs(); track supplier.id) {
-                    <option [ngValue]="supplier.id">
-                      {{ supplier.nom }} {{ supplier.prenom }}
-                    </option>
-                  }
-                </select>
+                <select2
+                  class="reception-select2"
+                  formControlName="fournisseurId"
+                  [data]="fournisseursOptions"
+                  placeholder="Choisir un fournisseur"
+                  noResultMessage="Aucun fournisseur"
+                />
                 @if (form.controls['fournisseurId'].touched && form.controls['fournisseurId'].invalid) {
                   <small class="error">Choisissez un fournisseur.</small>
                 }
@@ -113,30 +112,28 @@
           <div class="fields">
             <label>
               Article
-              <select
+              <select2
+                class="reception-select2"
                 [ngModel]="articleId"
                 (ngModelChange)="selectArticle($event)"
                 [ngModelOptions]="{standalone: true}"
+                [data]="articlesOptions"
+                placeholder="Choisir un article"
+                noResultMessage="Aucun article"
                 [disabled]="loading()"
-              >
-                <option [ngValue]="0" disabled>Choisir un article</option>
-                @for (article of articles(); track article.id) {
-                  <option [ngValue]="article.id">{{ articleLabel(article) }}</option>
-                }
-              </select>
+              />
             </label>
             <label>
               Variante
-              <select
+              <select2
+                class="reception-select2"
                 [(ngModel)]="variantId"
                 [ngModelOptions]="{standalone: true}"
+                [data]="variantsOptions"
+                placeholder="Choisir une variante"
+                noResultMessage="Aucune variante"
                 [disabled]="!articleId || loadingVariants()"
-              >
-                <option [ngValue]="0" disabled>{{ loadingVariants() ? 'Chargement…' : 'Choisir une variante' }}</option>
-                @for (variant of variants(); track variant.id) {
-                  <option [ngValue]="variant.id">{{ variant.reference }}</option>
-                }
-              </select>
+              />
               @if (articleId && !loadingVariants() && !variants().length) {
                 <small>Aucune variante disponible pour cet article.</small>
               }

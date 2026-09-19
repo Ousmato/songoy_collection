@@ -7,6 +7,7 @@ export interface SimpleAdminResponse {
   id: number;
   nom: string;
   prenom: string;
+  role: PersonnelRole
 }
 
 export interface SimplePersonnelResponse {
@@ -14,11 +15,19 @@ export interface SimplePersonnelResponse {
   nom: string;
   prenom: string;
   adresse: string;
+  accessCode: string
   telephone: string;
   dateNaissance?: string;
   role: PersonnelRole;
   entite: Entite;
 
+}
+
+/** Compteurs renvoyés par l'API du menu personnel. */
+export interface PersonnelMenuStatsDto {
+  nombreClients: number;
+  nombreFournisseurs: number;
+  nombrePersonnel: number;
 }
 
 export interface LoginRequestDto{

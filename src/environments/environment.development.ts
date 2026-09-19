@@ -14,6 +14,7 @@ export interface EnvironmentConfig {
   };
   assets: {
     baseUrl: string;
+    imagesBaseUrl: string;
     logoPath: string;
     faviconPath: string;
   };
@@ -45,6 +46,7 @@ export const environment: EnvironmentConfig = {
   },
   assets: {
     baseUrl: '',
+    imagesBaseUrl: 'http://localhost/songoycollection',
     logoPath: 'favicon.ico',
     faviconPath: 'favicon.ico',
   },

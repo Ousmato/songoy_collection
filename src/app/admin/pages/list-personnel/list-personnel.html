@@ -1,1 +1,140 @@
-<p>list-personnel works!</p>
+<section class="personnel-page">
+  <app-floating-back-button />
+
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Relations boutique · Équipe</p>
+      <h1>Liste du personnel</h1>
+      <p>Consultez les comptes et les accès de l’équipe selon votre entité.</p>
+    </div>
+    <a class="primary-button" routerLink="/admin/add-personnel">
+      <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+      Ajouter un personnel
+    </a>
+  </header>
+
+  <section class="summary-grid" aria-label="Répartition du personnel">
+    <article class="summary-card">
+      <span class="summary-icon"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
+      <div><small>Comptes visibles</small><strong>{{ totalPersonnel() }}</strong></div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon boutique"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
+      <div><small>Boutique</small><strong>{{ totalBoutique() }}</strong></div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon atelier"><i class="fa-solid fa-scissors" aria-hidden="true"></i></span>
+      <div><small>Atelier</small><strong>{{ totalAtelier() }}</strong></div>
+    </article>
+    <!-- <article class="summary-card">
+      <span class="summary-icon global"><i class="fa-solid fa-globe" aria-hidden="true"></i></span>
+      <div><small>Global</small><strong>{{ totalGlobal() }}</strong></div>
+    </article> -->
+  </section>
+
+  <section class="personnel-panel" aria-label="Liste du personnel">
+    <div class="toolbar">
+      <label class="search-field">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="sr-only">Rechercher un membre</span>
+        <input
+          type="search"
+          placeholder="Nom, téléphone ou code d’accès"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+        />
+      </label>
+
+      <div class="filters">
+        <label class="filter-field">
+          <span>Rôle</span>
+          <select [ngModel]="roleFilter()" (ngModelChange)="roleFilter.set($event)">
+            <option value="TOUS">Tous les rôles</option>
+            @for (role of roleOptions(); track role) {
+              <option [ngValue]="role">{{ roleLabel(role) }}</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Entité</span>
+          <select [ngModel]="entiteFilter()" (ngModelChange)="entiteFilter.set($event)">
+            <option value="TOUTES">Toutes les entités</option>
+            @for (entite of entiteOptions(); track entite) {
+              <option [ngValue]="entite">{{ entiteLabel(entite) }}</option>
+            }
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-heading">
+      <div>
+        <h2>Membres de l’équipe</h2>
+        <p>{{ filteredPersonnel().length }} résultat(s)</p>
+      </div>
+      <button
+        type="button"
+        class="reload-button"
+        (click)="loadPersonnel()"
+        [disabled]="loading()"
+        aria-label="Actualiser la liste"
+        title="Actualiser"
+      >
+        <i class="fa-solid fa-rotate" [class.fa-spin]="loading()" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="state-panel" role="status">
+        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+        <h3>Chargement du personnel</h3>
+        <p>Les comptes autorisés sont en cours de récupération.</p>
+      </div>
+    } @else if (error()) {
+      <div class="state-panel error-state" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <h3>Impossible de charger le personnel</h3>
+        <p>{{ error() }}</p>
+        <button type="button" class="primary-button" (click)="loadPersonnel()">Réessayer</button>
+      </div>
+    } @else if (personnel().length === 0) {
+      <div class="state-panel">
+        <i class="fa-solid fa-user-group" aria-hidden="true"></i>
+        <h3>Aucun personnel enregistré</h3>
+        <p>Ajoutez le premier compte de votre équipe.</p>
+        <a class="primary-button" routerLink="/admin/add-personnel">Ajouter un personnel</a>
+      </div>
+    } @else if (filteredPersonnel().length === 0) {
+      <div class="state-panel">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <h3>Aucun résultat</h3>
+        <p>Essayez une autre recherche ou modifiez les filtres.</p>
+      </div>
+    } @else {
+      <div class="personnel-table" role="table" aria-label="Comptes du personnel">
+        <div class="table-header" role="row">
+          <span>Collaborateur</span>
+          <span>Rôle</span>
+          <span>Entité</span>
+          <span>Téléphone</span>
+          <span>Code d’accès</span>
+          <span>Date de naissance</span>
+        </div>
+
+        @for (person of filteredPersonnel(); track person.id) {
+          <article class="personnel-row" role="row">
+            <div class="person-cell" data-label="Collaborateur">
+              <span class="person-avatar" aria-hidden="true">{{ person.prenom.charAt(0) }}{{ person.nom.charAt(0) }}</span>
+              <span class="person-name"><strong>{{ fullName(person) }}</strong><small>{{ person.adresse }}</small></span>
+            </div>
+            <div data-label="Rôle"><span class="role-badge">{{ roleLabel(person.role) }}</span></div>
+            <div data-label="Entité"><span [class]="'entity-badge entity-' + person.entite.toLowerCase()">{{ entiteLabel(person.entite) }}</span></div>
+            <div data-label="Téléphone"><a class="phone-link" [href]="'tel:' + person.telephone">{{ person.telephone }}</a></div>
+            <div data-label="Code d’accès"><code>{{ person.accessCode || '—' }}</code></div>
+            <div data-label="Date de naissance">{{ person.dateNaissance ? (person.dateNaissance | date:'dd/MM/yyyy') : '—' }}</div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</section>

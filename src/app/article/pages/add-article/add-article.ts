@@ -10,11 +10,12 @@ import { ArticleRequestDto } from '../../models/article.model';
 import { HeicConvertService, HeicProcessResult } from '../../../shared/service/heic-covert.service';
 import { FloatingBackButton } from '../../../shared/components/floating-back-button/floating-back-button';
 import { Router } from '@angular/router';
+import { Select2, Select2Data, Select2Option } from 'ng-select2-component';
 
 @Component({
   selector: 'app-add-article',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, FloatingBackButton],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, Select2, FloatingBackButton],
   templateUrl: './add-article.html',
   styleUrl: './add-article.css',
 })
@@ -26,6 +27,8 @@ export class AddArticle implements OnInit{
   private readonly imageProcessor = inject(HeicConvertService);
   categoryList : CategoryDto [] = []
   articleTypeList : ArticleTypeResponse [] = []
+  categoryOptions: Select2Data = [];
+  articleTypeOptions: Select2Data = [];
   form!: FormGroup
   previews = signal<HeicProcessResult[]>([]);
   processingImages = signal(false);
@@ -96,6 +99,11 @@ export class AddArticle implements OnInit{
       this.dependency.articleService.loadArticleType(this.user.id).subscribe({
         next: (result) => {
           this.articleTypeList = result
+          this.articleTypeOptions = result.map<Select2Option>((type, index) => ({
+            id: `article-type-${type.id ?? index}-${index}`,
+            value: type.id,
+            label: type.nom || 'Type non défini',
+          })) as Select2Data;
         },
         error: (err) => this.dependency.responseService.showErrorToast(err.error.message)
       })
@@ -107,6 +115,11 @@ export class AddArticle implements OnInit{
       this.dependency.categoryService.loadCategories(this.user.id).subscribe({
         next: (result) => {
           this.categoryList = result
+          this.categoryOptions = result.map<Select2Option>((category, index) => ({
+            id: `category-${category.id ?? index}-${index}`,
+            value: category.id,
+            label: category.nom || 'Catégorie non définie',
+          })) as Select2Data;
         },
         error: (err) => this.dependency.responseService.showErrorToast(err.error.message)
       })

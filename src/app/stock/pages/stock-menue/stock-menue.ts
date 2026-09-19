@@ -1,5 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { catchError, EMPTY, finalize } from 'rxjs';
+import { getUserFromSessionStorage } from '../../../admin/shared/auth.util';
+import { DashboardIndicateurs } from '../../../dashbord/model/dashboard';
+import { DependencyService } from '../../../shared/utils/dependency';
 import { AdminRoutePath, AdminRoutePaths, RoutePath } from '../../../shared/routing/route-path';
 
 type StockMenuItem = {
@@ -17,8 +21,8 @@ type StockQuickAction = {
 };
 
 type StockStat = {
+  key: 'valeurEntree' | 'valeurSortie' | 'valeurStock';
   label: string;
-  value: string;
   icon: string;
   tone: 'gold' | 'info' | 'success';
 };
@@ -30,8 +34,14 @@ type StockStat = {
   templateUrl: './stock-menue.html',
   styleUrl: './stock-menue.css',
 })
-export class StockMenue {
+export class StockMenue implements OnInit {
   private readonly routePath = inject(RoutePath);
+  private readonly dependency = inject(DependencyService);
+  private readonly user = getUserFromSessionStorage();
+
+  readonly indicateurs = signal<DashboardIndicateurs | null>(null);
+  readonly statsLoading = signal(false);
+  readonly statsError = signal(false);
 
   today = new Date().toLocaleDateString('fr-FR', {
     month: 'long',
@@ -59,26 +69,63 @@ export class StockMenue {
     },
   ];
 
-  stats: StockStat[] = [
+  readonly stats: StockStat[] = [
     {
-      label: 'Valeur en entree',
-      value: '1 240 000 FCFA',
+      key: 'valeurEntree',
+      label: 'Valeur des entrées du mois',
       icon: 'fa-solid fa-arrow-trend-up',
       tone: 'success',
     },
     {
-      label: 'Valeur sortie',
-      value: '780 000 FCFA',
+      key: 'valeurSortie',
+      label: 'Valeur des sorties du mois',
       icon: 'fa-solid fa-arrow-trend-down',
       tone: 'info',
     },
     {
-      label: 'Stock du mois',
-      value: '3 620 000 FCFA',
+      key: 'valeurStock',
+      label: 'Valeur actuelle du stock',
       icon: 'fa-solid fa-boxes-stacked',
       tone: 'gold',
     },
   ];
+
+  ngOnInit(): void {
+    this.loadStats();
+  }
+
+  loadStats(): void {
+    if (!this.user?.id) {
+      this.statsError.set(true);
+      return;
+    }
+
+    const aujourdHui = new Date();
+    const dateFin = this.toDateParam(aujourdHui);
+    const dateDebut = `${dateFin.slice(0, 7)}-01`;
+
+    this.statsLoading.set(true);
+    this.statsError.set(false);
+
+    this.dependency.dashboardService.getIndicateurs(this.user.id, dateDebut, dateFin).pipe(
+      catchError(() => {
+        this.statsError.set(true);
+        return EMPTY;
+      }),
+      finalize(() => this.statsLoading.set(false)),
+    ).subscribe(result => this.indicateurs.set(result));
+  }
+
+  formatMoney(value: number): string {
+    return `${new Intl.NumberFormat('fr-FR').format(value)} FCFA`;
+  }
+
+  private toDateParam(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   menuItems: StockMenuItem[] = [
     {

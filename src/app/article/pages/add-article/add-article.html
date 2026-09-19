@@ -20,27 +20,17 @@
       </div>
 
       <div class="fields">
-        <label for="categoryId">
+        <label>
           Catégorie
-          <select id="categoryId" formControlName="categoryId">
-            <option value="" disabled>Choisir une catégorie</option>
-            @for (category of categoryList; track category.id) {
-              <option [value]="category.id">{{ category.nom }}</option>
-            }
-          </select>
+          <select2 class="article-select2" formControlName="categoryId" [data]="categoryOptions" placeholder="Choisir une catégorie" noResultMessage="Aucune catégorie" />
           @if (control('categoryId')?.touched && control('categoryId')?.invalid) {
             <small>La catégorie est obligatoire.</small>
           }
         </label>
 
-        <label for="articleTypeId">
+        <label>
           Type d’article
-          <select id="articleTypeId" formControlName="articleTypeId">
-            <option value="" disabled>Choisir un type</option>
-            @for (type of articleTypeList; track type.id) {
-              <option [value]="type.id">{{ type.nom }}</option>
-            }
-          </select>
+          <select2 class="article-select2" formControlName="articleTypeId" [data]="articleTypeOptions" placeholder="Choisir un type" noResultMessage="Aucun type" />
           @if (control('articleTypeId')?.touched && control('articleTypeId')?.invalid) {
             <small>Le type est obligatoire.</small>
           }

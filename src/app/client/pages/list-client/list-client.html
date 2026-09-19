@@ -1,1 +1,133 @@
-<p>list-client works!</p>
+<section class="personnel-page">
+  <app-floating-back-button />
+
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Relations boutique · Clients</p>
+      <h1>Liste des clients</h1>
+      <p>Retrouvez les clients enregistrés dans toutes les entités.</p>
+    </div>
+    <a class="primary-button" routerLink="/admin/add-personnel">
+      <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+      Ajouter un client
+    </a>
+  </header>
+
+  <section class="summary-grid" aria-label="Répartition des clients">
+    <article class="summary-card">
+      <span class="summary-icon"><i class="fa-solid fa-user-group" aria-hidden="true"></i></span>
+      <div><small>Total clients</small><strong>{{ totalClients() }}</strong></div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon boutique"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
+      <div><small>Boutique</small><strong>{{ totalBoutique() }}</strong></div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon atelier"><i class="fa-solid fa-scissors" aria-hidden="true"></i></span>
+      <div><small>Atelier</small><strong>{{ totalAtelier() }}</strong></div>
+    </article>
+  </section>
+
+  <section class="personnel-panel" aria-label="Liste des clients">
+    <div class="toolbar">
+      <label class="search-field">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="sr-only">Rechercher un client</span>
+        <input
+          type="search"
+          placeholder="Nom, téléphone ou adresse"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+        />
+      </label>
+
+      <div class="filters">
+        <label class="filter-field">
+          <span>Entité d’origine</span>
+          <select [ngModel]="entiteFilter()" (ngModelChange)="entiteFilter.set($event)">
+            <option value="TOUTES">Toutes les entités</option>
+            @for (entite of entiteOptions(); track entite) {
+              <option [ngValue]="entite">{{ entiteLabel(entite) }}</option>
+            }
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-heading">
+      <div>
+        <h2>Clients enregistrés</h2>
+        <p>{{ filteredClients().length }} résultat(s)</p>
+      </div>
+      <button
+        type="button"
+        class="reload-button"
+        (click)="loadClients()"
+        [disabled]="loading()"
+        aria-label="Actualiser la liste"
+        title="Actualiser"
+      >
+        <i class="fa-solid fa-rotate" [class.fa-spin]="loading()" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="state-panel" role="status">
+        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+        <h3>Chargement des clients</h3>
+        <p>Les clients actifs sont en cours de récupération.</p>
+      </div>
+    } @else if (error()) {
+      <div class="state-panel error-state" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <h3>Impossible de charger les clients</h3>
+        <p>{{ error() }}</p>
+        <button type="button" class="primary-button" (click)="loadClients()">Réessayer</button>
+      </div>
+    } @else if (clients().length === 0) {
+      <div class="state-panel">
+        <i class="fa-solid fa-user-group" aria-hidden="true"></i>
+        <h3>Aucun client enregistré</h3>
+        <p>Ajoutez un client pour le retrouver dans les ventes et les commandes.</p>
+        <a class="primary-button" routerLink="/admin/add-personnel">Ajouter un client</a>
+      </div>
+    } @else if (filteredClients().length === 0) {
+      <div class="state-panel">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <h3>Aucun résultat</h3>
+        <p>Essayez une autre recherche ou modifiez le filtre d’entité.</p>
+      </div>
+    } @else {
+      <div class="personnel-table" role="table" aria-label="Clients enregistrés">
+        <div class="table-header" role="row">
+          <span>Client</span>
+          <span>Entité d’origine</span>
+          <span>Téléphone</span>
+          <span>Adresse</span>
+          <span>Date d’ajout</span>
+        </div>
+
+        @for (client of filteredClients(); track client.id) {
+          <article class="personnel-row" role="row">
+            <div class="person-cell" data-label="Client">
+              <span class="person-avatar" aria-hidden="true">{{ initials(client) }}</span>
+              <span class="person-name"><strong>{{ fullName(client) }}</strong></span>
+            </div>
+            <div data-label="Entité d’origine">
+              <span [class]="'entity-badge entity-' + (client.entite ?? 'inconnue').toLowerCase()">
+                {{ entiteLabel(client.entite) }}
+              </span>
+            </div>
+            <div data-label="Téléphone">
+              @if (client.telephone) {
+                <a class="phone-link" [href]="'tel:' + client.telephone">{{ client.telephone }}</a>
+              } @else { — }
+            </div>
+            <div data-label="Adresse">{{ client.adresse || '—' }}</div>
+            <div data-label="Date d’ajout">{{ client.dateAjout ? (client.dateAjout | date:'dd/MM/yyyy') : '—' }}</div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</section>

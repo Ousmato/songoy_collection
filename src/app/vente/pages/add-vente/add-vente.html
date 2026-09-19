@@ -100,22 +100,24 @@
           <div class="product-grid">
             @for (article of filteredArticles(); track article.id) {
               <article class="product-card">
-                @if (article.urlImage; as imageUrl) {
-                  @if (!failedImages().has(imageUrl)) {
-                    <div class="product-image">
-                      <img
-                        [src]="imageUrl"
-                        [alt]="articleLabel(article)"
-                        loading="lazy"
-                        decoding="async"
-                        (error)="onImageError(imageUrl)"
-                      />
-                    </div>
-                  }
-                }
-
                 <header class="product-heading">
-                  @if (!article.urlImage || failedImages().has(article.urlImage)) {
+                  @if (selectedVariantImageUrl(article); as imageUrl) {
+                    @if (!failedImages().has(imageUrl)) {
+                      <div class="product-icon product-thumbnail">
+                        <img
+                          [src]="imageUrl"
+                          [alt]="'Image de ' + articleLabel(article)"
+                          loading="lazy"
+                          decoding="async"
+                          (error)="onImageError(imageUrl)"
+                        />
+                      </div>
+                    } @else {
+                      <div class="product-icon" aria-hidden="true">
+                        <i class="fa-solid fa-box"></i>
+                      </div>
+                    }
+                  } @else {
                     <div class="product-icon" aria-hidden="true">
                       <i class="fa-solid fa-box"></i>
                     </div>
