@@ -674,6 +674,39 @@
   margin: 0 0 0.1rem;
 }
 .alert-row-info { min-width: 0; }
+.alert-row-model {
+  font-family: var(--sc-font-sans, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--sc-gray-700, #5F554D);
+  margin: 0 0 0.15rem;
+  overflow-wrap: anywhere;
+}
+.alert-row-attributes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0.2rem 0;
+  min-width: 0;
+}
+.alert-row-attribute-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.35rem;
+  min-width: 0;
+}
+.alert-row-attribute-level {
+  font-size: 0.61rem;
+  font-weight: 700;
+  color: var(--sc-gray-500, #7D7168);
+}
+.alert-row-attribute {
+  max-width: 100%;
+  font-size: 0.66rem;
+  color: var(--sc-black-deep, #1F1A16);
+  overflow-wrap: anywhere;
+}
 .alert-row-sku {
   font-family: var(--sc-font-sans, sans-serif);
   font-size: 0.7rem;

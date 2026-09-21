@@ -74,7 +74,7 @@ export class SettingMenue implements OnInit {
     },
     {
       key: 'attribute',
-      label: 'Attribut catégorie',
+      label: 'Configurer caracteristique',
       route: '/admin/add-attribute',
       icon: 'fa-solid fa-sliders',
       tone: 'success',

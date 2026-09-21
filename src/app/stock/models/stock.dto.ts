@@ -9,9 +9,13 @@ export interface StockMouvementHistoriqueDto {
   lotId: number;
   articleId: number;
   article: string; // catégorie + type
+  modele: string;
+  marque: string | null;
 
   variantId: number;
   referenceVariante: string;
+  attributsDeclinaison: StockMouvementAttributDto[];
+  attributsVariante: StockMouvementAttributDto[];
 
   unite: CategoryMesureKey | null;
 
@@ -31,6 +35,12 @@ export enum TypeMouvement {
   AJUSTEMENT = 'Ajustement',
   INVENTAIRE = 'Inventaire',
   ANNULATION_VENTE = 'Vente annulée'
+}
+
+export interface StockMouvementAttributDto {
+  id: number;
+  label: string;
+  value: string;
 }
 
 export type TypeMouvementKey = keyof typeof TypeMouvement;

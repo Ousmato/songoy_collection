@@ -37,7 +37,25 @@
             <span class="cat-card-pill cat-card-pill-gold">{{ getTypeLabel(c) }}</span>
           </div>
 
-          <h3 class="cat-card-name">{{ c.nom }}</h3>
+          @if (editingCategoryId() === c.id) {
+            <div class="category-name-editor">
+              <label [attr.for]="'category-name-' + c.id">Nom de la categorie</label>
+              <input
+                [id]="'category-name-' + c.id"
+                type="text"
+                maxlength="255"
+                required
+                [value]="editedCategoryName()"
+                [disabled]="savingCategoryId() === c.id"
+                (input)="onCategoryNameInput($event)"
+                (keydown.enter)="saveCategoryName(c)"
+                aria-label="Nouveau nom de la categorie"
+                autofocus
+              >
+            </div>
+          } @else {
+            <h3 class="cat-card-name">{{ c.nom }}</h3>
+          }
           <p class="cat-card-desc">{{ c.description }}</p>
           <small class="cat-card-entity">Entité : {{ getEntiteLabel(c) }}</small>
 
@@ -51,11 +69,48 @@
               </span>
             </div>
             <div class="cat-card-actions">
-             
-              <button type="button" class="sc-btn-sm sc-btn-sm-ghost" aria-label="Modifier la cat&eacute;gorie">
-                <i class="fa-solid fa-pen" aria-hidden="true"></i>
-              </button>
-              <button type="button" class="sc-btn-sm sc-btn-sm-danger-ghost" aria-label="Supprimer la cat&eacute;gorie">
+              @if (editingCategoryId() === c.id) {
+                <button
+                  type="button"
+                  class="category-action-button category-save-button"
+                  [disabled]="savingCategoryId() === c.id"
+                  (click)="saveCategoryName(c)"
+                >
+                  @if (savingCategoryId() === c.id) {
+                    <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Enregistrement...
+                  } @else {
+                    <i class="fa-solid fa-check" aria-hidden="true"></i> Enregistrer
+                  }
+                </button>
+                <button
+                  type="button"
+                  class="sc-btn-sm sc-btn-sm-ghost"
+                  aria-label="Annuler la modification"
+                  [disabled]="savingCategoryId() === c.id"
+                  (click)="cancelCategoryNameEdit()"
+                >
+                  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="sc-btn-sm sc-btn-sm-ghost"
+                  aria-label="Modifier le nom de la categorie"
+                  title="Modifier le nom"
+                  [disabled]="savingCategoryId() !== null || deletingCategoryId() !== null"
+                  (click)="startCategoryNameEdit(c)"
+                >
+                  <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                </button>
+              }
+              <button
+                type="button"
+                class="sc-btn-sm sc-btn-sm-danger-ghost"
+                [disabled]="deletingCategoryId() !== null || savingCategoryId() !== null"
+                aria-label="Supprimer la categorie"
+                title="Supprimer la categorie"
+                (click)="requestCategoryDeletion(c)"
+              >
                 <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
               </button>
             </div>
@@ -67,4 +122,16 @@
       }
     </div>
   </section>
+
+  <app-confirm-modal
+    [open]="pendingCategoryDeletion() !== null"
+    [title]="'Supprimer la categorie ?'"
+    [message]="'La categorie « ' + (pendingCategoryDeletion()?.nom ?? '') + ' » sera supprimee. Cette action est definitive.'"
+    [confirmLabel]="'Supprimer'"
+    [busyLabel]="'Suppression...'"
+    [destructive]="true"
+    [busy]="deletingPendingCategory()"
+    (confirmed)="confirmCategoryDeletion()"
+    (cancelled)="cancelCategoryDeletion()"
+  />
 </div>

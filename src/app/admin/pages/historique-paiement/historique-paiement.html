@@ -1,1 +1,155 @@
-<p>historique-paiement works!</p>
+<section class="salary-history-page">
+  <app-floating-back-button [useHistory]="true" fallbackUrl="/admin/list-personnel" />
+
+  <header class="salary-history-header">
+    <div>
+      <p class="section-kicker">Personnel · Trésorerie</p>
+      <h1>Historique des paiements de salaires</h1>
+      <p class="section-intro">
+        Consultez les versements enregistrés, leur période rémunérée et le responsable de chaque opération.
+      </p>
+    </div>
+    <div class="header-mark" aria-hidden="true">
+      <i class="fa-solid fa-money-bill-transfer"></i>
+    </div>
+  </header>
+
+  <section class="filters-panel" aria-labelledby="salary-filter-title">
+    <div class="filters-heading">
+      <span class="filters-icon" aria-hidden="true"><i class="fa-solid fa-sliders"></i></span>
+      <div>
+        <h2 id="salary-filter-title">Période et filtres</h2>
+        <p>Choisissez le mois rémunéré à consulter.</p>
+      </div>
+    </div>
+
+    <div class="filter-grid">
+      <label class="filter-field">
+        <span>Mois rémunéré</span>
+        <input
+          type="month"
+          [value]="periodeSalaire()"
+          (change)="setSalaryPeriod($event)"
+          aria-describedby="salary-period-help"
+          required
+        />
+        <!-- <small id="salary-period-help">Les indicateurs sont calculés pour ce mois.</small> -->
+      </label>
+
+      <label class="filter-field search-field">
+        <span>Recherche locale</span>
+        <span class="search-control">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input
+            type="search"
+            placeholder="Salarié, responsable, moyen de paiement…"
+            [value]="search()"
+            (input)="search.set($any($event.target).value)"
+          />
+        </span>
+      </label>
+
+    </div>
+
+    <div class="entity-filter" role="group" aria-label="Filtrer par entité">
+      <span>Entité</span>
+      <button type="button" [disabled]="loading()" [class.is-active]="entite() === 'TOUTES'" (click)="setEntite('TOUTES')">Toutes</button>
+      <button type="button" [disabled]="loading()" [class.is-active]="entite() === 'BOUTIQUE'" (click)="setEntite('BOUTIQUE')">
+        {{ entiteLabel('BOUTIQUE') }}
+      </button>
+      <button type="button" [disabled]="loading()" [class.is-active]="entite() === 'ATELIER'" (click)="setEntite('ATELIER')">
+        {{ entiteLabel('ATELIER') }}
+      </button>
+    </div>
+  </section>
+
+  <section class="salary-metrics" aria-label="Résumé des paiements affichés">
+    <article class="metric-card metric-total">
+      <span class="metric-icon" aria-hidden="true"><i class="fa-solid fa-wallet"></i></span>
+      <div>
+        <span>Total versé</span>
+        <strong>{{ (statistiques()?.montantVerse ?? 0) | number:'1.0-0' }} <small>F CFA</small></strong>
+      </div>
+    </article>
+    <article class="metric-card">
+      <span class="metric-icon metric-icon-success" aria-hidden="true"><i class="fa-solid fa-users"></i></span>
+      <div>
+        <span>Salariés payés</span>
+        <strong>{{ statistiques()?.nombrePersonnesPayees ?? 0 }}</strong>
+      </div>
+    </article>
+    <article class="metric-card">
+      <span class="metric-icon metric-icon-warning" aria-hidden="true"><i class="fa-solid fa-user-clock"></i></span>
+      <div>
+        <span>Salariés non payés</span>
+        <strong>{{ statistiques()?.nombrePersonnesNonPayees ?? 0 }}</strong>
+      </div>
+    </article>
+  </section>
+
+  <section class="salary-list-panel" aria-labelledby="salary-list-title" [attr.aria-busy]="loading()">
+    <div class="list-heading">
+      <div>
+        <p class="section-kicker">Journal de paie</p>
+        <h2 id="salary-list-title">Versements enregistrés</h2>
+      </div>
+      <span class="result-count">{{ filteredSalaires().length }} résultat{{ filteredSalaires().length > 1 ? 's' : '' }}</span>
+    </div>
+
+    @if (loading()) {
+      <div class="state-message" role="status">
+        <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+        <p>Chargement des paiements de salaires…</p>
+      </div>
+    } @else if (error()) {
+      <div class="state-message state-error" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <p>{{ error() }}</p>
+        <button type="button" (click)="loadHistorique()">Réessayer</button>
+      </div>
+    } @else if (filteredSalaires().length) {
+      <div class="salary-list">
+        @for (salaire of filteredSalaires(); track salaire.id) {
+          <article class="salary-row">
+            <span class="salary-avatar" aria-hidden="true">
+              <i class="fa-solid fa-user"></i>
+            </span>
+
+            <div class="salary-person">
+              <div class="salary-name-line">
+                <h3>{{ salaire.personnelBeneficiaire || 'Salarié non renseigné' }}</h3>
+                @if (salaire.roleBeneficiaire) {
+                  <span class="role-badge">{{ roleLabel(salaire.roleBeneficiaire) }}</span>
+                }
+              </div>
+              <p>{{ salaire.libelle || 'Versement de salaire' }}</p>
+              <small>
+                <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+                Enregistré par {{ salaire.personnelResponsable || 'Responsable non renseigné' }}
+              </small>
+            </div>
+
+            <div class="salary-period">
+              <span>Période rémunérée</span>
+              <strong>{{ salaryPeriodLabel(salaire.periodeSalaire) }}</strong>
+              <small>{{ entiteLabel(salaire.entite) }}</small>
+            </div>
+
+            <div class="salary-payment">
+              <span>{{ salaire.datePaiement | date:'dd MMM yyyy · HH:mm' }}</span>
+              <small><i class="fa-solid fa-credit-card" aria-hidden="true"></i> {{ modePaiementLabel(salaire.modePaiement) }}</small>
+            </div>
+
+            <strong class="salary-amount">{{ salaire.montant | number:'1.0-0' }} <small>F CFA</small></strong>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <span aria-hidden="true"><i class="fa-solid fa-money-bill-transfer"></i></span>
+        <h3>Aucun paiement de salaire trouvé</h3>
+        <p>Modifiez les filtres ou la période pour consulter d’autres versements.</p>
+      </div>
+    }
+  </section>
+</section>

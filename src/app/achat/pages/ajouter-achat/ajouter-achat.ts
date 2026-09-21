@@ -6,7 +6,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, Subscription } from 'rxjs';
 import { ReceptionRequest } from '../../models/reception.model';
 import { getUserFromSessionStorage } from '../../../admin/shared/auth.util';
-import { ArticleVariantDto, SimpleArticleResponse } from '../../../article/models/article.model';
+import {
+  ArticleAttributeDto,
+  ArticleVariantDto,
+  DeclinaisonDto,
+  ModeleArticleDto,
+  SimpleArticleResponse,
+} from '../../../article/models/article.model';
 import { CategoryMesure } from '../../../categorie/models/categorie.enum';
 import { FournisseurResponse } from '../../../fournisseur/models/fournisseur.model';
 import { FloatingBackButton } from '../../../shared/components/floating-back-button/floating-back-button';
@@ -37,16 +43,26 @@ export class AjouterAchat implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly user = getUserFromSessionStorage();
   readonly articles = signal<SimpleArticleResponse[]>([]);
+  readonly articleAttributes = signal<ArticleAttributeDto[]>([]);
   readonly fournisseurs = signal<FournisseurResponse[]>([]);
+  readonly modeles = signal<ModeleArticleDto[]>([]);
+  readonly declinaisons = signal<DeclinaisonDto[]>([]);
   readonly variants = signal<ArticleVariantDto[]>([]);
   articlesOptions: Select2Data = [];
   fournisseursOptions: Select2Data = [];
+  modelesOptions: Select2Data = [];
+  declinaisonsOptions: Select2Data = [];
   variantsOptions: Select2Data = [];
   readonly lines = signal<ReceptionLine[]>([]);
   readonly loadingArticles = signal(false);
   readonly loadingFournisseurs = signal(false);
-  readonly loading = computed(() => this.loadingArticles() || this.loadingFournisseurs());
+  readonly loadingModeles = signal(false);
+  readonly loadingDeclinaisons = signal(false);
   readonly loadingVariants = signal(false);
+  readonly loading = computed(() =>
+    this.loadingArticles() || this.loadingFournisseurs() || this.loadingModeles()
+    || this.loadingDeclinaisons() || this.loadingVariants()
+  );
   readonly error = signal('');
   readonly lastRequest = signal<ReceptionRequest | null>(null);
   readonly submitting = signal(false);
@@ -54,8 +70,13 @@ export class AjouterAchat implements OnInit {
   paiementOptions = EnumMethodes.getEnumeratedKeyValue(ModePaiement)
   form!: FormGroup
   private variantsRequest?: Subscription;
+  private modelesRequest?: Subscription;
+  private declinaisonsRequest?: Subscription;
+  private articleContextRequest?: Subscription;
   private idempotencyKey = '';
   articleId = 0;
+  modeleArticleId = 0;
+  declinaisonId = 0;
   variantId = 0;
   quantity = 1;
   purchasePrice = 0;
@@ -106,6 +127,17 @@ export class AjouterAchat implements OnInit {
     this.loadFournisseurs();
   }
 
+  retryCurrentSelection(): void {
+    this.loadCatalogue();
+    if (this.declinaisonId) {
+      this.loadVariants(this.declinaisonId);
+    } else if (this.modeleArticleId) {
+      this.loadDeclinaisons(this.modeleArticleId);
+    } else if (this.articleId) {
+      this.loadModeles(this.articleId);
+    }
+  }
+
   loadArticles(): void {
     if (!this.user?.id) return;
     this.loadingArticles.set(true);
@@ -145,40 +177,148 @@ export class AjouterAchat implements OnInit {
   }
 
   selectArticle(value: number): void {
+    this.modelesRequest?.unsubscribe();
+    this.declinaisonsRequest?.unsubscribe();
     this.variantsRequest?.unsubscribe();
+    this.articleContextRequest?.unsubscribe();
     this.articleId = Number(value);
+    this.modeleArticleId = 0;
+    this.declinaisonId = 0;
     this.variantId = 0;
+    this.articleAttributes.set([]);
+    this.modeles.set([]);
+    this.modelesOptions = [];
+    this.declinaisons.set([]);
+    this.declinaisonsOptions = [];
     this.variants.set([]);
     this.variantsOptions = [];
     this.lastRequest.set(null);
+    this.error.set('');
+    this.resetLineInputs();
 
     const article = this.articles().find(item => item.id === this.articleId);
 
     if (article) {
       this.unit = EnumMethodes.getEnumValueByKey(CategoryMesure, article.categoryMesure)
         ?? article.categoryMesure;
-      this.loadVariants(article.id);
+      if (this.user?.id) {
+        this.articleContextRequest = this.dependencies.articleService
+          .loadArticleContext(article.id, this.user.id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: context => {
+              this.articleAttributes.set(context.attributes ?? []);
+              this.refreshVariantsOptions();
+            },
+            error: () => this.articleAttributes.set([]),
+          });
+      }
+      this.loadModeles(article.id);
     }
   }
 
-  loadVariants(articleId: number): void {
+  loadModeles(articleId: number): void {
+    if (!this.user?.id) return;
+    this.loadingModeles.set(true);
+    this.error.set('');
+    this.modelesRequest = this.dependencies.articleService.loadModelesArticle(articleId, this.user.id).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.loadingModeles.set(false))
+    ).subscribe({
+      next: modeles => {
+        this.modeles.set(modeles ?? []);
+        this.modelesOptions = this.modeles().map<Select2Option>((modele, index) => ({
+          id: `model-${modele.id}-${index}`,
+          value: modele.id,
+          label: [modele.nom, modele.marque].filter(Boolean).join(' · '),
+        })) as Select2Data;
+      },
+      error: () => this.error.set('Impossible de charger les modèles de cet article.'),
+    });
+  }
+
+  selectModele(value: number): void {
+    this.declinaisonsRequest?.unsubscribe();
+    this.variantsRequest?.unsubscribe();
+    this.modeleArticleId = Number(value);
+    this.declinaisonId = 0;
+    this.variantId = 0;
+    this.declinaisons.set([]);
+    this.declinaisonsOptions = [];
+    this.variants.set([]);
+    this.variantsOptions = [];
+    this.lastRequest.set(null);
+    this.error.set('');
+    this.resetLineInputs();
+    if (this.modeleArticleId) this.loadDeclinaisons(this.modeleArticleId);
+  }
+
+  loadDeclinaisons(modeleArticleId: number): void {
+    if (!this.user?.id) return;
+    this.loadingDeclinaisons.set(true);
+    this.declinaisonsRequest = this.dependencies.articleService
+      .loadDeclinaisonsModele(modeleArticleId, this.user.id).pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loadingDeclinaisons.set(false))
+      ).subscribe({
+        next: declinaisons => {
+          this.declinaisons.set(declinaisons ?? []);
+          this.declinaisonsOptions = this.declinaisons().map<Select2Option>((declinaison, index) => ({
+            id: `declination-${declinaison.id}-${index}`,
+            value: declinaison.id,
+            label: this.declinaisonLabel(declinaison),
+          })) as Select2Data;
+        },
+        error: () => this.error.set('Impossible de charger les déclinaisons de ce modèle.'),
+      });
+  }
+
+  selectDeclinaison(value: number): void {
+    this.variantsRequest?.unsubscribe();
+    this.declinaisonId = Number(value);
+    this.variantId = 0;
+    this.variants.set([]);
+    this.variantsOptions = [];
+    this.lastRequest.set(null);
+    this.error.set('');
+    this.resetLineInputs();
+    if (this.declinaisonId) this.loadVariants(this.declinaisonId);
+  }
+
+  loadVariants(declinaisonId: number): void {
     if (!this.user?.id) return;
     this.loadingVariants.set(true);
     this.error.set('');
-    this.variantsRequest = this.dependencies.articleService.loadArticleVariants(articleId, this.user.id).pipe(
+    this.variantsRequest = this.dependencies.articleService.loadDeclinaisonVariants(declinaisonId, this.user.id).pipe(
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.loadingVariants.set(false))
     ).subscribe({
       next: variants => {
         this.variants.set(variants);
-        this.variantsOptions = variants.map<Select2Option>((variant, index) => ({
-          id: `variant-${variant.id ?? index}-${index}`,
-          value: variant.id,
-          label: variant.reference || 'Variante non définie',
-        })) as Select2Data;
+        this.refreshVariantsOptions();
       },
-      error: () => this.error.set('Impossible de charger les variantes. S?lectionnez ? nouveau cet article.')
+      error: () => this.error.set('Impossible de charger les variantes de cette déclinaison.'),
     });
+  }
+
+  private refreshVariantsOptions(): void {
+    this.variantsOptions = this.variants().map<Select2Option>((variant, index) => ({
+      id: `variant-${variant.id}-${index}`,
+      value: variant.id,
+      label: [variant.reference, this.attributeSummary(variant.attributs)].filter(Boolean).join(' · '),
+    })) as Select2Data;
+  }
+
+  private attributeSummary(values: Record<number, string> | null | undefined): string {
+    return Object.entries(values ?? {}).map(([id, value]) => {
+      const attribute = this.articleAttributes().find(item => item.id === Number(id));
+      return [attribute?.label, value].filter(Boolean).join(' : ');
+    }).join(', ');
+  }
+
+  private declinaisonLabel(declinaison: DeclinaisonDto): string {
+    const characteristics = this.attributeSummary(declinaison.attributs);
+    return characteristics || `Déclinaison ${declinaison.id}`;
   }
 
   articleLabel(article: SimpleArticleResponse): string {
@@ -188,8 +328,10 @@ export class AjouterAchat implements OnInit {
   addLine(): void {
     const variant = this.variants().find(item => item.id === Number(this.variantId));
     const article = this.articles().find(item => item.id === this.articleId);
-    if (!variant || !article || this.loadingVariants()) {
-      this.error.set('Choisissez un article et une variante.');
+    const modele = this.modeles().find(item => item.id === this.modeleArticleId);
+    const declinaison = this.declinaisons().find(item => item.id === this.declinaisonId);
+    if (!variant || !article || !modele || !declinaison || this.loadingVariants()) {
+      this.error.set('Choisissez un article, un modèle, une déclinaison et une variante.');
       return;
     }
     if (this.lines().some(line => line.variantId === variant.id)) {
@@ -198,7 +340,9 @@ export class AjouterAchat implements OnInit {
     }
     const line: ReceptionLine = {
       variantId: variant.id,
-      article: this.articleLabel(article),
+      article: [this.articleLabel(article), modele.nom, this.declinaisonLabel(declinaison)]
+        .filter(Boolean)
+        .join(' — '),
       reference: variant.reference,
       quantite: Number(this.quantity),
       prixAchat: this.finalUnitPrice,
@@ -213,6 +357,10 @@ export class AjouterAchat implements OnInit {
     this.lastRequest.set(null);
     this.error.set('');
     this.variantId = 0;
+    this.resetLineInputs();
+  }
+
+  private resetLineInputs(): void {
     this.quantity = 1;
     this.purchasePrice = 0;
     this.purchaseTotal = 0;
@@ -228,7 +376,7 @@ export class AjouterAchat implements OnInit {
   }
 
   private roundPrice(value: number): number {
-    return Number.isFinite(value) ? Math.round((value + Number.EPSILON) * 100) / 100 : 0;
+    return Number.isFinite(value) ? Math.round(value) : 0;
   }
 
   updateLine(id: number, field: 'quantite' | 'prixAchat', value: number): void {
@@ -308,8 +456,10 @@ export class AjouterAchat implements OnInit {
         this.loadForm()
       },
       error: error => {
-        this.dependencies.responseService.showErrorToast(error);
-        this.error.set('La réception n’a pas pu être enregistrée. Corrigez les données puis réessayez.');
+        const message = error?.error?.message
+          ?? 'La réception n’a pas pu être enregistrée. Corrigez les données puis réessayez.';
+        this.dependencies.responseService.showErrorToast(message);
+        this.error.set(message);
       }
     });
   }

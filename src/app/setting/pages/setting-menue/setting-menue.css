@@ -44,10 +44,12 @@
 }
 
 .setting-shortcuts {
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.65rem;
-  max-width: 760px;
+  width: 100%;
+  max-width: none;
   padding: 0.75rem;
   border: 1px solid rgba(168, 137, 47, 0.18);
   border-radius: 0.95rem;
@@ -57,13 +59,16 @@
 
 .setting-shortcut {
   --setting-accent: var(--sc-gold-primary, #A8892F);
+  box-sizing: border-box;
+  width: 100%;
   min-width: 0;
-  height: 42px;
+  min-height: 42px;
+  height: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0 0.7rem;
+  padding: 0.45rem 0.55rem;
   border: 1px solid color-mix(in srgb, var(--setting-accent) 18%, transparent);
   border-radius: 0.68rem;
   background: color-mix(in srgb, var(--setting-accent) 7%, #fff);
@@ -72,8 +77,16 @@
   font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
   font-size: 0.78rem;
   font-weight: 800;
-  white-space: nowrap;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
   transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.setting-shortcut span {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .setting-shortcut:hover,
@@ -469,9 +482,10 @@
   }
 
   .setting-shortcut {
-    height: 36px;
+    min-height: 38px;
+    height: auto;
     gap: 0.28rem;
-    padding: 0 0.36rem;
+    padding: 0.4rem 0.3rem;
     border-radius: 0.58rem;
     font-size: 0.66rem;
   }
@@ -551,9 +565,10 @@
   }
 
   .setting-shortcut {
-    height: 34px;
-    padding: 0 0.25rem;
-    font-size: 0.56rem;
+    min-height: 36px;
+    height: auto;
+    padding: 0.36rem 0.24rem;
+    font-size: 0.6rem;
   }
 
   .setting-shortcut i {

@@ -428,6 +428,46 @@
   overflow-wrap: anywhere;
 }
 
+.movement-product-cell .movement-model {
+  color: #5f554c;
+  font-weight: 700;
+}
+
+.movement-attribute-group {
+  margin-top: 0.35rem;
+}
+
+.movement-attribute-group > small {
+  display: block;
+  color: var(--movement-muted);
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.movement-attribute-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.22rem;
+  margin-top: 0.2rem;
+}
+
+.movement-attribute-values span {
+  display: inline-block;
+  padding: 0.16rem 0.28rem;
+  border-radius: 0.28rem;
+  background: #f3eadc;
+  color: #5e5143;
+  font-size: 0.55rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.movement-attribute-values b {
+  color: #7d7168;
+}
+
 .movement-quantity-cell,
 .movement-value-cell {
   white-space: nowrap;
@@ -634,6 +674,12 @@
     overflow-wrap: anywhere;
   }
 
+  .mobile-card-product .movement-model {
+    color: #5f554c;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
   .mobile-card-date small,
   .mobile-card-product span,
   .mobile-card-metrics small,
@@ -641,6 +687,18 @@
     color: var(--movement-muted);
     font-family: var(--sc-font-sans, 'Montserrat', sans-serif);
     font-size: 0.62rem;
+  }
+
+  .mobile-card-product .movement-attribute-group > small {
+    margin: 0;
+    font-size: 0.54rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .mobile-card-product .movement-attribute-values span {
+    display: inline-block;
+    font-size: 0.58rem;
   }
 
   .mobile-card-product {

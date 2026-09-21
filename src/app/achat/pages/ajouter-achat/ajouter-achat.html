@@ -3,18 +3,18 @@
   <header class="page-heading">
     <p class="eyebrow">Boutique / Réception fournisseur</p>
     <h1>Nouvelle réception</h1>
-    <p>Renseignez les variantes réellement reçues et leur prix d’achat.</p>
+    <p>Choisissez la variante réellement reçue et indiquez sa quantité et son prix d’achat.</p>
   </header>
 
   @if (loading()) {
-    <p role="status">Chargement du catalogue…</p>
+    <p role="status">Chargement des données…</p>
   }
   @if (error()) {
     <div class="error-banner" role="alert">
       <span>{{ error() }}</span>
       <button
         type="button"
-        (click)="loadCatalogue()"
+        (click)="retryCurrentSelection()"
         [disabled]="loading()"
       >Recharger les données</button>
     </div>
@@ -108,7 +108,7 @@
         </section>
 
         <section class="panel">
-          <h2>Ajouter une variante reçue</h2>
+          <h2>Ajouter un article reçu</h2>
           <div class="fields">
             <label>
               Article
@@ -120,8 +120,43 @@
                 [data]="articlesOptions"
                 placeholder="Choisir un article"
                 noResultMessage="Aucun article"
-                [disabled]="loading()"
+                [disabled]="loadingArticles()"
               />
+            </label>
+            <label>
+              Modèle
+              <select2
+                class="reception-select2"
+                [ngModel]="modeleArticleId"
+                (ngModelChange)="selectModele($event)"
+                [ngModelOptions]="{standalone: true}"
+                [data]="modelesOptions"
+                placeholder="Choisir un modèle"
+                noResultMessage="Aucun modèle"
+                [disabled]="!articleId || loadingModeles()"
+              />
+              @if (articleId && !loadingModeles() && !modeles().length) {
+                <small>Aucun modèle n’est configuré pour cet article.</small>
+              }
+              @if (modeleArticleId && !loadingDeclinaisons() && !declinaisons().length) {
+                <small>Aucune déclinaison n’est disponible pour ce modèle.</small>
+              }
+            </label>
+            <label>
+              Déclinaison
+              <select2
+                class="reception-select2"
+                [ngModel]="declinaisonId"
+                (ngModelChange)="selectDeclinaison($event)"
+                [ngModelOptions]="{standalone: true}"
+                [data]="declinaisonsOptions"
+                placeholder="Choisir une déclinaison"
+                noResultMessage="Aucune déclinaison"
+                [disabled]="!modeleArticleId || loadingDeclinaisons()"
+              />
+              @if (declinaisonId && !loadingVariants() && !variants().length) {
+                <small>Aucune variante n’est disponible pour cette déclinaison.</small>
+              }
             </label>
             <label>
               Variante
@@ -132,11 +167,8 @@
                 [data]="variantsOptions"
                 placeholder="Choisir une variante"
                 noResultMessage="Aucune variante"
-                [disabled]="!articleId || loadingVariants()"
+                [disabled]="!declinaisonId || loadingVariants()"
               />
-              @if (articleId && !loadingVariants() && !variants().length) {
-                <small>Aucune variante disponible pour cet article.</small>
-              }
             </label>
             <fieldset class="supplier-mode">
               <legend>Prix d’achat connu</legend>
@@ -183,7 +215,7 @@
                   <input
                     type="number"
                     min="0"
-                    step="any"
+                    step="1"
                     [(ngModel)]="purchasePrice"
                     [ngModelOptions]="{standalone: true}"
                   />
@@ -197,7 +229,7 @@
                   <input
                     type="number"
                     min="0"
-                    step="any"
+                    step="1"
                     [(ngModel)]="purchaseTotal"
                     [ngModelOptions]="{standalone: true}"
                   />
@@ -210,7 +242,7 @@
             <p class="preview-note" aria-live="polite">
               @if (priceMode === 'total') {
                 Prix unitaire calculé :
-                <strong>{{ finalUnitPrice | number:'1.2-2' }} FCFA / {{ unit }}</strong>
+                <strong>{{ finalUnitPrice | number:'1.0-0' }} FCFA / {{ unit }}</strong>
               } @else {
                 Total de cette variante :
                 <strong>{{ quantity * finalUnitPrice | number:'1.0-0' }} FCFA</strong>
@@ -269,7 +301,7 @@
                     <input
                       type="number"
                       min="0"
-                      step="any"
+                      step="1"
                       [ngModel]="line.prixAchat"
                       (ngModelChange)="updateLine(line.variantId, 'prixAchat', $event)"
                       [ngModelOptions]="{standalone: true}"
@@ -366,7 +398,7 @@
               <small>{{ line.reference }}</small>
               <span>
                 {{ line.quantite | number:'1.0-6' }} {{ line.unite }}
-                × {{ line.prixAchat | number:'1.2-2' }} FCFA
+                × {{ line.prixAchat | number:'1.0-0' }} FCFA
               </span>
             </div>
             <strong>{{ lineTotal(line) | number:'1.0-0' }} FCFA</strong>

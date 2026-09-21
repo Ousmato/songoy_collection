@@ -2,10 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, Subscription } from 'rxjs';
+import { catchError, finalize, forkJoin, of, Subscription } from 'rxjs';
 import { getUserFromSessionStorage } from '../../../admin/shared/auth.util';
 import {
   ArticleVariantDto,
+  DeclinaisonDto,
+  ModeleArticleDto,
   SimpleArticleResponse,
 } from '../../../article/models/article.model';
 import { CategoryDto } from '../../../categorie/models/categorie.dto';
@@ -49,6 +51,7 @@ export class AddVente implements OnInit {
   readonly error = signal('');
   readonly mobilePanel = signal<'catalogue' | 'cart'>('catalogue');
   readonly failedImages = signal<Set<string>>(new Set());
+  private readonly selectionRequestIds = new Map<number, number>();
 
   readonly filteredArticles = computed(() => {
     const term = this.normalize(this.search());
@@ -68,7 +71,8 @@ export class AddVente implements OnInit {
   }
 
   selectedVariantImageUrl(article: SimpleArticleResponse): string | null {
-    return this.displayImageUrl(this.selectedVariant(article.id)?.urlImage);
+    const declinaisonImage = this.selectedDeclinaison(article.id)?.urlImage;
+    return this.displayImageUrl(declinaisonImage ?? this.selectedVariant(article.id)?.urlImage);
   }
 
   loadCategories(): void {
@@ -129,51 +133,184 @@ export class AddVente implements OnInit {
     });
   }
 
-  loadVariants(article: SimpleArticleResponse): void {
-    if (!this.user?.id || this.selections()[article.id]?.loading) return;
+  loadModeles(article: SimpleArticleResponse): void {
+    if (!this.user?.id || this.hasSelectionLoading(article.id)) return;
+    const requestId = this.nextSelectionRequestId(article.id);
     this.selections.update(selections => ({
       ...selections,
       [article.id]: {
-        loading: true,
-        error: '',
-        variants: [],
-        attributes: [],
-        selectedId: null,
+        ...this.emptySelection(),
+        loadingModeles: true,
       },
     }));
-    this.dependency.articleService.loadArticleVariants(article.id, this.user.id)
+
+    forkJoin({
+      modeles: this.dependency.articleService.loadModelesArticle(article.id, this.user.id),
+      context: this.dependency.articleService.loadArticleContext(article.id, this.user.id)
+        .pipe(catchError(() => of(null))),
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: ({ modeles, context }) => {
+        if (!this.isCurrentSelectionRequest(article.id, requestId)) return;
+        const availableModeles = modeles ?? [];
+        const selectedModeleId = availableModeles.length === 1 ? availableModeles[0].id : null;
+        this.updateSelection(article.id, {
+          loadingModeles: false,
+          modeles: availableModeles,
+          attributes: context?.attributes ?? [],
+          selectedModeleId,
+        });
+        if (selectedModeleId !== null) this.loadDeclinaisons(article.id, selectedModeleId);
+      },
+      error: () => {
+        if (!this.isCurrentSelectionRequest(article.id, requestId)) return;
+        this.updateSelection(article.id, {
+          loadingModeles: false,
+          error: 'Modèles indisponibles.',
+        });
+      },
+    });
+  }
+
+  retrySelection(article: SimpleArticleResponse): void {
+    const selection = this.selections()[article.id];
+    if (selection?.selectedDeclinaisonId) {
+      this.loadVariants(article.id, selection.selectedDeclinaisonId);
+    } else if (selection?.selectedModeleId) {
+      this.loadDeclinaisons(article.id, selection.selectedModeleId);
+    } else {
+      this.loadModeles(article);
+    }
+  }
+
+  selectModele(articleId: number, value: number | null): void {
+    const modeleId = Number(value) || null;
+    this.nextSelectionRequestId(articleId);
+    this.updateSelection(articleId, {
+      loadingDeclinaisons: false,
+      loadingVariants: false,
+      selectedModeleId: modeleId,
+      declinaisons: [],
+      selectedDeclinaisonId: null,
+      variants: [],
+      selectedVariantId: null,
+      error: '',
+    });
+    if (modeleId !== null) this.loadDeclinaisons(articleId, modeleId);
+  }
+
+  selectDeclinaison(articleId: number, value: number | null): void {
+    const declinaisonId = Number(value) || null;
+    this.nextSelectionRequestId(articleId);
+    this.updateSelection(articleId, {
+      loadingVariants: false,
+      selectedDeclinaisonId: declinaisonId,
+      variants: [],
+      selectedVariantId: null,
+      error: '',
+    });
+    if (declinaisonId !== null) this.loadVariants(articleId, declinaisonId);
+  }
+
+  private loadDeclinaisons(articleId: number, modeleId: number): void {
+    if (!this.user?.id) return;
+    const requestId = this.nextSelectionRequestId(articleId);
+    this.updateSelection(articleId, {
+      loadingDeclinaisons: true,
+      loadingVariants: false,
+      declinaisons: [],
+      variants: [],
+      selectedDeclinaisonId: null,
+      selectedVariantId: null,
+      error: '',
+    });
+    this.dependency.articleService.loadDeclinaisonsModele(modeleId, this.user.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: variants => this.updateSelection(article.id, {
-          loading: false,
-          variants: variants ?? [],
-          selectedId: variants?.length === 1 ? variants[0].id : null,
-        }),
-        error: () => this.updateSelection(article.id, {
-          loading: false,
-          error: 'Variantes indisponibles.',
-        }),
+        next: declinaisons => {
+          if (!this.isCurrentSelectionRequest(articleId, requestId)) return;
+          const availableDeclinaisons = declinaisons ?? [];
+          const selectedDeclinaisonId = availableDeclinaisons.length === 1
+            ? availableDeclinaisons[0].id : null;
+          this.updateSelection(articleId, {
+            loadingDeclinaisons: false,
+            declinaisons: availableDeclinaisons,
+            selectedDeclinaisonId,
+          });
+          if (selectedDeclinaisonId !== null) this.loadVariants(articleId, selectedDeclinaisonId);
+        },
+        error: () => {
+          if (!this.isCurrentSelectionRequest(articleId, requestId)) return;
+          this.updateSelection(articleId, {
+            loadingDeclinaisons: false,
+            error: 'Déclinaisons indisponibles.',
+          });
+        },
       });
-    this.dependency.articleService.loadArticleContext(article.id, this.user.id)
+  }
+
+  private loadVariants(articleId: number, declinaisonId: number): void {
+    if (!this.user?.id) return;
+    const requestId = this.nextSelectionRequestId(articleId);
+    this.updateSelection(articleId, {
+      loadingVariants: true,
+      variants: [],
+      selectedVariantId: null,
+      error: '',
+    });
+    this.dependency.articleService.loadDeclinaisonVariants(declinaisonId, this.user.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: context => this.updateSelection(article.id, { attributes: context.attributes ?? [] }),
-        // Les références et valeurs restent lisibles si les libellés sont indisponibles.
-        error: () => this.updateSelection(article.id, { attributes: [] }),
+        next: variants => {
+          if (!this.isCurrentSelectionRequest(articleId, requestId)) return;
+          const availableVariants = variants ?? [];
+          this.updateSelection(articleId, {
+            loadingVariants: false,
+            variants: availableVariants,
+            selectedVariantId: availableVariants.length === 1 ? availableVariants[0].id : null,
+          });
+        },
+        error: () => {
+          if (!this.isCurrentSelectionRequest(articleId, requestId)) return;
+          this.updateSelection(articleId, {
+            loadingVariants: false,
+            error: 'Variantes indisponibles.',
+          });
+        },
       });
   }
 
   selectVariant(articleId: number, value: number | null): void {
-    this.updateSelection(articleId, { selectedId: Number(value) || null });
+    this.updateSelection(articleId, { selectedVariantId: Number(value) || null });
   }
 
   selectedVariant(articleId: number): ArticleVariantDto | undefined {
     const selection = this.selections()[articleId];
-    return selection?.variants.find(variant => variant.id === selection.selectedId);
+    return selection?.variants.find(variant => variant.id === selection.selectedVariantId);
+  }
+
+  selectedDeclinaison(articleId: number): DeclinaisonDto | undefined {
+    const selection = this.selections()[articleId];
+    return selection?.declinaisons.find(item => item.id === selection.selectedDeclinaisonId);
+  }
+
+  modeleLabel(modele: ModeleArticleDto): string {
+    return [modele.nom, modele.marque, modele.matiere].filter(Boolean).join(' · ');
+  }
+
+  declinaisonLabel(articleId: number, declinaison: DeclinaisonDto): string {
+    const summary = this.attributeSummary(articleId, declinaison.attributs);
+    return summary || `Déclinaison ${declinaison.id}`;
   }
 
   attributeLabel(articleId: number, key: string): string {
     return this.selections()[articleId]?.attributes.find(item => item.id === Number(key))?.label ?? '';
+  }
+
+  private attributeSummary(articleId: number, values: Record<number, string> | null | undefined): string {
+    return Object.entries(values ?? {}).map(([key, value]) => {
+      const label = this.attributeLabel(articleId, key);
+      return [label, value].filter(Boolean).join(' : ');
+    }).join(', ');
   }
 
   available(variant: ArticleVariantDto): number {
@@ -182,9 +319,12 @@ export class AddVente implements OnInit {
   }
 
   addToCart(article: SimpleArticleResponse): void {
+    const selection = this.selections()[article.id];
+    const modele = selection?.modeles.find(item => item.id === selection.selectedModeleId);
+    const declinaison = this.selectedDeclinaison(article.id);
     const variant = this.selectedVariant(article.id);
     const prixVente = variant ? this.salePriceValue(variant) : 0;
-    if (!variant || this.available(variant) <= 0 || prixVente <= 0) return;
+    if (!modele || !declinaison || !variant || this.available(variant) <= 0 || prixVente <= 0) return;
 
     const added = Math.min(1, this.available(variant));
     this.lines.update(lines => {
@@ -197,7 +337,15 @@ export class AddVente implements OnInit {
               quantite: this.roundQuantity(line.quantite + added),
             }
           : line)
-        : [...lines, { article, variant, prixVente, quantite: added }];
+        : [...lines, {
+            article,
+            modele,
+            declinaison,
+            attributes: selection?.attributes ?? [],
+            variant,
+            prixVente,
+            quantite: added,
+          }];
     });
     this.clearFeedback();
   }
@@ -269,8 +417,39 @@ export class AddVente implements OnInit {
   private updateSelection(articleId: number, patch: Partial<VariantSelection>): void {
     this.selections.update(selections => ({
       ...selections,
-      [articleId]: { ...selections[articleId], ...patch },
+      [articleId]: { ...this.emptySelection(), ...selections[articleId], ...patch },
     }));
+  }
+
+  private emptySelection(): VariantSelection {
+    return {
+      loadingModeles: false,
+      loadingDeclinaisons: false,
+      loadingVariants: false,
+      error: '',
+      modeles: [],
+      declinaisons: [],
+      variants: [],
+      attributes: [],
+      selectedModeleId: null,
+      selectedDeclinaisonId: null,
+      selectedVariantId: null,
+    };
+  }
+
+  hasSelectionLoading(articleId: number): boolean {
+    const selection = this.selections()[articleId];
+    return !!selection && (selection.loadingModeles || selection.loadingDeclinaisons || selection.loadingVariants);
+  }
+
+  private nextSelectionRequestId(articleId: number): number {
+    const requestId = (this.selectionRequestIds.get(articleId) ?? 0) + 1;
+    this.selectionRequestIds.set(articleId, requestId);
+    return requestId;
+  }
+
+  private isCurrentSelectionRequest(articleId: number, requestId: number): boolean {
+    return this.selectionRequestIds.get(articleId) === requestId;
   }
 
   private normalize(value: string): string {

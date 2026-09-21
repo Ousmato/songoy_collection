@@ -1,0 +1,33 @@
+<form class="price-edit-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <label class="price-field" [for]="'variant-price-' + variant.id">
+    <span>Nouveau prix de vente</span>
+    <div class="price-input-wrap">
+      <input
+        [id]="'variant-price-' + variant.id"
+        type="number"
+        formControlName="prixVente"
+        min="1"
+        step="1"
+        [disabled]="saving"
+      />
+      <span>FCFA</span>
+    </div>
+    @if (form.controls.prixVente.touched && form.controls.prixVente.hasError('required')) {
+      <small class="field-error">Le prix est obligatoire.</small>
+    }
+    @if (form.controls.prixVente.touched && (form.controls.prixVente.hasError('min') || form.controls.prixVente.hasError('pattern'))) {
+      <small class="field-error">Saisissez un montant entier supérieur à zéro.</small>
+    }
+  </label>
+
+  <div class="price-actions">
+    <button class="save-button" type="submit" [disabled]="saving">
+      @if (saving) {
+        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Enregistrement…
+      } @else {
+        <i class="fa-solid fa-check" aria-hidden="true"></i> Enregistrer
+      }
+    </button>
+    <button class="cancel-button" type="button" [disabled]="saving" (click)="cancel.emit()">Annuler</button>
+  </div>
+</form>

@@ -5,7 +5,7 @@
     <div class="header-copy">
       <h1 class="page-title">Caractéristiques</h1>
       <p class="page-subtitle">
-        Les informations utilisées pour décrire les variantes des articles.
+        Les informations communes aux déclinaisons ou propres à chaque variante.
       </p>
     </div>
     <div class="header-badge">
@@ -18,7 +18,7 @@
     <div class="panel-head">
       <div>
         <h2 class="panel-title">Caractéristiques configurées</h2>
-        <p class="panel-hint">Définissez les informations propres aux variantes.</p>
+        <p class="panel-hint">Chaque caractéristique indique le niveau auquel sa valeur est saisie.</p>
       </div>
 
       <label class="search-input">
@@ -48,6 +48,13 @@
               <small>{{ attribute.key }}</small>
             </div>
 
+            <span
+              class="characteristic-level"
+              [class.is-declinaison]="attribute.niveau === 'DECLINAISON'"
+            >
+              {{ niveauLabel(attribute.niveau) }}
+            </span>
+
             <span class="characteristic-type">
               {{ typeLabel(attribute.type) }}
             </span>
@@ -66,4 +73,3 @@
     </div>
   </section>
 </section>
-

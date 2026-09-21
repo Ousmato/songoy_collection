@@ -13,6 +13,7 @@ import {
 } from '../../models/vente.dto';
 import { VenteService } from '../../services/vente.service';
 import { ReglementVente } from '../../components/reglement-vente/reglement-vente';
+import { GenerateFacturePdfUtil } from '../../utils/generate-facture-pdf';
 
 @Component({
   selector: 'app-detail-vente',
@@ -24,6 +25,7 @@ import { ReglementVente } from '../../components/reglement-vente/reglement-vente
 export class DetailVente implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly venteService = inject(VenteService);
+  private readonly facturePdf = inject(GenerateFacturePdfUtil);
   private readonly user = getUserFromSessionStorage();
 
   readonly detailVente = signal<VenteHistoriqueDetailDto | null>(null);
@@ -90,5 +92,9 @@ export class DetailVente implements OnInit {
 
   paymentCount(paiements: PaiementVenteHistorique[]): string {
     return `${paiements.length} paiement${paiements.length === 1 ? '' : 's'}`;
+  }
+
+  printFacture(vente: VenteHistoriqueDetailDto): void {
+    this.facturePdf.generate(vente);
   }
 }

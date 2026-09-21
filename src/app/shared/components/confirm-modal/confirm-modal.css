@@ -1,0 +1,138 @@
+:host {
+  display: contents;
+}
+
+.confirm-backdrop {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(28 24 20 / 52%);
+  backdrop-filter: blur(3px);
+}
+
+.confirm-dialog {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  width: min(100%, 28rem);
+  padding: 1.35rem;
+  border: 1px solid #eee5db;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 1.25rem 3.5rem rgb(24 18 12 / 24%);
+  color: #30251d;
+}
+
+.confirm-icon {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #f3eee3;
+  color: #92742a;
+  font-size: 1.05rem;
+}
+
+.is-destructive .confirm-icon {
+  background: #fff0ed;
+  color: #b44b3b;
+}
+
+.confirm-content {
+  min-width: 0;
+}
+
+.confirm-content h2 {
+  margin: .2rem 0 .45rem;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.confirm-content p {
+  margin: 0;
+  color: #71665d;
+  font-size: .86rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.confirm-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: .65rem;
+  margin-top: .35rem;
+}
+
+.confirm-actions button {
+  display: inline-flex;
+  min-height: 2.65rem;
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+  padding: .65rem .95rem;
+  border: 1px solid transparent;
+  border-radius: .6rem;
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background-color .16s ease, border-color .16s ease, opacity .16s ease;
+}
+
+.confirm-actions button:focus-visible {
+  outline: 3px solid rgb(168 137 47 / 32%);
+  outline-offset: 2px;
+}
+
+.confirm-actions button:disabled {
+  cursor: wait;
+  opacity: .62;
+}
+
+.cancel-button {
+  border-color: #e5ddd4 !important;
+  background: #fff;
+  color: #65594f;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background: #f8f5f0;
+}
+
+.confirm-button {
+  background: #a8892f;
+  color: #fff;
+}
+
+.confirm-button:hover:not(:disabled) {
+  background: #8f7428;
+}
+
+.confirm-button.is-destructive {
+  background: #b44b3b;
+}
+
+.confirm-button.is-destructive:hover:not(:disabled) {
+  background: #963c30;
+}
+
+@media (max-width: 440px) {
+  .confirm-dialog {
+    gap: .8rem;
+    padding: 1rem;
+  }
+
+  .confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .confirm-actions button {
+    padding-inline: .55rem;
+  }
+}

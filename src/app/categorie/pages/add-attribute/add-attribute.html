@@ -20,7 +20,7 @@
         </div>
         <div>
           <h2>Configuration</h2>
-          <p>Les informations seront utilisées lors de la création des variantes.</p>
+          <p>Choisissez à quel niveau cette caractéristique sera renseignée.</p>
         </div>
       </div>
 
@@ -69,6 +69,21 @@
             }
           </label>
 
+          <label class="attribute-field-full">
+            Niveau d'application
+            <select formControlName="niveau">
+              <option value="" disabled>Choisir un niveau</option>
+              <option value="DECLINAISON">Déclinaison — couleur, motif, finition…</option>
+              <option value="VARIANTE">Variante — pointure, taille, format…</option>
+            </select>
+            <small class="field-hint">
+              Une déclinaison regroupe les variantes qui partagent cette caractéristique.
+            </small>
+            @if (control('niveau')?.touched && control('niveau')?.hasError('required')) {
+              <small>Choisissez si la caractéristique appartient à la déclinaison ou à la variante.</small>
+            }
+          </label>
+
           @if (control('mode')?.value === 'existing') {
             <label class="attribute-field-full">
               Caractéristique à réutiliser
@@ -100,16 +115,14 @@
             </label>
 
             <label>
-              Type de valeur
+              Quel type d'information sera saisi ?
               <select formControlName="type">
-                <option value="" disabled>Choisir un type</option>
-                <option value="TEXT">Texte</option>
-                <option value="NUMBER">Nombre</option>
-                <option value="SELECT">Liste de choix</option>
-                <option value="DATE">Date</option>
+                <option value="" disabled>Choisir une réponse</option>
+                <option value="TEXT">Un nom (ex. couleur, motif, matière)</option>
+                <option value="NUMBER">Une valeure (ex. pointure, taille, longueur)</option>
               </select>
               @if (control('type')?.touched && control('type')?.invalid) {
-                <small>Le type est obligatoire.</small>
+                <small>Choisissez le type d'information à saisir.</small>
               }
             </label>
           }
@@ -118,7 +131,15 @@
             <input type="checkbox" formControlName="obligatoire" />
             <span>
               <strong>Valeur obligatoire</strong>
-              <small>Chaque variante devra renseigner cette caractéristique.</small>
+              <small>
+                @if (control('niveau')?.value === 'DECLINAISON') {
+                  Chaque déclinaison devra renseigner cette caractéristique.
+                } @else if (control('niveau')?.value === 'VARIANTE') {
+                  Chaque variante devra renseigner cette caractéristique.
+                } @else {
+                  La valeur sera exigée au niveau choisi ci-dessus.
+                }
+              </small>
             </span>
           </label>
         </div>

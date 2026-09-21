@@ -6,19 +6,19 @@ import {
   signal
 } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { Select2, Select2Data, Select2Option } from 'ng-select2-component';
 import { finalize } from 'rxjs';
 
 import { getUserFromSessionStorage } from '../../../admin/shared/auth.util';
 import { DependencyService } from '../../../shared/utils/dependency';
-import { CategoryDto, CategoryAttributeItemDto, CategoryAttributeRequestDto } from '../../models/categorie.dto';
+import { CategoryAttributeItemDto, CategoryAttributeRequestDto } from '../../models/categorie.dto';
 import { FloatingBackButton } from '../../../shared/components/floating-back-button/floating-back-button';
 
 @Component({
   selector: 'app-add-attribute',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, Select2, FloatingBackButton],
+  imports: [CommonModule, ReactiveFormsModule, Select2, FloatingBackButton],
   templateUrl: './add-attribute.html',
   styleUrl: './add-attribute.css'
 })
@@ -30,7 +30,6 @@ export class AddAttribute implements OnInit {
   readonly existingAttributes = signal<CategoryAttributeItemDto[]>([]);
 
   form!: FormGroup;
-  categories: CategoryDto[] = [];
   categoriesData: Select2Data = [];
 
   ngOnInit(): void {
@@ -40,6 +39,7 @@ export class AddAttribute implements OnInit {
       existingKey: [''],
       label: ['', [Validators.required, Validators.maxLength(80)]],
       type: ['', Validators.required],
+      niveau: ['', Validators.required],
       obligatoire: [false],
       ordre: [0]
     });
@@ -103,6 +103,7 @@ export class AddAttribute implements OnInit {
 
     const request: CategoryAttributeRequestDto = {
       type: values.mode === 'existing' ? selected!.type : values.type,
+      niveau: values.niveau,
       obligatoire: values.obligatoire,
       ordre: values.ordre,
       key,
@@ -128,12 +129,6 @@ export class AddAttribute implements OnInit {
       });
   }
 
-  cancel(): void {
-    if (!this.submitting()) {
-      this.router.navigate(['/admin/list-caracteristique']);
-    }
-  }
-
   control(name: string) {
     return this.form.get(name);
   }
@@ -155,8 +150,7 @@ export class AddAttribute implements OnInit {
 
     this.dependency.categoryService.loadCategories(this.user.id).subscribe({
       next: result => {
-        this.categories = result ?? [];
-        this.categoriesData = this.categories.map<Select2Option>(category => ({
+        this.categoriesData = (result ?? []).map<Select2Option>(category => ({
           id: `category-${category.id}`,
           value: category.id,
           label: category.nom

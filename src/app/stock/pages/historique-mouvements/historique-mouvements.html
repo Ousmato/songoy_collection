@@ -135,7 +135,30 @@
                 </td>
                 <td class="movement-product-cell">
                   <strong>{{ mouvement.article }}</strong>
+                  <small class="movement-model">
+                    {{ mouvement.modele }}{{ mouvement.marque ? ' · ' + mouvement.marque : '' }}
+                  </small>
                   <small>{{ mouvement.referenceVariante }}</small>
+                  @if (mouvement.attributsDeclinaison.length) {
+                    <div class="movement-attribute-group">
+                      <small>Déclinaison</small>
+                      <div class="movement-attribute-values">
+                        @for (attribut of mouvement.attributsDeclinaison; track attribut.id) {
+                          <span><b>{{ attribut.label }} :</b> {{ attribut.value }}</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                  @if (mouvement.attributsVariante.length) {
+                    <div class="movement-attribute-group">
+                      <small>Variante</small>
+                      <div class="movement-attribute-values">
+                        @for (attribut of mouvement.attributsVariante; track attribut.id) {
+                          <span><b>{{ attribut.label }} :</b> {{ attribut.value }}</span>
+                        }
+                      </div>
+                    </div>
+                  }
                 </td>
                 <td class="align-right movement-quantity-cell">
                   <strong>{{ formatQuantity(mouvement.quantite) }}</strong>
@@ -169,7 +192,30 @@
             </div>
             <div class="mobile-card-product">
               <strong>{{ mouvement.article }}</strong>
+              <span class="movement-model">
+                {{ mouvement.modele }}{{ mouvement.marque ? ' · ' + mouvement.marque : '' }}
+              </span>
               <span>{{ mouvement.referenceVariante }}</span>
+              @if (mouvement.attributsDeclinaison.length) {
+                <div class="movement-attribute-group">
+                  <small>Déclinaison</small>
+                  <div class="movement-attribute-values">
+                    @for (attribut of mouvement.attributsDeclinaison; track attribut.id) {
+                      <span><b>{{ attribut.label }} :</b> {{ attribut.value }}</span>
+                    }
+                  </div>
+                </div>
+              }
+              @if (mouvement.attributsVariante.length) {
+                <div class="movement-attribute-group">
+                  <small>Variante</small>
+                  <div class="movement-attribute-values">
+                    @for (attribut of mouvement.attributsVariante; track attribut.id) {
+                      <span><b>{{ attribut.label }} :</b> {{ attribut.value }}</span>
+                    }
+                  </div>
+                </div>
+              }
             </div>
             <div class="mobile-card-metrics">
               <div><small>Quantité</small><strong>{{ formatQuantity(mouvement.quantite) }} {{ uniteLabel(mouvement.unite) }}</strong></div>

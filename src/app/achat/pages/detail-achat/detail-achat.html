@@ -68,7 +68,30 @@
                   </div>
                   <div class="line-info">
                     <strong>{{ line.article }}</strong>
+                    <span class="model-name">
+                      {{ line.modele }}{{ line.marque ? ' · ' + line.marque : '' }}
+                    </span>
                     <span>{{ line.referenceVariant }}</span>
+                    @if (line.attributsDeclinaison.length) {
+                      <div class="attribute-group">
+                        <small>Déclinaison</small>
+                        <div class="attribute-list">
+                          @for (attribute of line.attributsDeclinaison; track attribute.id) {
+                            <span><b>{{ attribute.label }} :</b> {{ attribute.value }}</span>
+                          }
+                        </div>
+                      </div>
+                    }
+                    @if (line.attributsVariante.length) {
+                      <div class="attribute-group">
+                        <small>Variante</small>
+                        <div class="attribute-list">
+                          @for (attribute of line.attributsVariante; track attribute.id) {
+                            <span><b>{{ attribute.label }} :</b> {{ attribute.value }}</span>
+                          }
+                        </div>
+                      </div>
+                    }
                   </div>
                   <div class="line-quantity">
                     <strong>{{ line.quantite | number:'1.0-2' }}</strong>

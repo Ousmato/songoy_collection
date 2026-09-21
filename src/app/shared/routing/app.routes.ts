@@ -45,21 +45,21 @@ export const APP_ROUTES: Routes = [
           import('../../article/pages/add-article/add-article').then((m) => m.AddArticle),
       },
       {
-        path: 'article-variants',
-        title: 'Variantes article',
-        data: { title: 'Variantes article' },
+        path: 'articles/:articleId/modeles',
+        title: 'Modèles de l’article',
+        data: { title: 'Modèles de l’article' },
         loadComponent: () =>
-          import('../../article/pages/article-variants/article-variants').then(
-            (m) => m.ArticleVariants,
+          import('../../article/pages/article-modeles/article-modeles').then(
+            (m) => m.ArticleModeles,
           ),
       },
       {
-        path: 'article-variants/:articleId',
-        title: 'Variantes article',
-        data: { title: 'Variantes article' },
+        path: 'articles/:articleId/versions',
+        title: 'Versions de l’article',
+        data: { title: 'Versions de l’article' },
         loadComponent: () =>
-          import('../../article/pages/article-variants/article-variants').then(
-            (m) => m.ArticleVariants,
+          import('../../article/pages/article-versions/article-versions').then(
+            (m) => m.ArticleVersions,
           ),
       },
       {
@@ -273,6 +273,15 @@ export const APP_ROUTES: Routes = [
         loadComponent: () =>
           import('../../admin/pages/personnel-menue/personnel-menue').then(
             (m) => m.PersonnelMenue,
+          ),
+      },
+      {
+        path: 'historique-paiement',
+        title: 'Historique des salaires',
+        data: { title: 'Historique des salaires' },
+        loadComponent: () =>
+          import('../../admin/pages/historique-paiement/historique-paiement').then(
+            (m) => m.HistoriquePaiement,
           ),
       },
       {

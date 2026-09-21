@@ -47,6 +47,7 @@ export class AddDepense implements OnInit {
       libelle: ['', Validators.required],
       montant: ['', [Validators.required, Validators.min(0.01)]],
       modePaiement: ['CASH', Validators.required],
+      periodeSalaire: [''],
       idPersonnel: [''],
       fournisseurMode: ['existant', Validators.required],
       fournisseurId: [0],
@@ -125,6 +126,9 @@ export class AddDepense implements OnInit {
       libelle: String(value.libelle ?? '').trim(),
       montant: Number(value.montant),
       modePaiement: value.modePaiement,
+      periodeSalaire: this.requiresPersonnel()
+        ? String(value.periodeSalaire ?? '').trim()
+        : undefined,
       personnelBeneficiaireId: this.requiresPersonnel()
         ? Number(value.idPersonnel)
         : undefined,
@@ -180,12 +184,17 @@ export class AddDepense implements OnInit {
 
   private applyConditionalValidators(): void {
     const personnelCtrl = this.form.get('idPersonnel');
+    const periodeSalaireCtrl = this.form.get('periodeSalaire');
     const fournisseurModeCtrl = this.form.get('fournisseurMode');
     const fournisseurIdCtrl = this.form.get('fournisseurId');
     const fournisseurCtrl = this.form.get('fournisseurNom');
 
     if (this.requiresPersonnel()) {
       personnelCtrl?.setValidators([Validators.required]);
+      periodeSalaireCtrl?.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}$/)]);
+      if (!periodeSalaireCtrl?.value) {
+        periodeSalaireCtrl?.setValue(this.currentSalaryPeriod(), { emitEvent: false });
+      }
       fournisseurModeCtrl?.clearValidators();
       fournisseurIdCtrl?.clearValidators();
       fournisseurCtrl?.clearValidators();
@@ -194,6 +203,8 @@ export class AddDepense implements OnInit {
     } else {
       personnelCtrl?.clearValidators();
       personnelCtrl?.setValue('', { emitEvent: false });
+      periodeSalaireCtrl?.clearValidators();
+      periodeSalaireCtrl?.setValue('', { emitEvent: false });
       fournisseurModeCtrl?.setValidators([Validators.required]);
 
       if (fournisseurModeCtrl?.value === 'existant') {
@@ -208,8 +219,14 @@ export class AddDepense implements OnInit {
     }
 
     personnelCtrl?.updateValueAndValidity({ emitEvent: false });
+    periodeSalaireCtrl?.updateValueAndValidity({ emitEvent: false });
     fournisseurModeCtrl?.updateValueAndValidity({ emitEvent: false });
     fournisseurIdCtrl?.updateValueAndValidity({ emitEvent: false });
     fournisseurCtrl?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private currentSalaryPeriod(): string {
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
   }
 }

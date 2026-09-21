@@ -21,11 +21,20 @@ export interface LigneVenteHistorique {
   referenceVariant: string;
   articleId: number;
   article: string;
+  modele: string;
+  marque: string | null;
   unite: CategoryMesure;
-  attributs: Record<number, string>;
+  attributsDeclinaison: VenteAttributHistoriqueDto[];
+  attributsVariante: VenteAttributHistoriqueDto[];
   quantite: number;
   prixVente: number;
   totalLigne: number;
+}
+
+export interface VenteAttributHistoriqueDto {
+  id: number;
+  label: string;
+  value: string;
 }
 
 export interface PaiementVenteHistorique {

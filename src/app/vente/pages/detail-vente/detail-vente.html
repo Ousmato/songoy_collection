@@ -29,9 +29,15 @@
         </p>
       </div>
 
-      <span class="status-badge" [class]="statusClass(vente.statutPaiement)">
-        {{ vente.statutPaiement }}
-      </span>
+      <div class="header-actions">
+        <span class="status-badge" [class]="statusClass(vente.statutPaiement)">
+          {{ vente.statutPaiement }}
+        </span>
+        <button type="button" class="invoice-button" (click)="printFacture(vente)">
+          <i class="fa-solid fa-print" aria-hidden="true"></i>
+          Imprimer la facture
+        </button>
+      </div>
     </header>
 
     <section class="overview-grid" aria-label="Résumé de la vente">
@@ -75,12 +81,28 @@
 
                   <div class="line-info">
                     <strong>{{ line.article }}</strong>
+                    <span class="model-name">
+                      {{ line.modele }}{{ line.marque ? ' · ' + line.marque : '' }}
+                    </span>
                     <span>{{ line.referenceVariant }}</span>
-                    @if (line.attributs && (line.attributs | keyvalue).length) {
-                      <div class="attribute-list">
-                        @for (attribute of (line.attributs | keyvalue); track attribute.key) {
-                          <span>{{ attribute.value }}</span>
-                        }
+                    @if (line.attributsDeclinaison.length) {
+                      <div class="attribute-group">
+                        <small>Déclinaison</small>
+                        <div class="attribute-list">
+                          @for (attribute of line.attributsDeclinaison; track attribute.id) {
+                            <span><b>{{ attribute.label }} :</b> {{ attribute.value }}</span>
+                          }
+                        </div>
+                      </div>
+                    }
+                    @if (line.attributsVariante.length) {
+                      <div class="attribute-group">
+                        <small>Variante</small>
+                        <div class="attribute-list">
+                          @for (attribute of line.attributsVariante; track attribute.id) {
+                            <span><b>{{ attribute.label }} :</b> {{ attribute.value }}</span>
+                          }
+                        </div>
                       </div>
                     }
                   </div>

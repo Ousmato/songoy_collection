@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { environment } from "../../../environments/environment";
 import { HttpClient } from "@angular/common/http";
 import { Categorie } from "../models/categorie.model";
-import { CategoryAttributeDto, CategoryAttributeRequestDto } from "../models/categorie.dto";
+import { CategoryAttributeDto, CategoryAttributeRequestDto, CategoryNameUpdateRequestDto } from "../models/categorie.dto";
 import { finalize, Observable } from "rxjs";
 import { CategoryDto } from "../models/categorie.dto";
 import { httpResponse, ResponseMessageService } from "../../shared/utils/response.message";
@@ -28,6 +28,25 @@ export class CategoryService {
             // Finalize the loading state when the request completes
             finalize(() => this.loading.closeLoading())
         );
+    }
+
+    updateCategoryName(
+        categoryId: number,
+        idAdmin: number,
+        payload: CategoryNameUpdateRequestDto
+    ): Observable<httpResponse> {
+        this.loading.showLoading('Modification du nom de la categorie...');
+        return this.http.put<httpResponse>(
+            `${this.baseUrl}/update-category-name/${categoryId}/${idAdmin}`,
+            payload
+        ).pipe(finalize(() => this.loading.closeLoading()));
+    }
+
+    deleteCategory(categoryId: number, idAdmin: number): Observable<httpResponse> {
+        this.loading.showLoading('Suppression de la categorie...');
+        return this.http.delete<httpResponse>(
+            `${this.baseUrl}/delete-category/${categoryId}/${idAdmin}`
+        ).pipe(finalize(() => this.loading.closeLoading()));
     }
     addAttributeToCategories(
         attribute: CategoryAttributeRequestDto,

@@ -1,15 +1,30 @@
-import { ArticleAttributeDto, ArticleVariantDto, SimpleArticleResponse } from '../../article/models/article.model';
+import {
+  ArticleAttributeDto,
+  ArticleVariantDto,
+  DeclinaisonDto,
+  ModeleArticleDto,
+  SimpleArticleResponse,
+} from '../../article/models/article.model';
 
 export interface VariantSelection {
-  loading: boolean;
+  loadingModeles: boolean;
+  loadingDeclinaisons: boolean;
+  loadingVariants: boolean;
   error: string;
+  modeles: ModeleArticleDto[];
+  declinaisons: DeclinaisonDto[];
   variants: ArticleVariantDto[];
   attributes: ArticleAttributeDto[];
-  selectedId: number | null;
+  selectedModeleId: number | null;
+  selectedDeclinaisonId: number | null;
+  selectedVariantId: number | null;
 }
 
 export interface SaleLine {
   article: SimpleArticleResponse;
+  modele: ModeleArticleDto;
+  declinaison: DeclinaisonDto;
+  attributes: ArticleAttributeDto[];
   variant: ArticleVariantDto;
   quantite: number;
   prixVente: number;

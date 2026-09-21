@@ -56,29 +56,38 @@
       <article class="article-row">
         <div class="article-visual" aria-hidden="true">
           <i class="fa-solid fa-shirt" aria-hidden="true"></i>
-          <span class="variant-count">
-            {{ article.quantity }} en stock
-          </span>
+          <!-- <span class="variant-count">
+
+          </span> -->
         </div>
 
         <div class="article-content">
-          <div class="article-meta">
-            <span>{{ article.nom }}</span>
-            <small>{{ article.quantity }} en stock</small>
+          <div class="content">
+            <div class="article-meta">
+              <span>{{ article.nom }}</span>
+            </div>
+
+            <h2>{{ article.nom }} {{ article.typeNom }}</h2>
+            <p>Prix à partir de {{ article.prixVente ?? 0 | number:'1.0-0' }} FCFA</p>
+
+            <div class="article-actions">
+              <div class="actions">
+                <a class="article-action action-modeles" [routerLink]="['/admin/articles', article.id, 'modeles']">
+                  <i class="fa-solid fa-cube" aria-hidden="true"></i>
+                  Modèles
+                </a>
+                <a class="article-action action-versions" [routerLink]="['/admin/articles', article.id, 'versions']">
+                  <i class="fa-solid fa-palette" aria-hidden="true"></i>
+                  Déclinaisons
+                </a>
+              </div>
+            </div>
           </div>
 
-          <h2>{{ article.nom }} {{ article.typeNom }}</h2>
-          <p>Prix à partir de {{ article.prixVente ?? 0 | number:'1.0-0' }} FCFA</p>
-
-          <div class="article-actions">
-            <a [routerLink]="['/admin/article-variants', article.id]">
-              Gérer les variantes
-              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-            </a>
-            <button type="button" aria-label="Plus d’options">
-              <i class="fa-solid fa-ellipsis" aria-hidden="true"></i>
-            </button>
-          </div>
+          <small class="article-stock-label" [class.out-of-stock]="article.quantity <= 0">
+            <span>Stock</span>
+            <strong>{{ getStockLabel(article) }}</strong>
+          </small>
         </div>
       </article>
     } @empty {

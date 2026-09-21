@@ -133,7 +133,7 @@
 
 .characteristic-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: 1rem;
   padding: .9rem 1rem;
@@ -178,6 +178,7 @@
 }
 
 .characteristic-type,
+.characteristic-level,
 .characteristic-required {
   padding: .35rem .65rem;
   border-radius: 999px;
@@ -186,6 +187,16 @@
   font-size: .7rem;
   font-weight: 650;
   white-space: nowrap;
+}
+
+.characteristic-level {
+  background: #edf2f7;
+  color: #466079;
+}
+
+.characteristic-level.is-declinaison {
+  background: #f8f1e4;
+  color: #806a2f;
 }
 
 .characteristic-required.is-required {
@@ -229,6 +240,7 @@
     gap: .7rem;
   }
 
+  .characteristic-level,
   .characteristic-type,
   .characteristic-required {
     grid-column: 2;

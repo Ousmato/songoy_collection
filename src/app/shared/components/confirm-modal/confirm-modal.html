@@ -1,0 +1,41 @@
+@if (open) {
+  <div class="confirm-backdrop" (click)="onBackdropClick($event)">
+    <section
+      class="confirm-dialog"
+      [class.is-destructive]="destructive"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="confirm-modal-title"
+      aria-describedby="confirm-modal-message"
+    >
+      <div class="confirm-icon" aria-hidden="true">
+        <i [class]="destructive ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-question'"></i>
+      </div>
+
+      <div class="confirm-content">
+        <h2 id="confirm-modal-title">{{ title }}</h2>
+        <p id="confirm-modal-message">{{ message }}</p>
+      </div>
+
+      <div class="confirm-actions">
+        <button type="button" class="cancel-button" [disabled]="busy" (click)="cancel()">
+          {{ cancelLabel }}
+        </button>
+        <button
+          type="button"
+          class="confirm-button"
+          [class.is-destructive]="destructive"
+          [disabled]="busy"
+          (click)="confirmed.emit()"
+        >
+          @if (busy) {
+            <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+            {{ busyLabel }}
+          } @else {
+            {{ confirmLabel }}
+          }
+        </button>
+      </div>
+    </section>
+  </div>
+}

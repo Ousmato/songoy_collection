@@ -1,6 +1,4 @@
-﻿import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { RouterModule } from '@angular/router';
 
 import { getUserFromSessionStorage } from '../../../admin/shared/auth.util';
 import { FloatingBackButton } from '../../../shared/components/floating-back-button/floating-back-button';
@@ -10,7 +8,7 @@ import { CategoryAttributeDto } from '../../models/categorie.dto';
 @Component({
   selector: 'app-list-caracteristique',
   standalone: true,
-  imports: [CommonModule, RouterModule, FloatingBackButton],
+  imports: [FloatingBackButton],
   templateUrl: './list-caracteristique.html',
   styleUrl: './list-caracteristique.css'
 })
@@ -27,7 +25,7 @@ export class ListCaracteristique implements OnInit {
     return this.categories().filter(category => {
       const categoryText = category.categoryNom ?? '';
       const attributesText = (category.attributes ?? [])
-        .map(attribute => `${attribute.label} ${attribute.key}`)
+        .map(attribute => `${attribute.label} ${attribute.key} ${attribute.niveau}`)
         .join(' ');
 
       return `${categoryText} ${attributesText}`
@@ -62,5 +60,9 @@ export class ListCaracteristique implements OnInit {
       SELECT: 'Liste',
       DATE: 'Date'
     } as Record<string, string>)[type] ?? type;
+  }
+
+  niveauLabel(niveau: 'DECLINAISON' | 'VARIANTE'): string {
+    return niveau === 'DECLINAISON' ? 'Déclinaison' : 'Variante';
   }
 }

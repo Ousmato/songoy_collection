@@ -33,12 +33,29 @@
                 <i class="fa-solid fa-xmark" aria-hidden="true"></i>
               </button>
             </div>
+            <p class="model-name">
+              {{ line.modele.nom }}
+              @if (line.modele.marque) {
+                <span> · {{ line.modele.marque }}</span>
+              }
+            </p>
+            <div class="attribute-chips compact">
+              @for (entry of (line.declinaison.attributs | keyvalue); track entry.key) {
+                <span>
+                  @if (attributeLabel(line, entry.key); as label) { <b>{{ label }} :</b> }
+                  {{ entry.value }}
+                </span>
+              }
+            </div>
             <p class="reference" [title]="line.variant.reference">
               {{ line.variant.reference }}
             </p>
             <div class="attribute-chips compact">
               @for (entry of (line.variant.attributs | keyvalue); track entry.key) {
-                <span>{{ entry.value }}</span>
+                <span>
+                  @if (attributeLabel(line, entry.key); as label) { <b>{{ label }} :</b> }
+                  {{ entry.value }}
+                </span>
               }
             </div>
             <p class="unit-price">

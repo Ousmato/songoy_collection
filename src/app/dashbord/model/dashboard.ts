@@ -45,8 +45,18 @@ export interface DashboardAlerteStockDto {
   articleId: number;
   article: string;
   categorie: string;
+  modele: string;
+  marque: string | null;
   reference: string;
+  attributsDeclinaison: DashboardAlerteStockAttributDto[];
+  attributsVariante: DashboardAlerteStockAttributDto[];
   unite: CategoryMesure;
   quantiteRestante: number;
   statut: string;
+}
+
+export interface DashboardAlerteStockAttributDto {
+  id: number;
+  label: string;
+  value: string;
 }

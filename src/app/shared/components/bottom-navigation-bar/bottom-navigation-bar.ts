@@ -31,6 +31,7 @@ export class BottomNavigationBar {
       '/admin/list-articles',
       '/admin/add-article',
       '/admin/article-variants',
+      '/admin/articles',
       '/admin/add-achat',
       '/admin/historique-achat',
       '/admin/list-ventes',

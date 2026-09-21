@@ -182,7 +182,33 @@
             </span>
             <div class="alert-row-info">
               <p class="alert-row-name">{{ a.article }}</p>
-              <p class="alert-row-sku">SKU {{ a.reference }} &middot; Stock restant</p>
+              <p class="alert-row-model">
+                {{ a.modele }}
+                @if (a.marque) {
+                  <span>&middot; {{ a.marque }}</span>
+                }
+              </p>
+              @if (a.attributsDeclinaison.length || a.attributsVariante.length) {
+                <div class="alert-row-attributes">
+                  @if (a.attributsDeclinaison.length) {
+                    <span class="alert-row-attribute-group">
+                      <span class="alert-row-attribute-level">Déclinaison</span>
+                      @for (attribute of a.attributsDeclinaison; track attribute.id) {
+                        <span class="alert-row-attribute">{{ attribute.label }} : {{ attribute.value }}</span>
+                      }
+                    </span>
+                  }
+                  @if (a.attributsVariante.length) {
+                    <span class="alert-row-attribute-group">
+                      <span class="alert-row-attribute-level">Variante</span>
+                      @for (attribute of a.attributsVariante; track attribute.id) {
+                        <span class="alert-row-attribute">{{ attribute.label }} : {{ attribute.value }}</span>
+                      }
+                    </span>
+                  }
+                </div>
+              }
+              <p class="alert-row-sku">Réf. {{ a.reference }} &middot; Stock restant</p>
             </div>
             <span class="alert-row-count" [ngClass]="'alert-row-count-' + a.statut">
               {{ formatQuantity(a.quantiteRestante) }} {{ pluralizeUnit(unitLabel(a.unite), a.quantiteRestante) }}

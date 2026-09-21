@@ -26,6 +26,7 @@ export interface ArticleAttributeDto {
   type: string;
   obligatoire: boolean;
   ordre: number | null;
+  niveau: 'DECLINAISON' | 'VARIANTE';
 }
 
 export interface ArticleContextDto {
@@ -36,16 +37,49 @@ export interface ArticleContextDto {
   attributes: ArticleAttributeDto[];
 }
 
+export interface ModeleArticleDto {
+  id: number;
+  articleId: number;
+  nom: string;
+  marque: string | null;
+  matiere: string | null;
+}
+
+export interface ModeleArticleRequestDto {
+  nom: string;
+  marque: string | null;
+  matiere: string | null;
+}
+
+export interface DeclinaisonDto {
+  id: number;
+  modeleArticleId: number;
+  urlImage: string | null;
+  referenceCommune: string;
+  variants: ArticleVariantDto[];
+  attributs: Record<number, string>;
+  caracteristiquesModifiables: boolean;
+}
+
+export interface DeclinaisonRequestDto {
+  attributs: Record<number, string>;
+}
+
 export interface ArticleVariantRequestDto {
   reference: string;
   prixVente: number;
   attributs: Record<number, string>;
-  /** Fichier image à envoyer uniquement lorsqu'une nouvelle image est choisie. */
-  image?: File | null;
 }
 
-export interface ArticleVariantDto extends ArticleVariantRequestDto {
+export interface ArticleVariantPriceUpdateRequestDto {
+  prixVente: number;
+}
+
+export interface ArticleVariantDto {
   id: number;
+  reference: string;
+  prixVente: number;
   quantity: number;
+  attributs: Record<number, string>;
   urlImage?: string | null;
 }

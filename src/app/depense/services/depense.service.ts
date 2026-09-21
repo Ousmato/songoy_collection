@@ -4,7 +4,13 @@ import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { httpResponse, ResponseMessageService } from '../../shared/utils/response.message';
-import { DepenseHistoriqueDto, DepenseRequest } from '../model/depense.model';
+import {
+  DepenseHistoriqueDto,
+  DepenseRequest,
+  HistoriqueSalaireFilters,
+  SalaireHistoriqueDto,
+  SalaireStatistiquesDto,
+} from '../model/depense.model';
 
 @Injectable({ providedIn: 'root' })
 export class DepenseService {
@@ -33,5 +39,33 @@ export class DepenseService {
     return this.http
       .get<DepenseHistoriqueDto[]>(`${this.baseUrl}/get-depenses/${adminId}`, { params })
       .pipe(finalize(() => this.response.closeLoading()));
+  }
+
+  getHistoriqueSalaires(
+    adminId: number,
+    filters: HistoriqueSalaireFilters = {},
+  ): Observable<SalaireHistoriqueDto[]> {
+    this.response.showLoading('Chargement des paiements de salaires...');
+
+    let params = new HttpParams();
+    if (filters.entite) params = params.set('entite', filters.entite);
+    if (filters.periodeSalaire) params = params.set('periodeSalaire', filters.periodeSalaire);
+
+    return this.http
+      .get<SalaireHistoriqueDto[]>(`${this.baseUrl}/get-historique-salaires/${adminId}`, { params })
+      .pipe(finalize(() => this.response.closeLoading()));
+  }
+
+  getStatistiquesSalaires(
+    adminId: number,
+    filters: HistoriqueSalaireFilters,
+  ): Observable<SalaireStatistiquesDto> {
+    let params = new HttpParams().set('periodeSalaire', filters.periodeSalaire ?? '');
+    if (filters.entite) params = params.set('entite', filters.entite);
+
+    return this.http.get<SalaireStatistiquesDto>(
+      `${this.baseUrl}/get-statistiques-salaires/${adminId}`,
+      { params },
+    );
   }
 }

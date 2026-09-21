@@ -133,30 +133,86 @@
 
                 <div class="product-details">
                   @if (selections()[article.id]; as selection) {
-                    @if (selection.loading) {
-                      <p class="muted" role="status">Chargement des variantes…</p>
+                    @if (selection.loadingModeles) {
+                      <p class="muted" role="status">Chargement des modèles…</p>
                     } @else if (selection.error) {
                       <p class="inline-error" role="alert">{{ selection.error }}</p>
-                      <button type="button" class="secondary-button" (click)="loadVariants(article)">
+                      <button type="button" class="secondary-button" (click)="retrySelection(article)">
                         Réessayer
                       </button>
-                    } @else if (!selection.variants.length) {
-                      <p class="muted">Aucune variante disponible.</p>
                     } @else {
-                      <label class="field">
-                        Variante
-                        <select
-                          [ngModel]="selection.selectedId"
-                          (ngModelChange)="selectVariant(article.id, $event)"
-                        >
-                          <option [ngValue]="null">Choisir une variante</option>
-                          @for (variant of selection.variants; track variant.id) {
-                            <option [ngValue]="variant.id" [disabled]="variant.quantity <= 0">
-                              {{ variant.reference }}{{ variant.quantity <= 0 ? ' · Épuisée' : '' }}
-                            </option>
+                      @if (!selection.modeles.length) {
+                        <p class="muted">Aucun modèle disponible pour cet article.</p>
+                      } @else {
+                        <label class="field">
+                          Modèle
+                          <select
+                            [ngModel]="selection.selectedModeleId"
+                            (ngModelChange)="selectModele(article.id, $event)"
+                          >
+                            <option [ngValue]="null">Choisir un modèle</option>
+                            @for (modele of selection.modeles; track modele.id) {
+                              <option [ngValue]="modele.id">{{ modeleLabel(modele) }}</option>
+                            }
+                          </select>
+                        </label>
+                      }
+
+                      @if (selection.loadingDeclinaisons) {
+                        <p class="muted" role="status">Chargement des déclinaisons…</p>
+                      } @else if (selection.selectedModeleId !== null && selection.modeles.length && !selection.declinaisons.length) {
+                        <p class="muted">Aucune déclinaison disponible pour ce modèle.</p>
+                      } @else if (selection.declinaisons.length) {
+                        <label class="field cascade-field">
+                          Déclinaison
+                          <select
+                            [ngModel]="selection.selectedDeclinaisonId"
+                            (ngModelChange)="selectDeclinaison(article.id, $event)"
+                          >
+                            <option [ngValue]="null">Choisir une déclinaison</option>
+                            @for (declinaison of selection.declinaisons; track declinaison.id) {
+                              <option [ngValue]="declinaison.id">
+                                {{ declinaisonLabel(article.id, declinaison) }}
+                              </option>
+                            }
+                          </select>
+                        </label>
+                      }
+
+                      @if (selection.loadingVariants) {
+                        <p class="muted" role="status">Chargement des variantes…</p>
+                      } @else if (selection.selectedDeclinaisonId !== null && !selection.variants.length) {
+                        <p class="muted">Aucune variante disponible pour cette déclinaison.</p>
+                      } @else if (selection.variants.length) {
+                        <label class="field cascade-field">
+                          Variante
+                          <select
+                            [ngModel]="selection.selectedVariantId"
+                            (ngModelChange)="selectVariant(article.id, $event)"
+                          >
+                            <option [ngValue]="null">Choisir une variante</option>
+                            @for (variant of selection.variants; track variant.id) {
+                              <option [ngValue]="variant.id" [disabled]="variant.quantity <= 0">
+                                {{ variant.reference }}{{ variant.quantity <= 0 ? ' · Épuisée' : '' }}
+                              </option>
+                            }
+                          </select>
+                        </label>
+                      }
+
+                      @if (selectedDeclinaison(article.id); as declinaison) {
+                        <div class="attribute-chips">
+                          @for (entry of (declinaison.attributs | keyvalue); track entry.key) {
+                            <span>
+                              @if (attributeLabel(article.id, entry.key); as label) {
+                                <b>{{ label }}</b>
+                              }
+                              {{ entry.value }}
+                            </span>
                           }
-                        </select>
-                      </label>
+                        </div>
+                      }
+
                       @if (selectedVariant(article.id); as variant) {
                         <div class="attribute-chips">
                           @for (entry of (variant.attributs | keyvalue); track entry.key) {
@@ -181,9 +237,9 @@
                       type="button"
                       class="variant-button"
                       [disabled]="article.quantity <= 0"
-                      (click)="loadVariants(article)"
+                      (click)="loadModeles(article)"
                     >
-                      Choisir une variante
+                      Choisir un modèle
                       <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
                     </button>
                   }

@@ -1,4 +1,4 @@
-import { Entite } from '../../admin/model/admin.enum';
+import { Entite, PersonnelRole } from '../../admin/model/admin.enum';
 import { ModePaiement, ModePaiementKey, MotifDepense, MotifDepenseAtelierKey } from '../../shared/model/util.enum';
 
 /** Contrat envoyé par le formulaire de création d'une dépense. */
@@ -9,6 +9,7 @@ export interface DepenseRequest {
   libelle: string;
   montant: number;
   modePaiement: ModePaiementKey;
+  periodeSalaire?: string;
   personnelBeneficiaireId?: number;
   fournisseurId?: number;
   nomFournisseur?: string;
@@ -35,4 +36,33 @@ export interface DepenseHistoriqueDto {
   fournisseur?: string;
 
   libelle?: string;
+}
+
+export interface SalaireHistoriqueDto {
+  id: number;
+  datePaiement: string;
+  periodeSalaire?: string;
+  entite: keyof typeof Entite;
+  montant: number;
+  modePaiement: ModePaiementKey;
+  personnelBeneficiaireId?: number;
+  personnelBeneficiaire?: string;
+  roleBeneficiaire?: keyof typeof PersonnelRole;
+  personnelResponsableId?: number;
+  personnelResponsable?: string;
+  libelle?: string;
+}
+
+/** Indicateurs de paie calculés pour le mois rémunéré sélectionné. */
+export interface SalaireStatistiquesDto {
+  periodeSalaire: string;
+  entite?: keyof typeof Entite;
+  montantVerse: number;
+  nombrePersonnesPayees: number;
+  nombrePersonnesNonPayees: number;
+}
+
+export interface HistoriqueSalaireFilters {
+  entite?: keyof typeof Entite;
+  periodeSalaire?: string;
 }

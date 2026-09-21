@@ -4,7 +4,18 @@ import { finalize } from "rxjs/internal/operators/finalize";
 import { httpResponse, ResponseMessageService } from "../../shared/utils/response.message";
 import { Observable } from "rxjs/internal/Observable";
 import { ArticleType, ArticleTypeResponse } from "../models/article-type";
-import { ArticleContextDto, ArticleRequestDto, ArticleVariantDto, ArticleVariantRequestDto, SimpleArticleResponse } from "../models/article.model";
+import {
+    ArticleContextDto,
+    ArticleRequestDto,
+    ArticleVariantDto,
+    ArticleVariantPriceUpdateRequestDto,
+    ArticleVariantRequestDto,
+    DeclinaisonDto,
+    DeclinaisonRequestDto,
+    ModeleArticleDto,
+    ModeleArticleRequestDto,
+    SimpleArticleResponse,
+} from "../models/article.model";
 import { CouleurResponse } from "../models/article-couleur.model";
 import { environment } from "../../../environments/environment";
 
@@ -37,42 +48,122 @@ export class ArticleService {
         );
        }
 
-       addArticleVariant(articleId: number, variant: ArticleVariantRequestDto, idAdmin: number): Observable<httpResponse> {
-        return this.http.post<httpResponse>(
-            `${this.baseUrl}/add-article-variant/${articleId}/${idAdmin}`,
-            this.variantPayload(variant)
-        );
+       loadModelesArticle(articleId: number, idAdmin: number): Observable<ModeleArticleDto[]> {
+        this.loading.showLoading('Chargement des modèles...');
+        return this.http.get<ModeleArticleDto[]>(
+            `${this.baseUrl}/get-modeles-article/${articleId}/${idAdmin}`
+        ).pipe(finalize(() => this.loading.closeLoading()));
        }
 
-       updateArticleVariant(variantId: number, variant: ArticleVariantRequestDto, idAdmin: number): Observable<httpResponse> {
+       addModeleArticle(articleId: number, request: ModeleArticleRequestDto, idAdmin: number): Observable<ModeleArticleDto> {
+        this.loading.showLoading('Enregistrement du modèle...');
+        return this.http.post<ModeleArticleDto>(
+            `${this.baseUrl}/add-modele-article/${articleId}/${idAdmin}`,
+            request
+        ).pipe(finalize(() => this.loading.closeLoading()));
+       }
+
+       addDeclinaison(
+        modeleArticleId: number,
+        request: DeclinaisonRequestDto,
+        idAdmin: number,
+        image?: File | null
+       ): Observable<DeclinaisonDto> {
+        const formData = new FormData();
+        formData.append('request', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+        if (image) {
+            formData.append('image', image, image.name);
+        }
+
+        this.loading.showLoading('Enregistrement de la déclinaison...');
+        return this.http.post<DeclinaisonDto>(
+            `${this.baseUrl}/add-declinaison/${modeleArticleId}/${idAdmin}`,
+            formData
+        ).pipe(finalize(() => this.loading.closeLoading()));
+       }
+
+       updateDeclinaison(
+        declinaisonId: number,
+        request: DeclinaisonRequestDto | null,
+        idAdmin: number,
+        image?: File | null
+       ): Observable<DeclinaisonDto> {
+        const formData = new FormData();
+        if (request) {
+            formData.append('request', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+        }
+        if (image) {
+            formData.append('image', image, image.name);
+        }
+
+        this.loading.showLoading('Modification de la declinaison...');
+        return this.http.put<DeclinaisonDto>(
+            `${this.baseUrl}/update-declinaison/${declinaisonId}/${idAdmin}`,
+            formData
+        ).pipe(finalize(() => this.loading.closeLoading()));
+       }
+
+       loadDeclinaisonsModele(modeleArticleId: number, idAdmin: number): Observable<DeclinaisonDto[]> {
+        this.loading.showLoading('Chargement des déclinaisons...');
+        return this.http.get<DeclinaisonDto[]>(
+            `${this.baseUrl}/get-declinaisons-modele/${modeleArticleId}/${idAdmin}`
+        ).pipe(finalize(() => this.loading.closeLoading()));
+       }
+
+       loadDeclinaisonVariants(declinaisonId: number, idAdmin: number): Observable<ArticleVariantDto[]> {
+        this.loading.showLoading('Chargement des variantes...');
+        return this.http.get<ArticleVariantDto[]>(
+            `${this.baseUrl}/get-declinaison-variants/${declinaisonId}/${idAdmin}`
+        ).pipe(finalize(() => this.loading.closeLoading()));
+       }
+
+       addArticleVariant(
+        declinaisonId: number,
+        request: ArticleVariantRequestDto,
+        idAdmin: number
+       ): Observable<httpResponse> {
+        this.loading.showLoading('Enregistrement de la variante...');
+        return this.http.post<httpResponse>(
+            `${this.baseUrl}/add-article-variant/${declinaisonId}/${idAdmin}`,
+            request
+        ).pipe(finalize(() => this.loading.closeLoading()));
+       }
+
+       updateArticleVariantPrice(
+        variantId: number,
+        idAdmin: number,
+        request: ArticleVariantPriceUpdateRequestDto
+       ): Observable<httpResponse> {
+        const formData = new FormData();
+        formData.append('request', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+
+        this.loading.showLoading('Modification du prix de la variante...');
         return this.http.put<httpResponse>(
             `${this.baseUrl}/update-article-variant/${variantId}/${idAdmin}`,
-            this.variantPayload(variant)
-        );
+            formData
+        ).pipe(finalize(() => this.loading.closeLoading()));
        }
 
-       /** Le DTO est toujours transmis en multipart ; l'image reste facultative. */
-       private variantPayload(variant: ArticleVariantRequestDto): FormData {
-        const request = {
-            reference: variant.reference,
-            prixVente: variant.prixVente,
-            attributs: variant.attributs,
-        };
+       updateArticleVariant(
+        variantId: number,
+        idAdmin: number,
+        request: ArticleVariantRequestDto
+       ): Observable<httpResponse> {
         const formData = new FormData();
-        formData.append(
-            'request',
-            new Blob([JSON.stringify(request)], { type: 'application/json' })
-        );
-        if (variant.image) {
-            formData.append('image', variant.image, variant.image.name);
-        }
-        return formData;
+        formData.append('request', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+
+        this.loading.showLoading('Modification de la variante...');
+        return this.http.put<httpResponse>(
+            `${this.baseUrl}/update-article-variant/${variantId}/${idAdmin}`,
+            formData
+        ).pipe(finalize(() => this.loading.closeLoading()));
        }
 
-       loadArticleVariants(articleId: number, idAdmin: number): Observable<ArticleVariantDto[]> {
-        return this.http.get<ArticleVariantDto[]>(
-            `${this.baseUrl}/get-article-variants/${articleId}/${idAdmin}`
-        );
+       deleteArticleVariant(variantId: number, idAdmin: number): Observable<httpResponse> {
+        this.loading.showLoading('Suppression de la variante...');
+        return this.http.delete<httpResponse>(
+            `${this.baseUrl}/delete-article-variant/${variantId}/${idAdmin}`
+        ).pipe(finalize(() => this.loading.closeLoading()));
        }
 
        addArticleType(articleType: ArticleType, idAdmin: number) : Observable<httpResponse>{

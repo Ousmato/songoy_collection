@@ -248,6 +248,10 @@
   font-size: 12px;
 }
 
+.cascade-field {
+  margin-top: 10px;
+}
+
 .variant-button {
   display: flex;
   justify-content: space-between;

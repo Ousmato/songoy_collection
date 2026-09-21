@@ -1,0 +1,87 @@
+<form class="declination-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="form-heading">
+    <span class="panel-icon" aria-hidden="true">
+      <i class="fa-solid" [class.fa-pen-to-square]="declinaison" [class.fa-plus]="!declinaison"></i>
+    </span>
+    <div>
+      <h3>{{ declinaison ? 'Modifier la ' + entityLabel : 'Ajouter une ' + entityLabel }}</h3>
+      <p>{{ declinaison ? 'Mettez &#224; jour son image et, si autoris&#233;, ses caract&#233;ristiques.' : 'Choisissez ses caract&#233;ristiques communes, comme la couleur, puis ajoutez une image si besoin.' }}</p>
+    </div>
+  </div>
+
+  @if (declinaison && !characteristicsEditable) {
+    <p class="locked-message" role="status">
+      <i class="fa-solid fa-lock" aria-hidden="true"></i>
+      Cette {{ entityLabel }} poss&#232;de d&#233;j&#224; des variantes : ses caract&#233;ristiques sont verrouill&#233;es pour garder leurs r&#233;f&#233;rences et leurs historiques coh&#233;rents. Vous pouvez toujours remplacer son image.
+    </p>
+  }
+
+  @if (attributes.length) {
+    <div class="attribute-grid" formGroupName="attributs">
+      @for (attribute of attributes; track attribute.id) {
+        <label class="form-field" [for]="'declinaison-attribute-' + attribute.id">
+          <span>{{ attribute.label }} <em>{{ attribute.obligatoire ? 'Obligatoire' : 'Facultative' }}</em></span>
+          <input
+            [id]="'declinaison-attribute-' + attribute.id"
+            [type]="inputType(attribute.type)"
+            [formControlName]="attribute.id.toString()"
+            [required]="attribute.obligatoire"
+            [attr.maxlength]="attribute.type === 'TEXT' || attribute.type === 'SELECT' ? 255 : null"
+            [readOnly]="declinaison !== null && !characteristicsEditable"
+            autocomplete="off"
+          />
+          @if (control(attribute.id)?.touched && control(attribute.id)?.hasError('required')) {
+            <small class="field-error">Cette caract&#233;ristique est obligatoire.</small>
+          }
+        </label>
+      }
+    </div>
+  } @else {
+    <p class="form-hint">Aucune caract&#233;ristique n'est configur&#233;e pour cette {{ entityLabel }} dans cette cat&#233;gorie.</p>
+  }
+
+  <div class="image-field">
+    <label class="form-field" for="declinaison-image">
+      <span>{{ declinaison ? 'Remplacer image' : 'Image' }} <small>Facultative</small></span>
+      <input
+        #imageInput
+        id="declinaison-image"
+        class="file-input"
+        type="file"
+        accept="image/*,.heic,.heif"
+        [disabled]="saving || blocked || processingImage()"
+        (change)="onImageSelected($event)"
+      />
+    </label>
+    @if (processingImage()) {
+      <span class="form-hint" role="status"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Preparation de l image...</span>
+    }
+    @if (imageError) { <small class="field-error" role="alert">{{ imageError }}</small> }
+    @if (imagePreview; as preview) {
+      <div class="image-preview">
+        <img [src]="preview" [alt]="'Aperçu image ' + entityLabel" />
+        <button type="button" class="remove-image-button" aria-label="Retirer image selectionnee" [disabled]="saving" (click)="removeImage(imageInput)">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+    } @else if (declinaison && currentImageUrl) {
+      <div class="image-preview">
+        <img [src]="currentImageUrl" [alt]="'Image actuelle ' + entityLabel" />
+      </div>
+    }
+  </div>
+
+  <div class="form-actions">
+    <button class="primary-button" type="submit" [disabled]="saving || blocked || processingImage() || (declinaison && !characteristicsEditable && !imageFile)">
+      @if (saving) {
+        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Enregistrement...
+      } @else {
+        <i class="fa-solid fa-check" aria-hidden="true"></i>
+        {{ declinaison ? 'Enregistrer les modifications' : 'Enregistrer la ' + entityLabel }}
+      }
+    </button>
+    @if (declinaison) {
+      <button class="secondary-button" type="button" [disabled]="saving || processingImage()" (click)="cancel.emit()">Annuler</button>
+    }
+  </div>
+</form>

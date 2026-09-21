@@ -149,6 +149,26 @@
   transition: width .6s cubic-bezier(.22,.9,.3,1);
 }
 .cat-card-actions { display: inline-flex; gap: 0.3rem; flex-shrink: 0; }
+.category-name-editor { display: grid; gap: .4rem; }
+.category-name-editor label { color: var(--sc-gray-600, #5E534A); font: 600 .76rem var(--sc-font-sans, sans-serif); }
+.category-name-editor input {
+  box-sizing: border-box; width: 100%; min-width: 0; min-height: 2.55rem;
+  padding: .55rem .7rem; border: 1px solid var(--sc-gold-primary, #A8892F);
+  border-radius: .6rem; background: #fff; color: var(--sc-black-deep, #1F1A16);
+  font: .88rem var(--sc-font-sans, sans-serif); outline: none;
+  box-shadow: 0 0 0 3px rgba(168,137,47,.1);
+}
+.category-action-button {
+  display: inline-flex; min-height: 2rem; align-items: center; justify-content: center; gap: .35rem;
+  padding: .35rem .6rem; border: 1px solid rgba(74,124,89,.22); border-radius: .6rem;
+  background: rgba(74,124,89,.08); color: #376346; font: 600 .72rem var(--sc-font-sans, sans-serif);
+  white-space: nowrap; cursor: pointer;
+}
+.category-action-button:hover:not(:disabled) { background: rgba(74,124,89,.15); }
+.category-action-button:disabled, .sc-btn-sm:disabled { cursor: not-allowed; opacity: .48; transform: none; }
+.sc-btn-sm:focus-visible, .category-action-button:focus-visible {
+  outline: 3px solid rgba(168,137,47,.3); outline-offset: 2px;
+}
 
 /* ---------- Buttons utilitaires ---------- */
 .sc-btn-sm {

@@ -16,10 +16,17 @@ export interface CategoryAttributeRequestDto {
   key: string;
   label: string;
   type: string;
+  niveau: CategoryAttributeLevel;
   obligatoire: boolean;
   ordre: number;
   categoryIds: number[]
 }
+
+export interface CategoryNameUpdateRequestDto {
+  nom: string;
+}
+
+export type CategoryAttributeLevel = 'DECLINAISON' | 'VARIANTE';
 
 export interface CategoryAttributeDto {
   categoryId: number
@@ -32,6 +39,7 @@ export interface CategoryAttributeItemDto {
   key: string;
   label: string;
   type: string;
+  niveau: CategoryAttributeLevel;
   obligatoire: boolean;
   ordre: number | null;
 }

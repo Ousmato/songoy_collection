@@ -1,0 +1,216 @@
+<main class="article-versions-page">
+  <app-floating-back-button [useHistory]="true" fallbackUrl="/admin/article-list" />
+
+  @if (loading()) {
+    <section class="page-state" role="status">
+      <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+      <p>Chargement de l’article…</p>
+    </section>
+  } @else if (error() && !context()) {
+    <section class="page-state page-state-error" role="alert">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <h1>Article indisponible</h1>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="loadPage()">Réessayer</button>
+    </section>
+  } @else if (context(); as article) {
+    <header class="versions-header">
+      <div>
+        <p class="eyebrow">Catalogue <span aria-hidden="true">/</span> Article</p>
+        <h1>Déclinaisons de l’article</h1>
+        <p>Une déclinaison regroupe les options communes, comme la couleur, le motif et son image.</p>
+      </div>
+      <aside class="article-summary" aria-label="Article sélectionné">
+        <span class="article-summary-icon" aria-hidden="true"><i class="fa-solid fa-shirt"></i></span>
+        <span><small>Article sélectionné</small><strong>{{ article.categoryNom }} · {{ article.typeNom }}</strong></span>
+      </aside>
+    </header>
+
+    <section class="model-picker" aria-labelledby="model-picker-title">
+      <div>
+        <p class="panel-kicker">Étape 2</p>
+        <h2 id="model-picker-title">Choisir le modèle</h2>
+        <p>Les déclinaisons appartiennent à un modèle. Sélectionnez celui à organiser.</p>
+      </div>
+      <select2
+        [ngModel]="selectedModeleId() ?? ''"
+        (ngModelChange)="selectModele($event)"
+        [ngModelOptions]="{ standalone: true }"
+        [data]="modeleOptions()"
+        placeholder="Choisir un modèle"
+        noResultMessage="Aucun modèle"
+        [disabled]="loadingModeles() || saving()"
+      />
+    </section>
+
+    @if (error() && context()) {
+      <div class="inline-error" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    @if (loadingModeles()) {
+      <section class="content-state" role="status"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement des modèles…</section>
+    } @else if (!modeles().length) {
+      <section class="content-state empty-state">
+        <i class="fa-solid fa-cube" aria-hidden="true"></i>
+        <h2>Ajoutez d’abord un modèle</h2>
+        <p>Un modèle est nécessaire avant de pouvoir organiser ses déclinaisons.</p>
+      </section>
+    } @else if (selectedModele(); as modele) {
+      <section class="selected-model" aria-label="Modèle sélectionné">
+        <span aria-hidden="true"><i class="fa-solid fa-cube"></i></span>
+        <div class="selected-model-main"><small>Modèle sélectionné</small><strong>{{ modele.nom }}</strong></div>
+        @if (modele.marque) { <span class="model-detail"><small>Marque</small>{{ modele.marque }}</span> }
+        @if (modele.matiere) { <span class="model-detail"><small>Matière</small>{{ modele.matiere }}</span> }
+        <label class="variants-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <span class="sr-only">Rechercher une déclinaison ou une variante</span>
+          <input type="search" [value]="search()" (input)="search.set($any($event.target).value)" placeholder="Rechercher par couleur, référence, pointure…" />
+          @if (search()) { <button type="button" aria-label="Effacer la recherche" (click)="search.set('')"><i class="fa-solid fa-xmark"></i></button> }
+        </label>
+      </section>
+
+      <section class="versions-workspace">
+        <section class="versions-panel" aria-labelledby="versions-list-title">
+          <div class="panel-heading">
+            <div>
+              <p class="panel-kicker">Déclinaisons enregistrées</p>
+              <h2 id="versions-list-title">Couleurs, motifs et images</h2>
+              <p>Chaque déclinaison pourra ensuite contenir ses propres variantes.</p>
+            </div>
+            <div class="panel-actions"><button type="button" class="add-button" (click)="openVersionModal()"><i class="fa-solid fa-plus"></i> Ajouter une déclinaison</button>@if (!loadingVersions()) { <span class="count-badge">{{ filteredVersions().length }}</span> }</div>
+          </div>
+
+          @if (loadingVersions()) {
+            <div class="list-state" role="status"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement des déclinaisons…</div>
+          } @else if (filteredVersions().length) {
+            <div class="versions-list">
+              @for (version of filteredVersions(); track version.id) {
+                <article class="version-card" [class.is-editing]="editingVersionId() === version.id">
+                  <div class="version-overview">
+                  @if (displayImageUrl(version.urlImage); as imageUrl) {
+                    @if (!failedImages().has(imageUrl)) {
+                      <img class="version-image" [src]="imageUrl" alt="Image de la déclinaison" (error)="onImageError(imageUrl)" />
+                    } @else { <span class="version-image image-fallback"><i class="fa-solid fa-image"></i></span> }
+                  } @else { <span class="version-image image-fallback"><i class="fa-solid fa-image"></i></span> }
+                  <div class="version-content">
+                    <div class="version-title">
+                      <h3>{{ version.referenceCommune }}</h3>
+                    </div>
+                    <div class="attribute-list">
+                      @for (entry of versionAttributeEntries(version); track entry.label) { <span><small>{{ entry.label }}</small>{{ entry.value }}</span> }
+                      @if (!versionAttributeEntries(version).length) { <span class="no-attribute">Sans caractéristique commune</span> }
+                    </div>
+                  </div>
+                  <div class="card-actions"><button type="button" class="edit-button" [disabled]="saving() || processingImage()" (click)="editVersion(version)"><i class="fa-solid fa-pen"></i> Modifier</button><button type="button" class="add-variant-button" (click)="openVariantModal(version)"><i class="fa-solid fa-plus"></i> Variante</button></div>
+                  </div>
+                  <div class="nested-variants">
+                    <span class="nested-label">Variantes</span>
+                    @if (version.variants.length) {
+                      <div class="nested-variant-list">
+                        @for (variant of version.variants; track variant.id) {
+                          <article class="variant-tile">
+                            <div class="variant-heading">
+                              <div class="variant-details">
+                                @for (attribute of variantAttributeEntries(variant); track attribute.label) {
+                                  <span><small>{{ attribute.label }}</small><strong>{{ attribute.value }}</strong></span>
+                                } @empty {
+                                  <span class="variant-standard"><small>Variante</small><strong>Standard</strong></span>
+                                }
+                              </div>
+
+                              <div class="variant-actions">
+                                <button
+                                  type="button"
+                                  class="variant-action variant-action-price"
+                                  title="Modifier la variante"
+                                  aria-label="Modifier cette variante"
+                                  [disabled]="savingVariant() || updatingVariantId() !== null || deletingVariantId() !== null"
+                                  (click)="editVariant(variant)"
+                                >
+                                  <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                </button>
+                                <button
+                                  type="button"
+                                  class="variant-action variant-action-delete"
+                                  title="Supprimer la variante"
+                                  [attr.aria-label]="'Supprimer la variante ' + variant.reference"
+                                  [disabled]="savingVariant() || updatingVariantId() !== null || deletingVariantId() !== null"
+                                  (click)="deleteVariant(variant)"
+                                >
+                                  @if (deletingVariantId() === variant.id) {
+                                    <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                                  } @else {
+                                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                  }
+                                </button>
+                              </div>
+                            </div>
+
+                            <div class="variant-summary">
+                              <span class="variant-price">{{ variant.prixVente | number:'1.0-0' }} <small>FCFA</small></span>
+                              <span class="variant-stock" [class.out-of-stock]="variant.quantity === 0">
+                                <small>Stock</small>
+                                <strong>{{ variant.quantity }}</strong>
+                              </span>
+                            </div>
+                          </article>
+                        }
+                      </div>
+                    } @else { <small>Aucune variante</small> }
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="empty-versions"><i class="fa-regular fa-folder-open" aria-hidden="true"></i><h3>{{ search() ? 'Aucun résultat' : 'Aucune déclinaison enregistrée' }}</h3><p>{{ search() ? 'Essayez une autre couleur, référence ou caractéristique.' : 'Ajoutez une première déclinaison depuis le formulaire.' }}</p></div>
+          }
+        </section>
+
+      </section>
+    } @else {
+      <section class="content-state">
+        <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+        <h2>Sélectionnez un modèle</h2>
+        <p>Choisissez le modèle dont vous souhaitez organiser les déclinaisons.</p>
+      </section>
+    }
+  }
+</main>
+
+@if (versionModalOpen()) { <div class="form-modal" role="dialog" aria-modal="true" aria-label="Déclinaison"><div class="modal-backdrop" (click)="cancelVersionEdit()"></div><div class="modal-content"><button type="button" class="modal-close" aria-label="Fermer" [disabled]="saving() || processingImage()" (click)="cancelVersionEdit()"><i class="fa-solid fa-xmark"></i></button><app-declinaison-form entityLabel="déclinaison" [attributes]="versionAttributes()" [declinaison]="editingVersion()" [characteristicsEditable]="editingVersion()?.caracteristiquesModifiables ?? true" [currentImageUrl]="displayImageUrl(editingVersion()?.urlImage)" [saving]="saving()" [blocked]="loadingVersions() || processingImage()" [resetKey]="formResetKey()" (save)="saveVersion($event)" (cancel)="cancelVersionEdit()" (imageProcessingChange)="onImageProcessingChange($event)" /></div></div> }
+@if (variantModalVersion()) { <div class="form-modal" role="dialog" aria-modal="true" aria-label="Nouvelle variante"><div class="modal-backdrop" (click)="closeVariantModal()"></div><div class="modal-content"><button type="button" class="modal-close" aria-label="Fermer" [disabled]="savingVariant()" (click)="closeVariantModal()"><i class="fa-solid fa-xmark"></i></button><app-variant-form [attributes]="variantAttributes()" [referenceParts]="variantReferenceParts()" [saving]="savingVariant()" [blocked]="false" [resetKey]="variantFormResetKey()" (save)="saveVariant($event)" (cancel)="closeVariantModal()" /></div></div> }
+
+@if (editingVariant(); as variant) {
+  <div class="form-modal" role="dialog" aria-modal="true" aria-label="Modifier la variante">
+    <div class="modal-backdrop" (click)="cancelVariantEdit()"></div>
+    <div class="modal-content">
+      <button type="button" class="modal-close" aria-label="Fermer" [disabled]="updatingVariantId() !== null" (click)="cancelVariantEdit()"><i class="fa-solid fa-xmark"></i></button>
+      <app-variant-form
+        [variant]="variant"
+        [attributes]="variantAttributes()"
+        [referenceParts]="editingVariantReferenceParts()"
+        [saving]="updatingVariantId() === variant.id"
+        [blocked]="false"
+        (save)="updateVariant($event)"
+        (cancel)="cancelVariantEdit()"
+      />
+    </div>
+  </div>
+}
+
+@if (pendingVariantDeletion(); as variant) {
+  <app-confirm-modal
+    [open]="true"
+    title="Supprimer cette variante ?"
+    [message]="'Supprimer la variante « ' + variant.reference + ' » ? Cette action est définitive. La suppression sera refusée si elle possède un mouvement, un lot ou un historique d’achat ou de vente.'"
+    confirmLabel="Supprimer"
+    busyLabel="Suppression…"
+    [destructive]="true"
+    [busy]="deletingVariantId() === variant.id"
+    (confirmed)="confirmVariantDeletion()"
+    (cancelled)="cancelVariantDeletion()"
+  />
+}

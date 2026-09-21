@@ -1,0 +1,40 @@
+<section class="panel create-panel" aria-labelledby="create-model-title">
+  <div class="panel-heading">
+    <span class="panel-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+    <div>
+      <h2 id="create-model-title">Ajouter un modèle</h2>
+      <p>Créez le modèle commercial commun à ses différentes déclinaisons.</p>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <label class="form-field" for="modele-nom">
+      <span>Nom du modèle <em>Obligatoire</em></span>
+      <input id="modele-nom" type="text" formControlName="nom" placeholder="Ex. Gucci X" autocomplete="off" maxlength="255" />
+      @if (form.controls.nom.touched && form.controls.nom.hasError('required')) {
+        <small class="field-error">Le nom du modèle est obligatoire.</small>
+      }
+      @if (form.controls.nom.touched && form.controls.nom.hasError('maxlength')) {
+        <small class="field-error">Le nom ne peut pas dépasser 255 caractères.</small>
+      }
+    </label>
+
+    <label class="form-field" for="modele-marque">
+      <span>Marque <small>Facultative</small></span>
+      <input id="modele-marque" type="text" formControlName="marque" placeholder="Ex. Gucci" autocomplete="off" maxlength="255" />
+    </label>
+
+    <label class="form-field" for="modele-matiere">
+      <span>Matière <small>Facultative</small></span>
+      <input id="modele-matiere" type="text" formControlName="matiere" placeholder="Ex. Cuir" autocomplete="off" maxlength="255" />
+    </label>
+
+    <button class="primary-button" type="submit" [disabled]="saving || blocked">
+      @if (saving) {
+        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Enregistrement…
+      } @else {
+        <i class="fa-solid fa-check" aria-hidden="true"></i> Enregistrer le modèle
+      }
+    </button>
+  </form>
+</section>

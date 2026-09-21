@@ -35,6 +35,7 @@ export class FloatingBackButton {
         '/admin/list-articles',
         '/admin/add-article',
         '/admin/article-variants',
+        '/admin/articles',
         '/admin/historique-achat',
         '/admin/list-ventes',
         '/admin/detail-vente',

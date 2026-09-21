@@ -1,0 +1,112 @@
+<main class="article-models-page">
+  <app-floating-back-button [useHistory]="true" fallbackUrl="/admin/article-list" />
+
+  @if (loading()) {
+    <section class="page-state" role="status">
+      <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+      <p>Chargement de l’article…</p>
+    </section>
+  } @else if (error() && !context()) {
+    <section class="page-state page-state-error" role="alert">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <h1>Article indisponible</h1>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="loadPage()">Réessayer</button>
+    </section>
+  } @else if (context(); as article) {
+    <header class="models-header">
+      <div class="models-header-copy">
+        <p class="eyebrow">Catalogue <span aria-hidden="true">/</span> Article</p>
+        <h1>Modèles de l’article</h1>
+        <p>
+          Créez les modèles commerciaux qui serviront ensuite à organiser leurs déclinaisons et variantes.
+        </p>
+      </div>
+
+      <aside class="article-summary" aria-label="Article sélectionné">
+        <span class="article-summary-icon" aria-hidden="true"><i class="fa-solid fa-shirt"></i></span>
+        <span>
+          <small>Article sélectionné</small>
+          <strong>{{ article.categoryNom }} · {{ article.typeNom }}</strong>
+        </span>
+      </aside>
+    </header>
+
+    <section class="workflow-note" aria-label="Étape du parcours">
+      <span class="workflow-step">1</span>
+      <div>
+        <strong>Définir le modèle</strong>
+        <span>Nom, marque et matière communs aux déclinaisons.</span>
+      </div>
+    </section>
+
+    <section class="models-workspace">
+      <section class="models-panel" aria-labelledby="models-list-title">
+        <div class="panel-heading">
+          <div>
+            <p class="panel-kicker">Modèles enregistrés</p>
+            <h2 id="models-list-title">Choisissez la base commerciale</h2>
+            <p>Chaque modèle pourra ensuite recevoir ses propres déclinaisons.</p>
+          </div>
+          @if (!loadingModeles()) {
+            <span class="count-badge">{{ modeles().length }}</span>
+          }
+        </div>
+
+        @if (error() && context()) {
+          <div class="inline-error" role="alert">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <span>{{ error() }}</span>
+            <button type="button" (click)="loadModeles()">Réessayer</button>
+          </div>
+        }
+
+        @if (loadingModeles()) {
+          <div class="list-state" role="status">
+            <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+            Chargement des modèles…
+          </div>
+        } @else if (modeles().length) {
+          <div class="models-list">
+            @for (modele of modeles(); track modele.id) {
+              <article class="model-card">
+                <span class="model-icon" aria-hidden="true"><i class="fa-solid fa-cube"></i></span>
+                <div class="model-content">
+                  <h3>{{ modele.nom }}</h3>
+                  <dl>
+                    @if (modele.marque) {
+                      <div><dt>Marque</dt><dd>{{ modele.marque }}</dd></div>
+                    }
+                    @if (modele.matiere) {
+                      <div><dt>Matière</dt><dd>{{ modele.matiere }}</dd></div>
+                    }
+                    @if (!modele.marque && !modele.matiere) {
+                      <div class="empty-details"><dd>Aucune précision complémentaire</dd></div>
+                    }
+                  </dl>
+                </div>
+                <span class="model-status">
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                  Prêt
+                </span>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="empty-models">
+            <span aria-hidden="true"><i class="fa-regular fa-folder-open"></i></span>
+            <h3>Aucun modèle enregistré</h3>
+            <p>Ajoutez le premier modèle depuis le formulaire.</p>
+          </div>
+        }
+      </section>
+
+      <app-modele-article-form
+        [saving]="saving()"
+        [blocked]="loadingModeles()"
+        [resetKey]="formResetKey()"
+        (save)="saveModele($event)"
+      />
+    </section>
+  }
+</main>

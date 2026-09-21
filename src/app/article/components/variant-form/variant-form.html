@@ -1,0 +1,60 @@
+<form class="variant-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="form-heading">
+    <span class="panel-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+    <div>
+      <h3>{{ variant ? 'Modifier la variante' : 'Ajouter une variante' }}</h3>
+      <p>Une variante possède son prix, ses caractéristiques et sa référence générée automatiquement.</p>
+    </div>
+  </div>
+
+  <label class="form-field" for="variant-reference">
+    <span>Référence générée automatiquement</span>
+    <input id="variant-reference" type="text" formControlName="reference" readonly aria-readonly="true" />
+    <small class="form-hint">La référence suit l’article, le modèle, la déclinaison et les caractéristiques saisies.</small>
+  </label>
+
+  <label class="form-field" for="variant-price">
+    <span>Prix de vente (FCFA) <em>Obligatoire</em></span>
+    <input id="variant-price" type="number" formControlName="prixVente" min="1" step="1" />
+    @if (form.get('prixVente')?.touched && form.get('prixVente')?.hasError('required')) {
+      <small class="field-error">Le prix est obligatoire.</small>
+    }
+    @if (form.get('prixVente')?.touched && (form.get('prixVente')?.hasError('min') || form.get('prixVente')?.hasError('pattern'))) {
+      <small class="field-error">Saisissez un prix entier supérieur à zéro.</small>
+    }
+  </label>
+
+  @if (attributes.length) {
+    <div class="attribute-grid" formGroupName="attributs">
+      @for (attribute of attributes; track attribute.id) {
+        <label class="form-field" [for]="'variant-attribute-' + attribute.id">
+          <span>{{ attribute.label }} <em>{{ attribute.obligatoire ? 'Obligatoire' : 'Facultative' }}</em></span>
+          <input
+            [id]="'variant-attribute-' + attribute.id"
+            [type]="inputType(attribute.type)"
+            [formControlName]="attribute.id.toString()"
+            [required]="attribute.obligatoire"
+            [attr.maxlength]="attribute.type === 'TEXT' || attribute.type === 'SELECT' ? 255 : null"
+            autocomplete="off"
+          />
+          @if (control(attribute.id)?.touched && control(attribute.id)?.hasError('required')) {
+            <small class="field-error">Cette caractéristique est obligatoire.</small>
+          }
+        </label>
+      }
+    </div>
+  } @else {
+    <p class="form-hint">Aucune caractéristique n’est configurée au niveau « variante » pour cette catégorie.</p>
+  }
+
+  <div class="form-actions">
+    <button class="primary-button" type="submit" [disabled]="saving || blocked">
+      @if (saving) {
+        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Enregistrement…
+      } @else {
+        <i class="fa-solid fa-check" aria-hidden="true"></i> {{ variant ? 'Enregistrer les modifications' : 'Enregistrer la variante' }}
+      }
+    </button>
+    <button class="secondary-button" type="button" [disabled]="saving" (click)="cancel.emit()">Annuler</button>
+  </div>
+</form>

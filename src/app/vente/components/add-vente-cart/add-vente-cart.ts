@@ -98,6 +98,10 @@ export class AddVenteCart implements OnChanges, OnInit {
     );
   }
 
+  attributeLabel(line: SaleLine, key: string): string {
+    return line.attributes.find(attribute => attribute.id === Number(key))?.label ?? '';
+  }
+
   remainingAmount(): number {
     const amount = Number(this.form?.controls['montantPaye']?.value ?? 0);
     if (!Number.isFinite(amount)) return this.total;

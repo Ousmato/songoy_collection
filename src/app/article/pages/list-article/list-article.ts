@@ -6,6 +6,8 @@ import { getUserFromSessionStorage } from '../../../admin/shared/auth.util';
 import { DependencyService } from '../../../shared/utils/dependency';
 import { SimpleArticleResponse } from '../../models/article.model';
 import { CategoryDto } from '../../../categorie/models/categorie.dto';
+import { EnumMethodes } from '../../../shared/utils/util-methode';
+import { CategoryMesure } from '../../../categorie/models/categorie.enum';
 
 
 @Component({
@@ -83,5 +85,10 @@ export class ListArticle implements OnInit {
         error?.error?.message ?? 'Impossible de charger les articles.'
       )
     });
+  }
+
+  getStockLabel(article: SimpleArticleResponse): string {
+    const unite = EnumMethodes.getEnumValueByKey(CategoryMesure, article.categoryMesure) ?? '';
+    return article.quantity > 0 ?  `${article.quantity } ${unite}s` : `${article.quantity} ${unite}`;
   }
 }

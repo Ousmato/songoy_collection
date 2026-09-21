@@ -17,6 +17,10 @@ export interface LigneAchatHistoriqueDto {
   referenceVariant: string;
   articleId: number;
   article: string;
+  modele: string;
+  marque: string | null;
+  attributsDeclinaison: AchatAttributHistoriqueDto[];
+  attributsVariante: AchatAttributHistoriqueDto[];
   unite: CategoryMesure;
   quantite: number;
   prixAchatUnitaire: number;
@@ -44,6 +48,12 @@ export interface AchatHistoriqueDetailDto extends AchatHistoriqueDto {
   responsable: PersonnelAchatDto;
   lignes: LigneAchatHistoriqueDto[];
   paiements: PaiementAchatDto[];
+}
+
+export interface AchatAttributHistoriqueDto {
+  id: number;
+  label: string;
+  value: string;
 }
 
 export interface ReglementRequest {

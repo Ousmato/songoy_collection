@@ -110,6 +110,14 @@
         </fieldset>
 
         @if (requiresPersonnel()) {
+          <label class="field">
+            <span>Mois rémunéré</span>
+            <input type="month" formControlName="periodeSalaire" />
+            <small class="field-hint">Indiquez le mois auquel ce salaire correspond.</small>
+            @if (submitted() && control('periodeSalaire')?.invalid) {
+              <small>Indiquez le mois rémunéré.</small>
+            }
+          </label>
           <label class="field field-wide">
             <span>Personnel concerné</span>
             <select2

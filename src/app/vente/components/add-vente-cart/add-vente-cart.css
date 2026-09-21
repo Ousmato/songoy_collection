@@ -146,6 +146,14 @@ button:disabled {
   background: var(--sc-cream-warm);
 }
 
+.model-name {
+  margin: 2px 0 0;
+  color: var(--sc-gray-500);
+  font-size: 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
 .reference {
   overflow: hidden;
   margin: 0;
@@ -171,6 +179,11 @@ button:disabled {
   color: var(--sc-gray-700);
   font-size: 10px;
   overflow-wrap: anywhere;
+}
+
+.attribute-chips b {
+  color: var(--sc-gray-500);
+  font-weight: 600;
 }
 
 .unit-price {
